@@ -8,7 +8,7 @@ Convert go contract to wasm and help wasm code run on fvm
 
 ## dependency
 
-### modify tinygo
+### install modify tinygo
 
 modify fmt to remove os refrence
 
@@ -18,3 +18,12 @@ git checkout venus
 ```
 
 [build doc](https://tinygo.org/docs/guides/build/)
+
+
+### build hello-world contract
+
+```
+    git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
+    cd hellocontract
+    tinygo build -target wasi -no-debug -panic trap -scheduler none -o helloworld.wasm ./helloworld.go
+```
