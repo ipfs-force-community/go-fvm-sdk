@@ -14,16 +14,25 @@ modify fmt to remove os refrence
 
 ```go
 git clone git@github.com:ipfs-force-community/tinygo.git
-git checkout venus
+git checkout fvm
 ```
 
 [build doc](https://tinygo.org/docs/guides/build/)
 
 
-### build hello-world contract
-
-```
-    git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
-    cd hellocontract
-    tinygo build -target wasi -no-debug -panic trap -scheduler none -o helloworld.wasm ./helloworld.go
-```
+### build and run hello-world contract
+* Compile hellocontract to Wasm
+    ```
+        git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
+        cd hellocontract
+        tinygo build -target wasi -no-debug -panic trap -scheduler none -o helloworld.wasm ./helloworld.go
+    ```
+* Set up a Lotus devnet
+  * Experimental branch: experimental/fvm-m2
+  * Instructions: https://lotus.filecoin.io/developers/local-network/
+* Install Actor
+  * lotus chain install-actor <path-to-wasm-bytecode>
+* Instantiate Actor
+  * lotus chain create-actor <code-cid> <encoded-params>
+* Invoke actor
+  * lotus chain invoke <address> <method_num>
