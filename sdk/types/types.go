@@ -2,6 +2,7 @@ package types
 
 type BlockId = uint32
 type Codec = uint64
+type ActorId = uint64
 
 type IpldOpen struct {
 	Id    uint32
