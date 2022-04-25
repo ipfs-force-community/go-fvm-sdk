@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
@@ -8,7 +9,7 @@ import (
 /// Resolves the ID address of an actor. Returns `None` if the address cannot be resolved.
 /// Successfully resolving an address doesn't necessarily mean the actor exists (e.g., if the
 /// addresss was already an actor ID).
-func ResolveAddress(addr types.Address) (types.ActorId, error) {
+func ResolveAddress(addr addr.Address) (types.ActorId, error) {
 	return sys.ResolveAddress(addr)
 }
 

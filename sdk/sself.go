@@ -3,6 +3,7 @@ package sdk
 import (
 	"fmt"
 
+	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
@@ -41,6 +42,6 @@ func CurrentBalance() *types.TokenAmount {
 	return tok
 }
 
-func SelfDestruct(addr types.Address) error {
+func SelfDestruct(addr addr.Address) error {
 	return sys.SelfDestruct(addr)
 }

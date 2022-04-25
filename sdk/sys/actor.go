@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"unsafe"
 
+	address "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
@@ -66,9 +67,9 @@ func actorNewActorAddress(ret uintptr, obuf_off uintptr, obuf_len uint32) uint32
 //export create_actor
 func actorCreateActor(actor_id uint64, typ_off uintptr) uint32
 
-func ResolveAddress(addr types.Address) (types.ActorId, error) {
-	if addr.Protocol() == types.ID {
-		return types.IDFromAddress(addr)
+func ResolveAddress(addr address.Address) (types.ActorId, error) {
+	if addr.Protocol() == address.ID {
+		return address.IDFromAddress(addr)
 	}
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	var result types.ActorId
@@ -79,7 +80,7 @@ func ResolveAddress(addr types.Address) (types.ActorId, error) {
 	return result, nil
 }
 
-func GetActorCodeCid(addr types.Address) (*cid.Cid, error) {
+func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	buf := make([]byte, types.MAX_CID_LEN)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
@@ -126,16 +127,16 @@ func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 	return result, nil
 }
 
-func NewActorAddress() (types.Address, error) {
+func NewActorAddress() (address.Address, error) {
 	buf := make([]byte, types.MAX_ACTOR_ADDR_LEN)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
 	var addrLen uint32
 	code := actorNewActorAddress(uintptr(unsafe.Pointer(&addrLen)), bufPtr, bufLen)
 	if code != 0 {
-		return types.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor address"))
+		return address.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor address"))
 	}
-	return types.NewFromBytes(buf[:addrLen])
+	return address.NewFromBytes(buf[:addrLen])
 }
 
 func CreateActor(actorId types.ActorId, codeCid cid.Cid) error {

@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"hellocontract/contract"
-	"runtime/debug"
 
+	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
 //not support non-main wasm in tinygo at present
 func main() {
-	debug.PrintStack()
+	_ = addr.Undef
 }
 
 /// The actor's WASM entrypoint. It takes the ID of the parameters block,

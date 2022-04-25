@@ -10,6 +10,8 @@ replace github.com/minio/sha256-simd => github.com/ipfs-force-community/sha256-s
 
 replace golang.org/x/crypto => github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872
 
+replace github.com/ipfs/go-block-format => github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c
+
 replace github.com/ipfs-force-community/go-fvm-sdk/sdk => ../sdk
 
 replace hellocontract => ./
@@ -21,4 +23,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
 )
 
-require github.com/multiformats/go-multihash v0.1.0 // indirect
+require (
+	github.com/filecoin-project/go-address v0.0.6
+	github.com/multiformats/go-multihash v0.1.0 // indirect
+)

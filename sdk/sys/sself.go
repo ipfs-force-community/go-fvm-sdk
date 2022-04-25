@@ -3,6 +3,7 @@ package sys
 import (
 	"unsafe"
 
+	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
@@ -90,7 +91,7 @@ func SelfCurrentBalance() (*types.TokenAmount, error) {
 	return result, nil
 }
 
-func SelfDestruct(addr types.Address) error {
+func SelfDestruct(addr addr.Address) error {
 	addrPtr, addrLen := GetSlicePointerAndLen(addr.Bytes())
 	code := selfDestruct(addrPtr, uint32(addrLen))
 	if code != 0 {
