@@ -8,7 +8,7 @@ Convert go contract to wasm and help wasm code run on fvm
 
 ## dependency
 
-### install modify tinygo
+### install modified tinygo
 
 modify fmt to remove os refrence
 

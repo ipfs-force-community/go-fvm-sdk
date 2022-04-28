@@ -1,7 +1,10 @@
 package sdk
 
-import "github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
+import (
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
+)
 
-func Abort(code uint32, msg string) {
-	sys.Abort(code, msg)
+func Abort(code ferrors.ExitCode, msg string) {
+	sys.Abort(uint32(code), msg)
 }
