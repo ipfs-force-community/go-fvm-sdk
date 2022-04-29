@@ -15,7 +15,7 @@ type stringHeader struct {
 	len  int
 }
 
-func GetSlicePointerAndLen(data []byte) (uintptr, uint32) {
+func GetSlicePointerAndLen(data interface{}) (uintptr, uint32) {
 	s := (*sliceHeader)(unsafe.Pointer(&data))
 	return s.data, uint32(s.len)
 }

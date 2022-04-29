@@ -21,7 +21,7 @@ type genTarget struct {
 func main() {
 	targets := []genTarget{
 		{
-			dir: "./hellocontract/contract",
+			dir: "../contract",
 			types: []interface{}{
 				State{},
 			},
