@@ -1,0 +1,21 @@
+[package]
+name = "testing"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fvm = { version = "0.7.1", path = "/Users/lijunlong/code/ref-fvm/fvm", default-features = false }
+fvm_shared = { version = "0.6.1", path = "/Users/lijunlong/code/ref-fvm/shared" }
+fvm_ipld_hamt = { version = "0.5.1", path = "/Users/lijunlong/code/ref-fvm/ipld/hamt"}
+fvm_ipld_amt = { version = "0.4.1", path = "/Users/lijunlong/code/ref-fvm/ipld/amt"}
+fvm_ipld_car = { version = "0.4.1", path = "/Users/lijunlong/code/ref-fvm/ipld/car" }
+fvm_ipld_blockstore = { version = "0.1.0", path = "/Users/lijunlong/code/ref-fvm/ipld/blockstore" }
+fvm_ipld_encoding = { version = "0.2.0", path = "/Users/lijunlong/code/ref-fvm/ipld/encoding" }
+fvm_integration_tests = { path = "/Users/lijunlong/code/ref-fvm/testing/integration"}
+num-traits = "0.2"
+clap = { version = "3.1.15", features = ["derive"] }
+wabt = "0.10.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

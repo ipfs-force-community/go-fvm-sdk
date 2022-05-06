@@ -1,2 +1,5 @@
 *.wasm
 *.wat
+target
+./bin
+.idea
