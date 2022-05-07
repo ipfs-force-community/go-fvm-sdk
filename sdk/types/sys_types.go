@@ -21,11 +21,6 @@ type IpldStat struct {
 	Size  uint32
 }
 
-//add func for token amount == big.Int
-type TokenAmount struct {
-	Lo uint64
-	Hi uint64
-}
 
 type ResolveAddress struct {
 	Resolved int32

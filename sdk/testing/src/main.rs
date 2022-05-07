@@ -116,6 +116,7 @@ pub fn exec(wasm_bin: &[u8], method_num: u64) -> ApplyRet {
         to: actor_address,
         gas_limit: 1000000000,
         method_num: method_num,
+        value: BigInt::from(10),
         ..Message::default()
     };
 

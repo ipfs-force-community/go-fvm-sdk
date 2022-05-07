@@ -19,5 +19,12 @@
     "expect_code": 0,
     "expect_message": "",
     "method_num": 1
+  },
+  {
+    "name": "message test ",
+    "binary": "message.wasm",
+    "expect_code": 0,
+    "expect_message": "",
+    "method_num": 1
   }
 ]

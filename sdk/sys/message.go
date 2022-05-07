@@ -52,7 +52,7 @@ func MethodNumber() (uint64, error) {
 
 func ValueReceived() (*types.TokenAmount, error) {
 	result := new(types.TokenAmount)
-	code := messageValueReceived(uintptr(unsafe.Pointer(&result)))
+	code := messageValueReceived(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create ipld")
 	}
