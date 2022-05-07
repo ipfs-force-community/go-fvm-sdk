@@ -1,0 +1,21 @@
+[package]
+name = "testing"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fvm = {  git = "https://github.com/filecoin-project/ref-fvm", default-features = false}
+fvm_shared = {  git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_hamt = {  git = "https://github.com/filecoin-project/ref-fvm"}
+fvm_ipld_amt = { git = "https://github.com/filecoin-project/ref-fvm"}
+fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_integration_tests = { git = "https://github.com/filecoin-project/ref-fvm"}
+num-traits = "0.2"
+clap = { version = "3.1.15", features = ["derive"] }
+wabt = "0.10.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

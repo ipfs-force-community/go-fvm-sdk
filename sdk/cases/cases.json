@@ -1,0 +1,16 @@
+[
+  {
+    "name": "abort USR_ILLEGAL_ARGUMENT",
+    "binary": "abort.wasm",
+    "expect_code": 16,
+    "expect_message": "test_abort USR_ILLEGAL_ARGUMENT",
+    "method_num": 1
+  },
+  {
+    "name": "abort SYS_SENDER_STATE_INVALID ",
+    "binary": "abort.wasm",
+    "expect_code": 2,
+    "expect_message": "test_abort SYS_SENDER_STATE_INVALID",
+    "method_num": 2
+  }
+]
