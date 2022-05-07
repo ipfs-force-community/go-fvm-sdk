@@ -66,7 +66,7 @@ func GetBlock(id types.BlockId, size *uint32) ([]byte, error) {
 		size1 = stat.Size
 	}
 
-	block := make([]byte, size1, size1)
+	block := make([]byte, size1)
 	bytesRead, err := sys.Read(id, 0, block)
 	if err != nil {
 		return nil, err

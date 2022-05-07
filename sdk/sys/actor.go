@@ -75,7 +75,7 @@ func ResolveAddress(addr address.Address) (types.ActorId, error) {
 	var result types.ActorId
 	code := actorResolveAddress(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen)
 	if code != 0 {
-		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to resolve address %s"))
+		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to resolve address")
 	}
 	return result, nil
 }
@@ -134,7 +134,7 @@ func NewActorAddress() (address.Address, error) {
 	var addrLen uint32
 	code := actorNewActorAddress(uintptr(unsafe.Pointer(&addrLen)), bufPtr, bufLen)
 	if code != 0 {
-		return address.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor address"))
+		return address.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create actor address")
 	}
 	return address.NewFromBytes(buf[:addrLen])
 }

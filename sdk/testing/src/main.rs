@@ -47,13 +47,15 @@ fn main() {
             .expect(format!("path {} not found", path.clone().to_str().unwrap()).as_str());
         let ret = exec(&buf, test_case.method_num);
         if ret.msg_receipt.exit_code.value() != test_case.expect_code {
-            if let Some(fail_info) =  ret.failure_info {
+            if let Some(fail_info) = ret.failure_info {
                 panic!(
-                    "case {} expect exit code {} but got {} {}", test_case.name, test_case.expect_code, ret.msg_receipt.exit_code, fail_info
+                    "case {} expect exit code {} but got {} {}",
+                    test_case.name, test_case.expect_code, ret.msg_receipt.exit_code, fail_info
                 )
-            }else{
+            } else {
                 panic!(
-                    "case {} expect exit code {} but got {}", test_case.name, test_case.expect_code, ret.msg_receipt.exit_code
+                    "case {} expect exit code {} but got {}",
+                    test_case.name, test_case.expect_code, ret.msg_receipt.exit_code
                 )
             }
         }

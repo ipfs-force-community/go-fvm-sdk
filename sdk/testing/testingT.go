@@ -18,10 +18,10 @@ func NewTestingT() *TestingT {
 }
 
 func(t *TestingT) Errorf(format string, args ...interface{}) {
-	t.buf.WriteString(fmt.Sprintf(format, args))
+	t.buf.WriteString(fmt.Sprintf(format, args...))
 }
 func(t *TestingT) Error( args ...interface{}) {
-	t.buf.WriteString(fmt.Sprint(args))
+	t.buf.WriteString(fmt.Sprint(args...))
 }
 
 func(t *TestingT)  FailNow() {

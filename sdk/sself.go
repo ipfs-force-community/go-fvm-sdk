@@ -15,6 +15,9 @@ func Root() (cid.Cid, error) {
 	// I really hate this CID interface. Why can't I just have bytes?
 	cidBuf := make([]byte, types.MAX_CID_LEN)
 	cidBufLen, err := sys.SelfRoot(cidBuf)
+	if err != nil {
+		return cid.Undef, err
+	}
 	if int(cidBufLen) > len(cidBuf) {
 		// TODO: re-try with a larger buffer?
 		panic(fmt.Sprintf("CID too big: %d > %d", cidBufLen, len(cidBuf)))
