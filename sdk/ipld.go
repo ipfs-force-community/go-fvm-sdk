@@ -33,7 +33,6 @@ func Put(mh_code uint64, mh_size uint32, codec uint64, data []byte) (cid.Cid, er
 	if err != nil {
 		return cid.Undef, err
 	}
-
 	return result, err
 }
 

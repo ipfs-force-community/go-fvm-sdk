@@ -11,8 +11,8 @@ func ValidateConsensusFaultType(c runtime.ConsensusFaultType) bool {
 }
 
 type IpldOpen struct {
-	Id    uint32
 	Codec Codec
+	Id    uint32
 	Size  uint32
 }
 
