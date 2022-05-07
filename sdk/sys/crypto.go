@@ -259,7 +259,7 @@ func VerifyConsensusFault(
 	}
 	target, err := address.NewIDAddress(verifyFault.Target)
 	if err != nil {
-		return nil, ferrors.NewFvmError(ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("unable to new id address for %d %w", verifyFault.Target, err))
+		return nil, ferrors.NewFvmError(ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("unable to new id address for %d %v", verifyFault.Target, err))
 	}
 	return &runtime.ConsensusFault{
 		Epoch:  abi.ChainEpoch(verifyFault.Epoch),
@@ -312,7 +312,7 @@ func BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
 		}
 	}
 	sealInfoPtr, sealInfoLen := GetSlicePointerAndLen(buf.Bytes())
-	verifyResult := make([]bool, batchCount, batchCount)
+	verifyResult := make([]bool, batchCount)
 	resultPtr, _ := GetSlicePointerAndLen(verifyResult)
 	code := cryptoBatchVerifySeals(sealInfoPtr, sealInfoLen, resultPtr)
 	if code != 0 {

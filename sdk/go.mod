@@ -8,7 +8,7 @@ require (
 	github.com/filecoin-project/specs-actors/v2 v2.3.5-0.20210114162132-5b58b773f4fb
 	github.com/filecoin-project/specs-actors/v7 v7.0.0
 	github.com/ipfs/go-cid v0.1.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
 )
@@ -33,7 +33,6 @@ require (
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
 
 replace github.com/klauspost/cpuid/v2 => github.com/ipfs-force-community/cpuid/v2 v2.0.13-0.20220421095210-bfbeb72f34dd
@@ -45,3 +44,7 @@ replace github.com/minio/sha256-simd => github.com/ipfs-force-community/sha256-s
 replace golang.org/x/crypto => github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872
 
 replace github.com/ipfs/go-block-format => github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c
+
+replace github.com/stretchr/testify => github.com/ipfs-force-community/testify v1.7.1-0.20220507025933-e761b418477e
+
+replace github.com/davecgh/go-spew => github.com/ipfs-force-community/go-spew v1.1.2-0.20220507024706-1904e9f50471

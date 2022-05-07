@@ -19,6 +19,11 @@ git checkout fvm
 
 [build doc](https://tinygo.org/docs/guides/build/)
 
+## dependency analyze
+
+```
+go list -json -deps > deps.json 
+```
 
 ### build and run hello-world contract
 * Compile hellocontract to Wasm

@@ -33,7 +33,6 @@ func Put(mh_code uint64, mh_size uint32, codec uint64, data []byte) (cid.Cid, er
 	if err != nil {
 		return cid.Undef, err
 	}
-
 	return result, err
 }
 
@@ -67,7 +66,7 @@ func GetBlock(id types.BlockId, size *uint32) ([]byte, error) {
 		size1 = stat.Size
 	}
 
-	block := make([]byte, size1, size1)
+	block := make([]byte, size1)
 	bytesRead, err := sys.Read(id, 0, block)
 	if err != nil {
 		return nil, err

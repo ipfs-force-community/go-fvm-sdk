@@ -47,10 +47,17 @@ fn main() {
             .expect(format!("path {} not found", path.clone().to_str().unwrap()).as_str());
         let ret = exec(&buf, test_case.method_num);
         if ret.msg_receipt.exit_code.value() != test_case.expect_code {
-            panic!(
-                "case {} expect exit code {} but got {}",
-                test_case.name, test_case.expect_code, ret.msg_receipt.exit_code
-            )
+            if let Some(fail_info) = ret.failure_info {
+                panic!(
+                    "case {} expect exit code {} but got {} {}",
+                    test_case.name, test_case.expect_code, ret.msg_receipt.exit_code, fail_info
+                )
+            } else {
+                panic!(
+                    "case {} expect exit code {} but got {}",
+                    test_case.name, test_case.expect_code, ret.msg_receipt.exit_code
+                )
+            }
         }
         /*
         let ret_msg = std::str::from_utf8(ret.msg_receipt.return_data.bytes()).uwrap();

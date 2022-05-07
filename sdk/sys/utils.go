@@ -1,26 +1,22 @@
 package sys
 
 import (
+	"reflect"
 	"unsafe"
 )
 
-type sliceHeader struct {
-	data uintptr
-	len  int
-	cap  int
-}
-
-type stringHeader struct {
-	data uintptr
-	len  int
+type emptyInterface struct {
+	_  uintptr
+	word unsafe.Pointer
 }
 
 func GetSlicePointerAndLen(data interface{}) (uintptr, uint32) {
-	s := (*sliceHeader)(unsafe.Pointer(&data))
-	return s.data, uint32(s.len)
+	eface := (*emptyInterface)(unsafe.Pointer(&data))
+	s := (*reflect.SliceHeader)(eface.word)
+	return s.Data, uint32(s.Len)
 }
 
 func GetStringPointerAndLen(str string) (uintptr, uint32) {
-	s := (*sliceHeader)(unsafe.Pointer(&str))
-	return s.data, uint32(s.len)
+	s := (*reflect.StringHeader)(unsafe.Pointer(&str))
+	return s.Data, uint32(s.Len)
 }
