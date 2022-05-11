@@ -12,7 +12,11 @@ func CurrEpoch() (abi.ChainEpoch, error) {
 }
 
 func Version() (network.Version, error) {
-	return sys.Version()
+	ver, err := sys.Version()
+	if err != nil {
+		return network.VersionMax, err
+	}
+	return network.Version(ver), nil
 }
 
 func BaseFee() (*types.TokenAmount, error) {
