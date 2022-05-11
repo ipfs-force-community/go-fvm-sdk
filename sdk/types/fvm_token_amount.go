@@ -20,8 +20,6 @@ type TokenAmount struct {
 	Hi uint64
 }
 
-
-
 // IsZero returns true if u == 0.
 func (u TokenAmount) IsZero() bool {
 	// NOTE: we do not compare against Zero, because that is a global variable
