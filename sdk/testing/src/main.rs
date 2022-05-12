@@ -41,11 +41,13 @@ struct TestJson {
 struct TestCase {
     name: String,
     binary: String,
-    expect_code: u32,
-    expect_message: String,
     method_num: u64,
     actor_balance: u64,
     send_value: u64,
+    params: String,
+    
+    expect_code: u32,
+    expect_message: String,
 }
 
 fn main() {
