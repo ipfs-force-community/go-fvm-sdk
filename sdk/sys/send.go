@@ -1,6 +1,7 @@
 package sys
 
 import (
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"unsafe"
 
 	"github.com/filecoin-project/go-address"
@@ -40,12 +41,12 @@ import (
 func sysSend(ret uintptr, recipient_off uintptr, recipient_len uint32, method uint64, params uint32, value_hi uint64, value_lo uint64) uint32
 
 func Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
-	var returnID uint32
+	send := new(types.Send)
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(to.Bytes())
-	code := sysSend(uintptr(unsafe.Pointer(&returnID)), addrBufPtr, addrBufLen, method, params, value.Hi, value.Lo)
+	code := sysSend(uintptr(unsafe.Pointer(send)), addrBufPtr, addrBufLen, method, params, value.Hi, value.Lo)
+	if code != 0 {
+		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to send")
+	}
 
-	return &types.Send{
-		ExitCode: code,
-		ReturnID: returnID,
-	}, nil
+	return send, nil
 }

@@ -2,10 +2,10 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
@@ -30,7 +30,8 @@ func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value
 	}
 
 	var returnData types.RawBytes
-	if send.ExitCode == 0 && send.ReturnID != types.NO_DATA_BLOCK_ID {
+	var exitCode = ferrors.ExitCode(send.ExitCode)
+	if exitCode == ferrors.OK && send.ReturnID != types.NO_DATA_BLOCK_ID {
 		ipldStat, err := sys.Stat(send.ReturnID)
 		if err != nil {
 			return nil, fmt.Errorf("return id ipld-stat: %w", err)
@@ -51,7 +52,7 @@ func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value
 	}
 
 	return &types.Receipt{
-		ExitCode:   ferrors.ExitCode(send.ExitCode),
+		ExitCode:   send.ExitCode,
 		ReturnData: returnData,
 		GasUsed:    0,
 	}, nil
