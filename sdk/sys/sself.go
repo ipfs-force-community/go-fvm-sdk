@@ -67,7 +67,6 @@ func SelfRoot(cidBuf []byte) (uint32, error) {
 		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create ipld")
 	}
 	return result, nil
-
 }
 
 func SelfSetRoot(id cid.Cid) error {
