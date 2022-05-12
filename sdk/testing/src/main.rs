@@ -4,6 +4,7 @@ use fvm::executor::ApplyFailure;
 use fvm::executor::ApplyRet;
 use fvm::executor::{ApplyKind, Executor};
 use fvm_integration_tests::tester::Tester;
+use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
 use fvm_shared::address::Address;
 use fvm_shared::bigint::BigInt;
@@ -45,14 +46,14 @@ struct TestCase {
     actor_balance: u64,
     send_value: u64,
     params: String,
-    
+
     expect_code: u32,
     expect_message: String,
 }
 
 fn main() {
     let args = Args::parse();
-    let case_meta_path: PathBuf = [args.path.clone().to_owned(), "cases.json".to_string()]
+    let case_meta_path: PathBuf = [args.path.clone().to_owned(), "test.json".to_string()]
         .iter()
         .collect();
     let buf = fs::read(case_meta_path).unwrap();
@@ -121,7 +122,12 @@ pub fn exec(
     send_value: u64,
 ) -> Result<ApplyRet> {
     // Instantiate tester
-    let mut tester = Tester::new(NetworkVersion::V15, StateTreeVersion::V4).unwrap();
+    let mut tester = Tester::new(
+        NetworkVersion::V15,
+        StateTreeVersion::V4,
+        MemoryBlockstore::default(),
+    )
+    .unwrap();
     let mut accounts = vec![];
     for init_account in init_accounts {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
