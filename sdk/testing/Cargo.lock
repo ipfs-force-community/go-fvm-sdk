@@ -2007,8 +2007,8 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "0.7.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+version = "0.7.2"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2021,11 +2021,11 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api",
  "fvm-wasm-instrument",
- "fvm_ipld_amt 0.4.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_hamt 0.5.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 0.6.1 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_amt 0.4.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_hamt 0.5.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_shared 0.6.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "lazy_static",
  "log",
  "multihash",
@@ -2053,7 +2053,7 @@ dependencies = [
 [[package]]
 name = "fvm_integration_tests"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "cid",
@@ -2061,12 +2061,12 @@ dependencies = [
  "fil_builtin_actors_bundle 7.3.0",
  "futures",
  "fvm",
- "fvm_ipld_amt 0.4.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_car 0.4.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_hamt 0.5.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 0.6.1 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_amt 0.4.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_car 0.4.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_hamt 0.5.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_shared 0.6.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "lazy_static",
  "libsecp256k1",
  "multihash",
@@ -2100,12 +2100,12 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "cid",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "itertools 0.10.3",
  "once_cell",
  "serde",
@@ -2138,7 +2138,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "cid",
@@ -2163,12 +2163,12 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "cid",
  "futures",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "integer-encoding",
  "serde",
  "thiserror",
@@ -2195,12 +2195,12 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "cid",
  "cs_serde_bytes",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "multihash",
  "serde",
  "serde_ipld_dagcbor",
@@ -2233,15 +2233,15 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
  "cid",
  "cs_serde_bytes",
  "forest_hash_utils",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "libipld-core",
  "multihash",
  "once_cell",
@@ -2299,7 +2299,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.6.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#297a7694ff9a584880632dde8826d9134d976fd9"
+source = "git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr#8d80c5b324564ae439d8a9c4169375c15190da94"
 dependencies = [
  "anyhow",
  "bimap",
@@ -2311,8 +2311,8 @@ dependencies = [
  "data-encoding",
  "data-encoding-macro",
  "filecoin-proofs-api",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
  "lazy_static",
  "libsecp256k1",
  "log",
@@ -3834,16 +3834,21 @@ dependencies = [
 name = "testing"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
  "fvm",
  "fvm_integration_tests",
- "fvm_ipld_amt 0.4.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_blockstore 0.1.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_car 0.4.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.2.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_hamt 0.5.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 0.6.1 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_amt 0.4.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_blockstore 0.1.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_car 0.4.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_encoding 0.2.0 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_ipld_hamt 0.5.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "fvm_shared 0.6.1 (git+https://github.com/ipfs-force-community/ref-fvm?branch=feat/support_predefined_addr)",
+ "hex",
+ "libsecp256k1",
  "num-traits",
+ "rand 0.8.5",
+ "rand_chacha 0.3.1",
  "serde",
  "serde_json",
  "wabt",

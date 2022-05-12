@@ -54,7 +54,7 @@ func cryptoHashBlake2b(ret uintptr, dataOff uintptr, dataLen uint32) uint32
 /// |-------------------|--------------------------|
 /// | `IllegalArgument` | an argument is malformed |
 //go:wasm-module crypto
-//export hash_blake2b
+//export compute_unsealed_sector_cid
 func cryptoComputeUnsealedSectorCid(ret uintptr, proofType int64, piecesOff uintptr, pieceLen uint32, cidPtr uintptr, cidLen uint32) uint32
 
 /// Verifies a sector seal proof.
