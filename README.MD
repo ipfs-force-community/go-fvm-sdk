@@ -12,7 +12,7 @@ Convert go contract to wasm and help wasm code run on fvm
 
 modify fmt to remove os refrence
 
-```go
+```
 git clone git@github.com:ipfs-force-community/tinygo.git
 git checkout fvm
 ```
@@ -24,6 +24,15 @@ git checkout fvm
 ```
 go list -json -deps > deps.json 
 ```
+
+### Install wasm-opt
+Execute `wasm-opt` cmd, if an error is reported, install:
+```
+yum install npm
+# Global installation
+npm i wasm-opt -g
+```
+
 
 ### build and run hello-world contract
 * Compile hellocontract to Wasm

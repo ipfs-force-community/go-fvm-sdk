@@ -21,7 +21,6 @@ type IpldStat struct {
 	Size  uint32
 }
 
-
 type ResolveAddress struct {
 	Resolved int32
 	Value    uint64
@@ -29,7 +28,7 @@ type ResolveAddress struct {
 
 type Send struct {
 	ExitCode uint32
-	ReturnId BlockId
+	ReturnID BlockId
 }
 
 type VerifyConsensusFault struct {

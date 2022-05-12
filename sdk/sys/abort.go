@@ -8,7 +8,7 @@ package sys
 /// None. This function doesn't return.
 //go:wasm-module vm
 //export abort
-func vmAbort(code uint32, msg uintptr, msgLen uint32) uint32
+func vmAbort(code uint32, msgOff uintptr, msgLen uint32) uint32
 
 func Abort(code uint32, msg string) {
 	strPtr, strLen := GetStringPointerAndLen(msg)

@@ -163,8 +163,8 @@ func VerifySignature(
 func HashBlake2b(data []byte) ([32]byte, error) {
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
 	result := [32]byte{}
-	resultLen, _ := GetSlicePointerAndLen(result[:])
-	code := cryptoHashBlake2b(resultLen, dataPtr, dataLen)
+	resultPtr, _ := GetSlicePointerAndLen(result[:])
+	code := cryptoHashBlake2b(resultPtr, dataPtr, dataLen)
 	if code != 0 {
 		return result, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to compute blak2b hash")
 	}

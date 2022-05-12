@@ -66,6 +66,66 @@
       "method_num": 1,
       "expect_code": 0,
       "expect_message": ""
+    },
+    {
+      "name": "network test",
+      "binary": "network.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "params":"",
+      "method_num": 1,
+      "expect_code": 0,
+      "expect_message": ""
+    },
+    {
+      "name": "gas test",
+      "binary": "gas.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "params":"",
+      "method_num": 1,
+      "expect_code": 0,
+      "expect_message": ""
+    },
+    {
+      "name": "debug log test",
+      "binary": "debug.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "params":"",
+      "method_num": 1,
+      "expect_code": 0,
+      "expect_message": ""
+    },
+    {
+      "name": "send test SYS_ILLEGAL_INSTRUCTION(resource not found)",
+      "binary": "send.wasm",
+      "actor_balance": 10,
+      "send_value": 0,
+      "params":"",
+      "method_num": 1,
+      "expect_code": 4,
+      "expect_message": "wasm `unreachable` instruction executed"
+    },
+    {
+      "name": "send test",
+      "binary": "send.wasm",
+      "actor_balance": 10,
+      "send_value": 0,
+      "params":"",
+      "method_num": 2,
+      "expect_code": 0,
+      "expect_message": ""
+    },
+    {
+      "name": "send test SYS_ILLEGAL_INSTRUCTION(insufficient funds)",
+      "binary": "send.wasm",
+      "actor_balance": 10,
+      "send_value": 0,
+      "params":"",
+      "method_num": 3,
+      "expect_code": 4,
+      "expect_message": "wasm `unreachable` instruction executed"
     }
   ]
 }
