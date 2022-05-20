@@ -132,7 +132,7 @@ pub fn exec(
     for init_account in init_accounts {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
         let account =
-            tester.put_secp256k1_accounts(priv_key, TokenAmount::from(init_account.balance))?;
+            tester.make_secp256k1_account(priv_key, TokenAmount::from(init_account.balance))?;
         accounts.push(account)
     }
     // Get wasm bin
@@ -161,7 +161,7 @@ pub fn exec(
     let message = Message {
         from: accounts[0].1,
         to: actor_address,
-        gas_limit: 1000000000,
+        gas_limit: 1000000000000,
         method_num: method_num,
         value: BigInt::from(send_value),
         ..Message::default()
