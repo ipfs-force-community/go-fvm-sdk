@@ -8,6 +8,11 @@ Convert go contract to wasm and help wasm code run on fvm
 
 ## dependency
 
+### Install wasm tools
+
+download the latest release version from [wasm tools](https://github.com/WebAssembly/binaryen), and configure the corresponding bin path in the $PATH
+
+
 ### install modified tinygo
 
 modify fmt to remove os refrence
@@ -19,20 +24,11 @@ git checkout fvm
 
 [build doc](https://tinygo.org/docs/guides/build/)
 
-## dependency analyze
+### dependency analyze
 
 ```
 go list -json -deps > deps.json 
 ```
-
-### Install wasm-opt
-Execute `wasm-opt` cmd, if an error is reported, install:
-```
-yum install npm
-# Global installation
-npm i wasm-opt -g
-```
-
 
 ### build and run hello-world contract
 * Compile hellocontract to Wasm
@@ -50,3 +46,8 @@ npm i wasm-opt -g
   * lotus chain create-actor <code-cid> <encoded-params>
 * Invoke actor
   * lotus chain invoke <address> <method_num>
+
+## Suggestion
+
+1. Do not use asm code
+2. Try not to use the reflect library, if you must use it, make sure that tinygo supports it.

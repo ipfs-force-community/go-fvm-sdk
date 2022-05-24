@@ -14,6 +14,7 @@ fvm_ipld_car = { git = "https://github.com/ipfs-force-community/ref-fvm" , branc
 fvm_ipld_blockstore = { git = "https://github.com/ipfs-force-community/ref-fvm" , branch="feat/support_predefined_addr" }
 fvm_ipld_encoding = { git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/support_predefined_addr"  }
 fvm_integration_tests = { git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/support_predefined_addr" }
+
 num-traits = "0.2"
 clap = { version = "3.1.15", features = ["derive"] }
 wabt = "0.10.0"
