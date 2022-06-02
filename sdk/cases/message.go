@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 func main() {
 }
 
@@ -17,7 +16,7 @@ func Invoke(_ uint32) uint32 {
 
 	_, err := sdk.Caller()
 	assert.Nil(t, err)
-//	assert.Equal(t, caller, 1) todo unable to verify caller, its random value in tester
+	//	assert.Equal(t, caller, 1) todo unable to verify caller, its random value in tester
 
 	receiver, err := sdk.Receiver()
 	assert.Nil(t, err)

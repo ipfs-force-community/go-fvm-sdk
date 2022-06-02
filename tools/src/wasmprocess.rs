@@ -1,6 +1,3 @@
-//use wast::{Alias, Custom, Data, Tag, Elem, Export, Func, Global, Import, Index, Instance, Memory, Module, ModuleKind, ModuleField, NestedModule, Table, Type, Wat, ItemRef};
-//use wast::parser::{self, ParseBuffer};
-//use wast::kw::func;
 use anyhow::{anyhow, Result};
 use parity_wasm::elements::Type::Function;
 use parity_wasm::elements::{BlockType, External, Func, FuncBody, FunctionType, ImportCountType, ImportEntry, Instruction, Instructions, Internal, Module, Type, ValueType};
@@ -9,7 +6,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-struct Config {
+pub struct ProcessConfig {
     #[clap(short, long)]
     pub  input: String,
     #[clap(short, long)]
@@ -18,14 +15,10 @@ struct Config {
     pub wat: bool,
 }
 
-fn main() {
-    run(Config::parse()).unwrap();
-}
-
-fn run(cfg: Config) -> Result<()> {
+pub fn run_process(cfg: &ProcessConfig) -> Result<()> {
     let result = GoFvmBinProcessor::new(cfg.input.as_str())
         .append_init_to_invoke()?
-       // .replace_fd_write()?
+        // .replace_fd_write()?
         .get_binary()?;
 
     let wat_str = wasmprinter::print_bytes(result)?;
@@ -42,7 +35,7 @@ fn run(cfg: Config) -> Result<()> {
     features.set_annotations_enabled(true);
     let wat_bin = wabt::wat2wasm_with_features(wat_str, features)?;
     std::fs::write(
-        cfg.output,
+        cfg.output.clone(),
         wat_bin,
     )?;
     Ok(())
@@ -66,6 +59,7 @@ impl GoFvmBinProcessor {
             .map_err(|e| anyhow!("convert module to binary {}", e));
     }
 
+    #[allow(dead_code)]
     //暂不可用，因为这里需要无法替换call_indirect函数的参数，动态调用无法做。暂时搁置，只能在底层直接使用黑科技改了。以后需要从go的ir层面进行修改才行，或许可以使用nestmodule来修改。
     pub fn replace_fd_write(&mut self) -> Result<&mut Self> {
         //探测需不需要插入fd_write
@@ -188,14 +182,14 @@ impl GoFvmBinProcessor {
                         match ins {
                             Instruction::Call(func_index) => {
                                 if let Some(new_func_index) =
-                                    func_index_map.get(&(*func_index as usize))
+                                func_index_map.get(&(*func_index as usize))
                                 {
                                     *func_index = *new_func_index as u32;
                                 }
                             }
                             Instruction::CallIndirect(typer, index) => {
                                 //unable todo
-                              println!("todo support CallIndirect {}  {}", typer, index);
+                                println!("todo support CallIndirect {}  {}", typer, index);
                             }
                             _ => {}
                         }
@@ -227,7 +221,7 @@ impl GoFvmBinProcessor {
                 call $main.debugLog)
              */
             let new_insert_debug_index =  self.get_import_func_index("debug", "log")
-                    .expect("unable to get debug log") as u32;
+                .expect("unable to get debug log") as u32;
             let codes = self.module.code_section_mut().unwrap().bodies_mut();
             let fd_write_code = FuncBody::new(
                 vec![],
@@ -284,10 +278,6 @@ impl GoFvmBinProcessor {
         let import_func_count = self.module.import_count(ImportCountType::Function);
         if let Some(invoke_index) = self.get_func_index("invoke") {
             if let Some(start_func_index) = self.get_func_index("_start") {
-                println!(
-                    "invoke index {}, start index {}",
-                    invoke_index, start_func_index as u32
-                );
                 let invoke_body: &mut FuncBody = self
                     .module
                     .code_section_mut()

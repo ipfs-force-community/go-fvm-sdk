@@ -30,11 +30,11 @@ func (t *TestingT) Error(args ...interface{}) {
 
 func (t *TestingT) FailNow() {
 	t.failed = true
-	sdk.Abort(ferrors.USR_ILLEGAL_STATE, t.buf.String())
+	sdk.Abort(ferrors.SYS_ASSERTION_FAILED, t.buf.String())
 }
 
 func (t *TestingT) CheckResult() {
 	if t.failed {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("assert fail:\n"+t.buf.String()))
+		sdk.Abort(ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("assert fail:\n"+t.buf.String()))
 	}
 }

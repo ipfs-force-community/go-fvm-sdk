@@ -79,7 +79,7 @@ func (u TokenAmount) And(v TokenAmount) TokenAmount {
 
 // And64 returns u&v.
 func (u TokenAmount) And64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo & v, u.Hi & 0}
+	return TokenAmount{u.Lo & v, 0}
 }
 
 // Or returns u|v.
@@ -89,7 +89,7 @@ func (u TokenAmount) Or(v TokenAmount) TokenAmount {
 
 // Or64 returns u|v.
 func (u TokenAmount) Or64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo | v, u.Hi | 0}
+	return TokenAmount{u.Lo | v, 0}
 }
 
 // Xor returns u^v.
@@ -99,7 +99,7 @@ func (u TokenAmount) Xor(v TokenAmount) TokenAmount {
 
 // Xor64 returns u^v.
 func (u TokenAmount) Xor64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo ^ v, u.Hi ^ 0}
+	return TokenAmount{u.Lo ^ v, 0}
 }
 
 // Add returns u+v.

@@ -1,7 +1,7 @@
 *.wasm
 *.wat
 target
-./bin
+./bin/*
 .idea
 ./tesx
 *.log
