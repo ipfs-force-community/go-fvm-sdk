@@ -16,7 +16,7 @@ require (
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
 	github.com/filecoin-project/specs-actors/v5 v5.0.4 // indirect
 	github.com/filecoin-project/specs-actors/v7 v7.0.0 // indirect
-	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606075828-12e53fd6e577 // indirect
+	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-cid v0.1.0 // indirect
 	github.com/ipfs/go-ipfs-util v0.0.2 // indirect

@@ -5,11 +5,10 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
-func main() {
-}
+func main() {} //nolint
 
 //go:export invoke
-func Invoke(_ uint32) uint32 {
+func Invoke(_ uint32) uint32 { //nolint
 	method_num, err := sdk.MethodNumber()
 	if err != nil {
 		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to get method number")

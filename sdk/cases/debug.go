@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func main() {}
+func main() {} //nolint
 
 //go:export invoke
-func Invoke(_ uint32) uint32 {
+func Invoke(_ uint32) uint32 { //nolint
 	t := testing.NewTestingT()
 	defer t.CheckResult()
 
