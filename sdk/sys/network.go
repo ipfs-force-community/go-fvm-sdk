@@ -7,24 +7,6 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-/// Gets the base fee for the current epoch.
-///
-/// # Errors
-///
-/// None
-//go:wasm-module network
-//export base_fee
-func networkBaseFee(ret uintptr) uint32
-
-/// Gets the circulating supply.
-///
-/// # Errors
-///
-/// None
-//go:wasm-module network
-//export total_fil_circ_supply
-func networkTotalFilCircSupply(ret uintptr) uint32
-
 func BaseFee() (*types.TokenAmount, error) {
 	result := new(types.TokenAmount)
 	code := networkBaseFee(uintptr(unsafe.Pointer(result)))

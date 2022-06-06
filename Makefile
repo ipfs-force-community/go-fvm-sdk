@@ -7,6 +7,9 @@ endif
 	
 build: build-tool
 
+gen:
+	cd ./sdk/gen && go run main.go
+
 gen-case:
 	cd ./sdk/cases && ./gen.sh ${current_dir}
 

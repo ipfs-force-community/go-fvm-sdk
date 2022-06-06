@@ -12,12 +12,9 @@ replace golang.org/x/crypto => github.com/ipfs-force-community/crypto v0.0.0-202
 
 replace github.com/ipfs/go-block-format => github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c
 
-replace github.com/ipfs-force-community/go-fvm-sdk/sdk => ../sdk
-
 replace hellocontract => ./
 
 require (
-	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-00010101000000-000000000000
 	github.com/ipfs/go-cid v0.1.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
@@ -28,6 +25,7 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/specs-actors v0.9.14 // indirect
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
+	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606034649-bec9711dee21
 	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.2.0 // indirect
 	github.com/multiformats/go-multihash v0.1.0 // indirect
