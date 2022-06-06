@@ -18,10 +18,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::iter::Iterator;
 use std::path::PathBuf;
+use colored::*;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-struct Args {
+pub struct TestConfig {
     #[clap(short, long)]
     path: String,
 }
@@ -51,16 +52,15 @@ struct TestCase {
     expect_message: String,
 }
 
-fn main() {
-    let args = Args::parse();
-    let case_meta_path: PathBuf = [args.path.clone().to_owned(), "test.json".to_string()]
+pub fn run_testing(cfg: &TestConfig) {
+    let case_meta_path: PathBuf = [cfg.path.clone().to_owned(), "test.json".to_string()]
         .iter()
         .collect();
     let buf = fs::read(case_meta_path).unwrap();
     let test_json: TestJson = serde_json::from_slice(&buf).unwrap();
 
     test_json.cases.iter().for_each(|test_case| {
-        let path: PathBuf = [args.path.clone().to_owned(), test_case.binary.to_owned()]
+        let path: PathBuf = [cfg.path.clone().to_owned(), test_case.binary.to_owned()]
             .iter()
             .collect();
         let buf = fs::read(path.clone())
@@ -72,7 +72,7 @@ fn main() {
             test_case.actor_balance,
             test_case.send_value,
         )
-        .unwrap();
+            .unwrap();
         if ret.msg_receipt.exit_code.value() != test_case.expect_code {
             if let Some(fail_info) = ret.failure_info {
                 panic!(
@@ -86,12 +86,7 @@ fn main() {
                 )
             }
         }
-        /*
-        let ret_msg = std::str::from_utf8(ret.msg_receipt.return_data.bytes()).uwrap();
-        if ret_msg.clone() != test_case.expect_message {
-            panic!("case {} expect messcage {} but got {}", test_case.name, test_case.expect_message, ret_msg)
-        }
-        */
+
         if test_case.expect_code != 0 {
             match ret.failure_info.unwrap() {
                 ApplyFailure::MessageBacktrace(mut trace) => {
@@ -106,6 +101,7 @@ fn main() {
                 _ => {}
             }
         }
+        println!{"{}: case {}", "passed".green(), test_case.name}
     });
 }
 
@@ -127,7 +123,7 @@ pub fn exec(
         StateTreeVersion::V4,
         MemoryBlockstore::default(),
     )
-    .unwrap();
+        .unwrap();
     let mut accounts = vec![];
     for init_account in init_accounts {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;

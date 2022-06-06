@@ -8,9 +8,6 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-/// The ID of the "unit" block (or void for C programmers).
-const UNIT uint32 = 0
-
 /// Store a block. The block will only be persisted in the state-tree if the CID is "linked in" to
 /// the actor's state-tree before the end of the current invocation.
 func Put(mh_code uint64, mh_size uint32, codec uint64, data []byte) (cid.Cid, error) {
@@ -21,7 +18,7 @@ func Put(mh_code uint64, mh_size uint32, codec uint64, data []byte) (cid.Cid, er
 
 	// I really hate this CID interface. Why can't I just have bytes?
 	buf := [types.MAX_CID_LEN]byte{}
-	cidLen, err := sys.Cid(id, mh_code, mh_size, buf[:])
+	cidLen, err := sys.BlockLink(id, mh_code, mh_size, buf[:])
 	if err != nil {
 		return cid.Undef, err
 	}
@@ -49,32 +46,42 @@ func Get(cid cid.Cid) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return GetBlock(result.Id, &result.Size)
 }
 
-/// Gets the data of the block referenced by BlockId. If the caller knows the
-/// size, this function will avoid statting the block.
+/// Gets the data of the block referenced by BlockId. If the caller knows the size, this function
+/// will read the block in a single syscall. Otherwise, any block over 1KiB will take two syscalls.
 func GetBlock(id types.BlockId, size *uint32) ([]byte, error) {
+	if id == types.UNIT {
+		return []byte{}, nil
+	}
+
 	var size1 uint32
 	if size != nil {
 		size1 = *size
 	} else {
-		stat, err := sys.Stat(id)
-		if err != nil {
-			return nil, err
-		}
-		size1 = stat.Size
+		size1 = 1024
 	}
 
 	block := make([]byte, size1)
-	bytesRead, err := sys.Read(id, 0, block)
+	remaining, err := sys.Read(id, 0, block) //only set len and slice
 	if err != nil {
 		return nil, err
 	}
-	if bytesRead != size1 {
-		panic(fmt.Sprintf("read an unexpected number of bytes expect %d but got %d", size1, bytesRead))
+
+	if remaining > 0 { //more than 1KiB
+		sencondPart := make([]byte, remaining)                          //anyway to extend slice without copy
+		remaining, err := sys.Read(id, uint32(len(block)), sencondPart) //only set len and slice
+		if err != nil {
+			return nil, err
+		}
+		if remaining > 0 {
+			panic("should have read whole block")
+		}
+		block = append(block, sencondPart...)
 	}
-	return block[:bytesRead], nil
+	return block, nil
 }
 
 /// Writes the supplied block and returns the BlockId.

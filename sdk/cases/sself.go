@@ -20,6 +20,7 @@ func Invoke(_ uint32) uint32 {
 	defer t.CheckResult()
 
 	originData := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+
 	//set data
 	stCid, err := sdk.Put(0xb220, 32, types.DAG_CBOR, originData)
 	assert.Nil(t, err)

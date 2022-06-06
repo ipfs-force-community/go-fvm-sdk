@@ -10,3 +10,5 @@ const MAX_ACTOR_ADDR_LEN = 21
 const DAG_CBOR uint64 = 0x71
 
 const NO_DATA_BLOCK_ID uint32 = 0
+
+const UNIT uint32 = 0
