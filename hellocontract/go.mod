@@ -25,7 +25,7 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/specs-actors v0.9.14 // indirect
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
-	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606034649-bec9711dee21
+	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606075828-12e53fd6e577
 	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.2.0 // indirect
 	github.com/multiformats/go-multihash v0.1.0 // indirect

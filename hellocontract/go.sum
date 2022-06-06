@@ -89,8 +89,8 @@ github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872 h1:UMr
 github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872/go.mod h1:D0lmvLOXz6w7ZmLDGlhu8dLXYwW9Gt8YUXHznWhubM0=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c h1:Rn7a/fjlGT2oGgEgOKY3ygqm7PHUL2O1cOZScBsx3zU=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c/go.mod h1:kyQTKTiWOkwcA5wwN5pNCD2ga2IWchuWogcv2H/l884=
-github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606034649-bec9711dee21 h1:i8LZ1Sdchj4G1S2fdCaBmRsBDyPcKXe4SYDuWsMo6Sw=
-github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606034649-bec9711dee21/go.mod h1:HqlmyZnbS1T2G93XX5Xyqf/2PERXFMvXX9h8HRuD6dY=
+github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606075828-12e53fd6e577 h1:4yxVz6r3SVbEdy+HEN0NyU6NPv5zK9UO2zi9yKFoXwA=
+github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606075828-12e53fd6e577/go.mod h1:HqlmyZnbS1T2G93XX5Xyqf/2PERXFMvXX9h8HRuD6dY=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96 h1:7SS72VbmaaYbr5BGRB7bL7stlNwLeY5OVFL7J+Xwi7Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96/go.mod h1:f+LTnn56dRz2YGVXAZIW3myTjkbJhfyRDELQpWRHXto=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
