@@ -17,7 +17,7 @@ type genTarget struct {
 func main() {
 	targets := []genTarget{
 		{
-			dir: "./types",
+			dir: "../types",
 			types: []interface{}{
 				types.AggregateSealVerifyInfo{},
 				types.AggregateSealVerifyProofAndInfos{},

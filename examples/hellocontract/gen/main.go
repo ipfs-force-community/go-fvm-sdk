@@ -4,13 +4,9 @@ import (
 	"log"
 	"path/filepath"
 
+	"hellocontract/contract"
 	gen "github.com/whyrusleeping/cbor-gen"
 )
-
-// todo unable to generate State cbor if use state directly, sys call broke build
-type State struct {
-	Count uint64
-}
 
 type genTarget struct {
 	dir   string
@@ -23,7 +19,7 @@ func main() {
 		{
 			dir: "../contract",
 			types: []interface{}{
-				State{},
+				contract.State{},
 			},
 		},
 	}

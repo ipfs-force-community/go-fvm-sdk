@@ -5,16 +5,13 @@ import (
 
 	"hellocontract/contract"
 
-	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
 //not support non-main wasm in tinygo at present
-func main() {
-	_ = addr.Undef
-}
+func main() {}
 
 /// The actor's WASM entrypoint. It takes the ID of the parameters block,
 /// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no

@@ -4,8 +4,6 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 )
 
-var DebugEnabled bool
-
 type Logger interface {
 	Enabled() bool
 	Log(string) error
@@ -13,13 +11,13 @@ type Logger interface {
 
 var _ Logger = (*logger)(nil)
 
-func init() {
-	DebugEnabled, _ = sys.Enabled()
-}
-
 func NewLogger() (Logger, error) {
+	debugEnabled, err := sys.Enabled()
+	if err != nil {
+		return nil, err
+	}
 	return &logger{
-		enable: DebugEnabled,
+		enable: debugEnabled,
 	}, nil
 }
 

@@ -89,6 +89,8 @@ github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872 h1:UMr
 github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872/go.mod h1:D0lmvLOXz6w7ZmLDGlhu8dLXYwW9Gt8YUXHznWhubM0=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c h1:Rn7a/fjlGT2oGgEgOKY3ygqm7PHUL2O1cOZScBsx3zU=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c/go.mod h1:kyQTKTiWOkwcA5wwN5pNCD2ga2IWchuWogcv2H/l884=
+github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045 h1:KhFo8W7PKJ3prmYFP/I8qmCUZWKCIW8jBqW+D5vJOcQ=
+github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045/go.mod h1:HqlmyZnbS1T2G93XX5Xyqf/2PERXFMvXX9h8HRuD6dY=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96 h1:7SS72VbmaaYbr5BGRB7bL7stlNwLeY5OVFL7J+Xwi7Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96/go.mod h1:f+LTnn56dRz2YGVXAZIW3myTjkbJhfyRDELQpWRHXto=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
@@ -291,9 +293,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
-github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=
 github.com/warpfork/go-wish v0.0.0-20180510122957-5ad1f5abf436/go.mod h1:x6AKhvSSexNrVSrViXSHUEbICjmGXhtgABaHIySUSGw=
 github.com/warpfork/go-wish v0.0.0-20190328234359-8b3e70f8e830/go.mod h1:x6AKhvSSexNrVSrViXSHUEbICjmGXhtgABaHIySUSGw=
