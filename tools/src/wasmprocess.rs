@@ -5,12 +5,12 @@ use parity_wasm::elements::{
     BlockType, External, Func, FuncBody, FunctionType, ImportCountType, ImportEntry, Instruction,
     Instructions, Internal, Module, Type, ValueType,
 };
-use std::collections::HashMap;
-use std::fs;
-use std::path::{PathBuf, Component, Path};
-use std::process::{Command, Stdio};
-use std::env;
 use path_absolutize::*;
+use std::collections::HashMap;
+use std::env;
+use std::io::ErrorKind;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -34,13 +34,23 @@ pub struct BuildOptions {
 impl BuildOptions {
     pub fn new(pwd_path: PathBuf, cfg: &BuildCLiConfig) -> Result<Self> {
         let code_path = if let Some(input) = &cfg.input {
-            pwd_path.clone().join(Path::new(input)).absolutize().unwrap().into_owned()
-        }else {
+            pwd_path
+                .clone()
+                .join(Path::new(input))
+                .absolutize()
+                .unwrap()
+                .into_owned()
+        } else {
             pwd_path.clone()
         };
 
         let (target_dir, target_name) = if let Some(o_path) = &cfg.output {
-            let abs_output_path =  pwd_path.clone().join(Path::new(o_path)).absolutize().unwrap().into_owned();
+            let abs_output_path = pwd_path
+                .clone()
+                .join(Path::new(o_path))
+                .absolutize()
+                .unwrap()
+                .into_owned();
             if abs_output_path.extension().is_none() {
                 let target_name = code_path
                     .with_extension("")
@@ -51,7 +61,7 @@ impl BuildOptions {
                     .to_string();
                 let target_dir = abs_output_path.to_str().unwrap().to_string();
                 (target_dir, target_name)
-            }else{
+            } else {
                 let target_name = abs_output_path
                     .with_extension("")
                     .file_name()
@@ -59,7 +69,12 @@ impl BuildOptions {
                     .to_str()
                     .unwrap()
                     .to_string();
-                let target_dir = abs_output_path.parent().unwrap().to_str().unwrap().to_string();
+                let target_dir = abs_output_path
+                    .parent()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
                 (target_dir, target_name)
             }
         } else {
@@ -133,6 +148,9 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 
     pub fn build(&mut self) -> Result<&mut Self> {
+        if !check_tinygo_install()? {
+            return Err(anyhow!("unbale to found tinygo(fvm), please intall this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"));
+        }
         let output = Command::new("tinygo")
             .args([
                 "build",
@@ -486,7 +504,7 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 
     //(type (;1;) (func (param i32 i32 i32 i32) (result i32)))
-    pub fn get_fd_write_type(&self) -> Option<u32> {
+    fn get_fd_write_type(&self) -> Option<u32> {
         if let Some(type_section) = self.module.type_section() {
             for (i, wtype) in type_section.types().iter().enumerate() {
                 match wtype {
@@ -509,20 +527,33 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 }
 
+fn check_tinygo_install() -> Result<bool> {
+    match Command::new("tinygo").spawn() {
+        Ok(_) => Ok(true),
+        Err(e) => {
+            if let ErrorKind::NotFound = e.kind() {
+                Ok(false)
+            } else {
+                Err(anyhow!("check err {}", e))
+            }
+        }
+    }
+}
 #[cfg(test)]
 mod tests {
+    use crate::wasmprocess::{BuildCLiConfig, BuildOptions};
     use std::env;
     use std::path::{Path, PathBuf};
-    use crate::wasmprocess::{BuildCLiConfig, BuildOptions};
 
     #[test]
     fn no_input_output() {
-       let cli_cfg = BuildCLiConfig{
-            input:None,
-            output:None,
-            wat:false,
-       };
-        let build_opt = BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: None,
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo");
         assert_eq!(build_opt.target_name, "foo");
         assert_eq!(build_opt.output_wat_path, "/foo/foo.wat");
@@ -532,12 +563,13 @@ mod tests {
 
     #[test]
     fn abs_input_no_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("/ggg".to_owned()),
-            output:None,
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("/ggg".to_owned()),
+            output: None,
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/ggg");
         assert_eq!(build_opt.target_name, "ggg");
         assert_eq!(build_opt.output_wat_path, "/foo/ggg.wat");
@@ -545,15 +577,15 @@ mod tests {
         assert_eq!(build_opt.target_dir, "/foo");
     }
 
-
     #[test]
     fn rel_input_no_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("../mm".to_owned()),
-            output:None,
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../mm".to_owned()),
+            output: None,
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/mm");
         assert_eq!(build_opt.target_name, "mm");
         assert_eq!(build_opt.target_dir, "/foo");
@@ -563,12 +595,13 @@ mod tests {
 
     #[test]
     fn go_file_input_no_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("../mm/nn.go".to_owned()),
-            output:None,
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../mm/nn.go".to_owned()),
+            output: None,
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/mm/nn.go");
         assert_eq!(build_opt.target_name, "nn");
         assert_eq!(build_opt.target_dir, "/foo");
@@ -578,12 +611,13 @@ mod tests {
 
     #[test]
     fn no_input_abs_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:None,
-            output:Some("/mmm".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("/mmm".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo");
         assert_eq!(build_opt.target_name, "foo");
         assert_eq!(build_opt.target_dir, "/mmm");
@@ -593,12 +627,13 @@ mod tests {
 
     #[test]
     fn no_input_rel_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:None,
-            output:Some("../mmm".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("../mmm".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo/ppp").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo/ppp");
         assert_eq!(build_opt.target_name, "ppp");
         assert_eq!(build_opt.target_dir, "/foo/mmm");
@@ -608,12 +643,13 @@ mod tests {
 
     #[test]
     fn no_input_go_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:None,
-            output:Some("../mmm/main.go".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("../mmm/main.go".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo/ppp").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo/ppp");
         assert_eq!(build_opt.target_name, "main");
         assert_eq!(build_opt.target_dir, "/foo/mmm");
@@ -621,15 +657,15 @@ mod tests {
         assert_eq!(build_opt.output_wasm_path, "/foo/mmm/main.wasm");
     }
 
-
     #[test]
     fn abs_input_rel_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("/lll".to_owned()),
-            output:Some("../mmm".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("/lll".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo/ppp").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/lll");
         assert_eq!(build_opt.target_name, "lll");
         assert_eq!(build_opt.target_dir, "/foo/mmm");
@@ -639,12 +675,13 @@ mod tests {
 
     #[test]
     fn rel_input_rel_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("../lll".to_owned()),
-            output:Some("../mmm".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../lll".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo/ppp").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo/lll");
         assert_eq!(build_opt.target_name, "lll");
         assert_eq!(build_opt.target_dir, "/foo/mmm");
@@ -654,12 +691,13 @@ mod tests {
 
     #[test]
     fn rel_go_input_rel_output() {
-        let cli_cfg = BuildCLiConfig{
-            input:Some("../lll/main.go".to_owned()),
-            output:Some("../mmm".to_owned()),
-            wat:false,
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../lll/main.go".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
         };
-        let build_opt = BuildOptions::new(Path::new("/foo/ppp").to_path_buf() , &cli_cfg).expect("build opt");
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
         assert_eq!(build_opt.code_path, "/foo/lll/main.go");
         assert_eq!(build_opt.target_name, "main");
         assert_eq!(build_opt.target_dir, "/foo/mmm");
