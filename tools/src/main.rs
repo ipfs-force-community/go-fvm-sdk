@@ -14,19 +14,18 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Adds files to myapp
-    Process(wasmprocess::ProcessConfig),
+    /// build and process wasm
+    Build(wasmprocess::BuildCLiConfig),
+    /// test wasm on fvm
     Test(testing::TestConfig),
 }
 
 fn main() {
     let cli = Cli::parse();
     match &cli.command {
-        Commands::Process(cfg ) => {
-           wasmprocess::run_process(cfg).unwrap();
+        Commands::Build(cfg) => {
+            wasmprocess::run_process(cfg).unwrap();
         }
-        Commands::Test ( cfg )=> {
-           testing::run_testing(cfg)
-        }
+        Commands::Test(cfg) => testing::run_testing(cfg),
     }
 }
