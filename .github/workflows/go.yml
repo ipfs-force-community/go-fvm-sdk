@@ -1,5 +1,4 @@
-name: Go
-
+name: go-fvm-sdk
 on:
   push:
     branches:
@@ -21,7 +20,7 @@ jobs:
         with:
           go-version: 1.17
 
-      - name: Setup | Rust
+      - name: Setup Rust
         uses: ATiltedTree/setup-rust@v1
         with:
           rust-version: stable
