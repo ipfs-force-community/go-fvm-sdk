@@ -1,57 +1,167 @@
 use anyhow::{anyhow, Result};
-use parity_wasm::elements::Type::Function;
-use parity_wasm::elements::{BlockType, External, Func, FuncBody, FunctionType, ImportCountType, ImportEntry, Instruction, Instructions, Internal, Module, Type, ValueType};
-use std::collections::HashMap;
 use clap::Parser;
+use parity_wasm::elements::Type::Function;
+use parity_wasm::elements::{
+    BlockType, External, Func, FuncBody, FunctionType, ImportCountType, ImportEntry, Instruction,
+    Instructions, Internal, Module, Type, ValueType,
+};
+use path_absolutize::*;
+use std::collections::HashMap;
+use std::env;
+use std::io::ErrorKind;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-pub struct ProcessConfig {
+pub struct BuildCLiConfig {
+    #[clap(last = true)]
+    pub input: Option<String>,
     #[clap(short, long)]
-    pub  input: String,
-    #[clap(short, long)]
-    pub output: String,
+    pub output: Option<String>,
     #[clap(short, long)]
     pub wat: bool,
 }
 
-pub fn run_process(cfg: &ProcessConfig) -> Result<()> {
-    let result = GoFvmBinProcessor::new(cfg.input.as_str())
+pub struct BuildOptions {
+    pub code_path: String,
+    pub target_dir: String,
+    pub target_name: String,
+    pub output_wasm_path: String,
+    pub output_wat_path: String,
+}
+
+impl BuildOptions {
+    pub fn new(pwd_path: PathBuf, cfg: &BuildCLiConfig) -> Result<Self> {
+        let code_path = if let Some(input) = &cfg.input {
+            pwd_path
+                .clone()
+                .join(Path::new(input))
+                .absolutize()
+                .map(|v| v.into_owned())?
+        } else {
+            pwd_path.clone()
+        };
+
+        let (target_dir, target_name): (PathBuf, String) = if let Some(o_path) = &cfg.output {
+            let abs_output_path = pwd_path
+                .clone()
+                .join(Path::new(o_path))
+                .absolutize()
+                .map(|v| v.into_owned())?;
+            if abs_output_path.extension().is_none() {
+                let target_name = code_path
+                    .with_extension("")
+                    .file_name()
+                    .ok_or_else(|| anyhow!("get file name from {:?}", code_path))
+                    .map(|v| v.to_str().unwrap().to_string())?;
+                (abs_output_path, target_name)
+            } else {
+                let target_name = abs_output_path
+                    .with_extension("")
+                    .file_name()
+                    .ok_or_else(|| anyhow!("get file name from {:?}", abs_output_path))
+                    .map(|v| v.to_str().unwrap().to_string())?;
+                let target_dir = abs_output_path
+                    .parent()
+                    .ok_or_else(|| anyhow!("get parent path for {:?}", abs_output_path))
+                    .map(|v| v.to_path_buf())?;
+                (target_dir, target_name)
+            }
+        } else {
+            //output is current dir if not specify output
+            let target_name = code_path
+                .with_extension("")
+                .file_name()
+                .ok_or_else(|| anyhow!("get file name from {:?}", code_path))
+                .map(|v| v.to_str().unwrap().to_string())?;
+            (pwd_path.clone(), target_name)
+        };
+
+        let output_wasm_path = Path::new(&target_dir)
+            .join(target_name.clone() + ".wasm")
+            .try_to_string()?;
+        let output_wat_path = Path::new(&target_dir)
+            .join(target_name.clone() + ".wat")
+            .try_to_string()?;
+        Ok(BuildOptions {
+            code_path: code_path.try_to_string()?,
+            target_name,
+            target_dir: target_dir.try_to_string()?,
+            output_wasm_path,
+            output_wat_path,
+        })
+    }
+}
+
+pub fn run_process(cfg: &BuildCLiConfig) -> Result<()> {
+    let parent = env::current_dir().unwrap();
+    let build_opts = BuildOptions::new(parent, cfg)?;
+    let result = GoFvmBinProcessor::new(&build_opts)
+        .build()?
         .append_init_to_invoke()?
         // .replace_fd_write()?
         .get_binary()?;
 
     let wat_str = wasmprinter::print_bytes(result)?;
+
     if cfg.wat {
-
-        std::fs::write(
-            cfg.output.clone() + ".wat",
-            wat_str.clone(),
-        )?;
+        std::fs::write(build_opts.output_wat_path, wat_str.clone())?;
     }
-
 
     let mut features = wabt::Features::new();
     features.set_annotations_enabled(true);
     let wat_bin = wabt::wat2wasm_with_features(wat_str, features)?;
-    std::fs::write(
-        cfg.output.clone(),
-        wat_bin,
-    )?;
+    std::fs::write(build_opts.output_wasm_path, wat_bin)?;
     Ok(())
 }
 
-pub struct GoFvmBinProcessor {
+pub struct GoFvmBinProcessor<'a> {
     module: Module,
+    build_cfg: &'a BuildOptions,
 }
 
-impl GoFvmBinProcessor {
-    pub fn new(path: &str) -> Self {
-        let module = parity_wasm::deserialize_file(path)
-            .expect("Should be deserialized")
+impl<'a> GoFvmBinProcessor<'a> {
+    pub fn new(build_cfg: &'a BuildOptions) -> Self {
+        GoFvmBinProcessor {
+            module: Module::default(),
+            build_cfg,
+        }
+    }
+
+    pub fn build(&mut self) -> Result<&mut Self> {
+        if !check_tinygo_install()? {
+            return Err(anyhow!("unbale to found tinygo(fvm), please intall this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"));
+        }
+        let output = Command::new("tinygo")
+            .args([
+                "build",
+                "-target",
+                "wasi",
+                "-no-debug",
+                "-panic",
+                "trap",
+                "-o",
+                &self.build_cfg.output_wasm_path,
+                &self.build_cfg.code_path,
+            ])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()?
+            .wait_with_output()
+            .expect("unable to get output");
+        if !output.status.success() {
+            return Err(anyhow!(format!(
+                "run tinygo command failed err {:?}",
+                output
+            )));
+        }
+
+        let module = parity_wasm::deserialize_file(&self.build_cfg.output_wasm_path)?
             .parse_names()
-            .expect("Names to be parsed");
-        GoFvmBinProcessor { module }
+            .map_err(|_| anyhow!("parser names in wasm"))?;
+        self.module = module;
+        return Ok(self);
     }
 
     pub fn get_binary(&self) -> Result<Vec<u8>> {
@@ -92,7 +202,6 @@ impl GoFvmBinProcessor {
                     fd_write_offset = -1;
                 }
 
-
                 func_index_map.insert(
                     index,
                     (index as i32 + fd_write_offset + debug_offset) as usize,
@@ -109,10 +218,10 @@ impl GoFvmBinProcessor {
                     func_index_map.insert(index, new_fd_write_index as usize);
                 }
 
-                if !has_debug_import&&index == import_func_count -1 {
+                if !has_debug_import && index == import_func_count - 1 {
                     debug_offset = 1;
                     namevec.push("main.debugLog".to_string());
-                    continue
+                    continue;
                 }
 
                 if index != fd_write_index {
@@ -182,7 +291,7 @@ impl GoFvmBinProcessor {
                         match ins {
                             Instruction::Call(func_index) => {
                                 if let Some(new_func_index) =
-                                func_index_map.get(&(*func_index as usize))
+                                    func_index_map.get(&(*func_index as usize))
                                 {
                                     *func_index = *new_func_index as u32;
                                 }
@@ -220,7 +329,8 @@ impl GoFvmBinProcessor {
                 i32.load offset=4
                 call $main.debugLog)
              */
-            let new_insert_debug_index =  self.get_import_func_index("debug", "log")
+            let new_insert_debug_index = self
+                .get_import_func_index("debug", "log")
                 .expect("unable to get debug log") as u32;
             let codes = self.module.code_section_mut().unwrap().bodies_mut();
             let fd_write_code = FuncBody::new(
@@ -260,12 +370,13 @@ impl GoFvmBinProcessor {
 
         //重建export
         {
-            let  exports = self.module.export_section_mut().expect("unable to get export section");
-            for export in  exports.entries_mut() {
+            let exports = self
+                .module
+                .export_section_mut()
+                .expect("unable to get export section");
+            for export in exports.entries_mut() {
                 if let Internal::Function(func_index_ref) = export.internal_mut() {
-                    if let Some(new_func_index) =
-                    func_index_map.get(&(*func_index_ref as usize))
-                    {
+                    if let Some(new_func_index) = func_index_map.get(&(*func_index_ref as usize)) {
                         *func_index_ref = *new_func_index as u32;
                     }
                 }
@@ -375,7 +486,7 @@ impl GoFvmBinProcessor {
     }
 
     //(type (;1;) (func (param i32 i32 i32 i32) (result i32)))
-    pub fn get_fd_write_type(&self) -> Option<u32> {
+    fn get_fd_write_type(&self) -> Option<u32> {
         if let Some(type_section) = self.module.type_section() {
             for (i, wtype) in type_section.types().iter().enumerate() {
                 match wtype {
@@ -395,5 +506,196 @@ impl GoFvmBinProcessor {
             }
         }
         return None;
+    }
+}
+
+fn check_tinygo_install() -> Result<bool> {
+    match Command::new("tinygo").spawn() {
+        Ok(_) => Ok(true),
+        Err(e) => {
+            if let ErrorKind::NotFound = e.kind() {
+                Ok(false)
+            } else {
+                Err(anyhow!("check err {}", e))
+            }
+        }
+    }
+}
+
+trait TryString {
+    fn try_to_string(&self) -> Result<String>;
+}
+
+impl TryString for PathBuf {
+    fn try_to_string(&self) -> Result<String> {
+        self.to_str()
+            .ok_or_else(|| anyhow!("unbale to get string from pathbuf"))
+            .map(|v| v.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::wasmprocess::{BuildCLiConfig, BuildOptions};
+    use std::path::Path;
+
+    #[test]
+    fn no_input_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: None,
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo");
+        assert_eq!(build_opt.target_name, "foo");
+        assert_eq!(build_opt.output_wat_path, "/foo/foo.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/foo.wasm");
+        assert_eq!(build_opt.target_dir, "/foo");
+    }
+
+    #[test]
+    fn abs_input_no_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("/ggg".to_owned()),
+            output: None,
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/ggg");
+        assert_eq!(build_opt.target_name, "ggg");
+        assert_eq!(build_opt.output_wat_path, "/foo/ggg.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/ggg.wasm");
+        assert_eq!(build_opt.target_dir, "/foo");
+    }
+
+    #[test]
+    fn rel_input_no_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../mm".to_owned()),
+            output: None,
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/mm");
+        assert_eq!(build_opt.target_name, "mm");
+        assert_eq!(build_opt.target_dir, "/foo");
+        assert_eq!(build_opt.output_wat_path, "/foo/mm.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mm.wasm");
+    }
+
+    #[test]
+    fn go_file_input_no_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../mm/nn.go".to_owned()),
+            output: None,
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/mm/nn.go");
+        assert_eq!(build_opt.target_name, "nn");
+        assert_eq!(build_opt.target_dir, "/foo");
+        assert_eq!(build_opt.output_wat_path, "/foo/nn.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/nn.wasm");
+    }
+
+    #[test]
+    fn no_input_abs_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("/mmm".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo");
+        assert_eq!(build_opt.target_name, "foo");
+        assert_eq!(build_opt.target_dir, "/mmm");
+        assert_eq!(build_opt.output_wat_path, "/mmm/foo.wat");
+        assert_eq!(build_opt.output_wasm_path, "/mmm/foo.wasm");
+    }
+
+    #[test]
+    fn no_input_rel_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("../mmm".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo/ppp");
+        assert_eq!(build_opt.target_name, "ppp");
+        assert_eq!(build_opt.target_dir, "/foo/mmm");
+        assert_eq!(build_opt.output_wat_path, "/foo/mmm/ppp.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mmm/ppp.wasm");
+    }
+
+    #[test]
+    fn no_input_go_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: None,
+            output: Some("../mmm/main.go".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo/ppp");
+        assert_eq!(build_opt.target_name, "main");
+        assert_eq!(build_opt.target_dir, "/foo/mmm");
+        assert_eq!(build_opt.output_wat_path, "/foo/mmm/main.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mmm/main.wasm");
+    }
+
+    #[test]
+    fn abs_input_rel_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("/lll".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/lll");
+        assert_eq!(build_opt.target_name, "lll");
+        assert_eq!(build_opt.target_dir, "/foo/mmm");
+        assert_eq!(build_opt.output_wat_path, "/foo/mmm/lll.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mmm/lll.wasm");
+    }
+
+    #[test]
+    fn rel_input_rel_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../lll".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo/lll");
+        assert_eq!(build_opt.target_name, "lll");
+        assert_eq!(build_opt.target_dir, "/foo/mmm");
+        assert_eq!(build_opt.output_wat_path, "/foo/mmm/lll.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mmm/lll.wasm");
+    }
+
+    #[test]
+    fn rel_go_input_rel_output() {
+        let cli_cfg = BuildCLiConfig {
+            input: Some("../lll/main.go".to_owned()),
+            output: Some("../mmm".to_owned()),
+            wat: false,
+        };
+        let build_opt =
+            BuildOptions::new(Path::new("/foo/ppp").to_path_buf(), &cli_cfg).expect("build opt");
+        assert_eq!(build_opt.code_path, "/foo/lll/main.go");
+        assert_eq!(build_opt.target_name, "main");
+        assert_eq!(build_opt.target_dir, "/foo/mmm");
+        assert_eq!(build_opt.output_wat_path, "/foo/mmm/main.wat");
+        assert_eq!(build_opt.output_wasm_path, "/foo/mmm/main.wasm");
     }
 }

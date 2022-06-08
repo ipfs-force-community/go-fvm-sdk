@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
+use colored::*;
 use fvm::executor::ApplyFailure;
 use fvm::executor::ApplyRet;
 use fvm::executor::{ApplyKind, Executor};
@@ -18,7 +19,6 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::iter::Iterator;
 use std::path::PathBuf;
-use colored::*;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -72,7 +72,7 @@ pub fn run_testing(cfg: &TestConfig) {
             test_case.actor_balance,
             test_case.send_value,
         )
-            .unwrap();
+        .unwrap();
         if ret.msg_receipt.exit_code.value() != test_case.expect_code {
             if let Some(fail_info) = ret.failure_info {
                 panic!(
@@ -101,7 +101,7 @@ pub fn run_testing(cfg: &TestConfig) {
                 _ => {}
             }
         }
-        println!{"{}: case {}", "passed".green(), test_case.name}
+        println! {"{}: case {}", "passed".green(), test_case.name}
     });
 }
 
@@ -123,7 +123,7 @@ pub fn exec(
         StateTreeVersion::V4,
         MemoryBlockstore::default(),
     )
-        .unwrap();
+    .unwrap();
     let mut accounts = vec![];
     for init_account in init_accounts {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;

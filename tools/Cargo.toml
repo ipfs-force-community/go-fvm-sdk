@@ -22,6 +22,7 @@ libsecp256k1 = "0.7.0"
 rand = "0.8.5"
 rand_chacha = "0.3"
 hex = "0.4.3"
+path-absolutize = "3.0.13"
 
 fvm = {  git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7", default-features = false}
 fvm_shared = {  git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7" }
