@@ -38,43 +38,34 @@ impl BuildOptions {
                 .clone()
                 .join(Path::new(input))
                 .absolutize()
-                .unwrap()
-                .into_owned()
+                .map(|v| v.into_owned())?
         } else {
             pwd_path.clone()
         };
 
-        let (target_dir, target_name) = if let Some(o_path) = &cfg.output {
+        let (target_dir, target_name): (PathBuf, String) = if let Some(o_path) = &cfg.output {
             let abs_output_path = pwd_path
                 .clone()
                 .join(Path::new(o_path))
                 .absolutize()
-                .unwrap()
-                .into_owned();
+                .map(|v| v.into_owned())?;
             if abs_output_path.extension().is_none() {
                 let target_name = code_path
                     .with_extension("")
                     .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-                let target_dir = abs_output_path.to_str().unwrap().to_string();
-                (target_dir, target_name)
+                    .ok_or_else(|| anyhow!("get file name from {:?}", code_path))
+                    .map(|v| v.to_str().unwrap().to_string())?;
+                (abs_output_path, target_name)
             } else {
                 let target_name = abs_output_path
                     .with_extension("")
                     .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
+                    .ok_or_else(|| anyhow!("get file name from {:?}", abs_output_path))
+                    .map(|v| v.to_str().unwrap().to_string())?;
                 let target_dir = abs_output_path
                     .parent()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
+                    .ok_or_else(|| anyhow!("get parent path for {:?}", abs_output_path))
+                    .map(|v| v.to_path_buf())?;
                 (target_dir, target_name)
             }
         } else {
@@ -82,30 +73,21 @@ impl BuildOptions {
             let target_name = code_path
                 .with_extension("")
                 .file_name()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
-
-            let target_dir = pwd_path.clone().to_str().unwrap().to_string();
-            (target_dir, target_name)
+                .ok_or_else(|| anyhow!("get file name from {:?}", code_path))
+                .map(|v| v.to_str().unwrap().to_string())?;
+            (pwd_path.clone(), target_name)
         };
 
         let output_wasm_path = Path::new(&target_dir)
             .join(target_name.clone() + ".wasm")
-            .to_str()
-            .unwrap()
-            .to_string();
+            .try_to_string()?;
         let output_wat_path = Path::new(&target_dir)
             .join(target_name.clone() + ".wat")
-            .to_str()
-            .unwrap()
-            .to_string();
-        let code_path = code_path.as_path().to_str().unwrap().to_string();
+            .try_to_string()?;
         Ok(BuildOptions {
-            code_path,
+            code_path: code_path.try_to_string()?,
             target_name,
-            target_dir,
+            target_dir: target_dir.try_to_string()?,
             output_wasm_path,
             output_wat_path,
         })
@@ -539,11 +521,23 @@ fn check_tinygo_install() -> Result<bool> {
         }
     }
 }
+
+trait TryString {
+    fn try_to_string(&self) -> Result<String>;
+}
+
+impl TryString for PathBuf {
+    fn try_to_string(&self) -> Result<String> {
+        self.to_str()
+            .ok_or_else(|| anyhow!("unbale to get string from pathbuf"))
+            .map(|v| v.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::wasmprocess::{BuildCLiConfig, BuildOptions};
-    use std::env;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
 
     #[test]
     fn no_input_output() {
