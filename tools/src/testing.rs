@@ -53,18 +53,16 @@ struct TestCase {
 }
 
 pub fn run_testing(cfg: &TestConfig) {
-    let case_meta_path: PathBuf = [cfg.path.clone().to_owned(), "test.json".to_string()]
-        .iter()
-        .collect();
+    let case_meta_path: PathBuf = [cfg.path.clone(), "test.json".to_string()].iter().collect();
     let buf = fs::read(case_meta_path).unwrap();
     let test_json: TestJson = serde_json::from_slice(&buf).unwrap();
 
     test_json.cases.iter().for_each(|test_case| {
-        let path: PathBuf = [cfg.path.clone().to_owned(), test_case.binary.to_owned()]
+        let path: PathBuf = [cfg.path.clone(), test_case.binary.to_owned()]
             .iter()
             .collect();
         let buf = fs::read(path.clone())
-            .expect(format!("path {} not found", path.clone().to_str().unwrap()).as_str());
+            .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
         let ret = exec(
             &buf,
             &test_json.accounts,
@@ -88,17 +86,14 @@ pub fn run_testing(cfg: &TestConfig) {
         }
 
         if test_case.expect_code != 0 {
-            match ret.failure_info.unwrap() {
-                ApplyFailure::MessageBacktrace(mut trace) => {
-                    let abort_msg = trace.frames.pop().unwrap().message;
-                    if abort_msg.clone() != test_case.expect_message {
-                        panic!(
-                            "case {} expect messcage {} but got {}",
-                            test_case.name, test_case.expect_message, abort_msg
-                        )
-                    }
+            if let ApplyFailure::MessageBacktrace(mut trace) = ret.failure_info.unwrap() {
+                let abort_msg = trace.frames.pop().unwrap().message;
+                if abort_msg != test_case.expect_message {
+                    panic!(
+                        "case {} expect messcage {} but got {}",
+                        test_case.name, test_case.expect_message, abort_msg
+                    )
                 }
-                _ => {}
             }
         }
         println! {"{}: case {}", "passed".green(), test_case.name}
@@ -143,7 +138,7 @@ pub fn exec(
     let actor_address = Address::new_id(10000);
     tester
         .set_actor_from_bin(
-            &wasm_bin,
+            wasm_bin,
             state_cid,
             actor_address,
             BigInt::from(actor_balance),
@@ -158,7 +153,7 @@ pub fn exec(
         from: accounts[0].1,
         to: actor_address,
         gas_limit: 1000000000000,
-        method_num: method_num,
+        method_num,
         value: BigInt::from(send_value),
         ..Message::default()
     };

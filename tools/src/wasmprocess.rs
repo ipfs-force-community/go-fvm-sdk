@@ -35,7 +35,6 @@ impl BuildOptions {
     pub fn new(pwd_path: PathBuf, cfg: &BuildCLiConfig) -> Result<Self> {
         let code_path = if let Some(input) = &cfg.input {
             pwd_path
-                .clone()
                 .join(Path::new(input))
                 .absolutize()
                 .map(|v| v.into_owned())?
@@ -45,7 +44,6 @@ impl BuildOptions {
 
         let (target_dir, target_name): (PathBuf, String) = if let Some(o_path) = &cfg.output {
             let abs_output_path = pwd_path
-                .clone()
                 .join(Path::new(o_path))
                 .absolutize()
                 .map(|v| v.into_owned())?;
@@ -75,7 +73,7 @@ impl BuildOptions {
                 .file_name()
                 .ok_or_else(|| anyhow!("get file name from {:?}", code_path))
                 .map(|v| v.to_str().unwrap().to_string())?;
-            (pwd_path.clone(), target_name)
+            (pwd_path, target_name)
         };
 
         let output_wasm_path = Path::new(&target_dir)
@@ -161,12 +159,12 @@ impl<'a> GoFvmBinProcessor<'a> {
             .parse_names()
             .map_err(|_| anyhow!("parser names in wasm"))?;
         self.module = module;
-        return Ok(self);
+        Ok(self)
     }
 
     pub fn get_binary(&self) -> Result<Vec<u8>> {
-        return parity_wasm::serialize(self.module.clone())
-            .map_err(|e| anyhow!("convert module to binary {}", e));
+        parity_wasm::serialize(self.module.clone())
+            .map_err(|e| anyhow!("convert module to binary {}", e))
     }
 
     #[allow(dead_code)]
@@ -285,7 +283,7 @@ impl<'a> GoFvmBinProcessor<'a> {
 
         //编译所有的函数体，改变其中所有call/callindirect指令参数。
         {
-            for m in self.module.code_section_mut() {
+            if let Some(m) = self.module.code_section_mut() {
                 for body in m.bodies_mut() {
                     for ins in body.code_mut().elements_mut() {
                         match ins {
@@ -415,7 +413,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return None;
+        None
     }
 
     fn get_func_index(&self, func_name: &str) -> Option<usize> {
@@ -436,7 +434,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return None;
+        None
     }
 
     // (import "wasi_snapshot_preview1" "fd_write" (func $runtime.fd_write (type 6)))
@@ -448,7 +446,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return false;
+        false
     }
 
     //(import "debug" "log" (func $main.debugLog (type 0)))
@@ -460,7 +458,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return false;
+        false
     }
 
     // (type (;0;) (func (param i32 i32) (result i32)))
@@ -482,7 +480,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return None;
+        None
     }
 
     //(type (;1;) (func (param i32 i32 i32 i32) (result i32)))
@@ -505,7 +503,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 }
             }
         }
-        return None;
+        None
     }
 }
 

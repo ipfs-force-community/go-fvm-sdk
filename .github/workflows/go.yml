@@ -1,0 +1,73 @@
+name: go-fvm-sdk
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+env:
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+
+  check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: setup build cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            venus-worker/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+
+      - name: rustfmt
+        run: |
+          cargo fmt
+          cargo clippy --fix
+        working-directory: ./tools
+
+      - name: install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -o Acquire::Retries=3 install make ftp git bzr curl wget -y && sudo apt upgrade -y
+
+      - name: install tinygo
+        run: |
+          wget -q https://github.com/ipfs-force-community/tinygo/releases/download/fvm%400.0.1/ubuntu_20.04_linux.tar.gz
+          sudo tar -xvf ubuntu_20.04_linux.tar.gz -C /usr/local
+          sudo chmod 777 /usr/local/tinygo/bin/*
+
+      - name: Build
+        run: |
+          make build
+
+      - name: Lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.2
+          golangci-lint run --timeout 10m
+
+      - name: Test
+        run: |
+          export PATH=$PATH:/usr/local/tinygo/bin
+          make test
