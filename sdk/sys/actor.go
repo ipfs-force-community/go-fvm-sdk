@@ -5,17 +5,19 @@ import (
 	"unsafe"
 
 	address "github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func ResolveAddress(addr address.Address) (types.ActorId, error) {
+func ResolveAddress(addr address.Address) (abi.ActorID, error) {
 	if addr.Protocol() == address.ID {
-		return address.IDFromAddress(addr)
+		actid, err := address.IDFromAddress(addr)
+		return abi.ActorID(actid), err
 	}
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
-	var result types.ActorId
+	var result abi.ActorID
 	code := actorResolveAddress(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen)
 	if code != 0 {
 		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to resolve address")
@@ -82,9 +84,9 @@ func NewActorAddress() (address.Address, error) {
 	return address.NewFromBytes(buf[:addrLen])
 }
 
-func CreateActor(actorId types.ActorId, codeCid cid.Cid) error {
+func CreateActor(actorId abi.ActorID, codeCid cid.Cid) error {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
-	code := actorCreateActor(actorId, addrBufPtr)
+	code := actorCreateActor(uint64(actorId), addrBufPtr)
 	if code != 0 {
 		return ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor type %d code cid %s", actorId, codeCid))
 	}

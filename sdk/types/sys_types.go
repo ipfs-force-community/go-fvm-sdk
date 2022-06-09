@@ -1,10 +1,12 @@
 package types
 
-import "github.com/filecoin-project/specs-actors/v7/actors/runtime"
+import (
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
+)
 
 type BlockId = uint32
 type Codec = uint64
-type ActorId = uint64
 
 func ValidateConsensusFaultType(c runtime.ConsensusFaultType) bool {
 	return 0 <= c && c <= 3
@@ -33,6 +35,10 @@ type Send struct {
 
 type VerifyConsensusFault struct {
 	Epoch  int64
-	Target ActorId
+	Target abi.ActorID
 	Fault  uint32
+}
+type ParamsRaw struct {
+	Codec Codec
+	Raw   []byte
 }
