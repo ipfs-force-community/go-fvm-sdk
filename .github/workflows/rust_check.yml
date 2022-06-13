@@ -38,7 +38,7 @@ jobs:
 
       - name: lint
         run: |
-          cargo run -p ci -- lint
+          cargo run -p ci -- lints
 
       - name: test
         run: |

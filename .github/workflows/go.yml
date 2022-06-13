@@ -65,3 +65,8 @@ jobs:
         run: |
           export PATH=$PATH:/usr/local/tinygo/bin
           make test
+
+      - name: Example
+        run: |
+          export PATH=$PATH:/usr/local/tinygo/bin
+          cargo run -p ci -- example
