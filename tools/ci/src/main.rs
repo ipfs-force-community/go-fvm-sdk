@@ -8,6 +8,7 @@ bitflags! {
         const CLIPPY = 0b00000010;
         const TEST = 0b00000100;
         const COMPILE_CHECK = 0b00001000;
+        const COMPILE_EXAMPLE = 0b00010000;
     }
 }
 
@@ -34,6 +35,7 @@ fn main() {
         Some("test") => Check::TEST,
         Some("lints") => Check::FORMAT | Check::CLIPPY,
         Some("compile") => Check::COMPILE_CHECK,
+        Some("example") => Check::COMPILE_EXAMPLE,
         _ => Check::all(),
     };
 
@@ -69,5 +71,13 @@ fn main() {
         cmd!(sh, "cargo check --workspace")
             .run()
             .expect("Please fix failing doc-tests in output above.");
+    }
+
+    if what_to_run.contains(Check::COMPILE_EXAMPLE) {
+        // Build examples and check they compile
+        sh.change_dir("./examples/hellocontract");
+        cmd!(sh, "../../bin/go-fvm-sdk-tools build")
+            .run()
+            .expect("Please fix hellcontract example.");
     }
 }

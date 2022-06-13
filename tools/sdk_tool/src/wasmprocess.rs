@@ -508,7 +508,7 @@ impl<'a> GoFvmBinProcessor<'a> {
 }
 
 fn check_tinygo_install() -> Result<bool> {
-    match Command::new("tinygo").spawn() {
+    match Command::new("tinygo").arg("version").spawn() {
         Ok(_) => Ok(true),
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
