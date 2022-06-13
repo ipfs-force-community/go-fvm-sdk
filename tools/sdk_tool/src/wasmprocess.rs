@@ -347,7 +347,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                     Instruction::Call(new_insert_debug_index as u32),
                 ]),
             );
-            codes.push(fd_write_code)
+            codes.push(fd_write_code);
         }
 
         //重建namemap
@@ -397,7 +397,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                 invoke_body.code_mut().elements_mut().insert(
                     0,
                     Instruction::Call(start_func_index as u32 + import_func_count as u32),
-                )
+                );
             }
             Ok(self)
         } else {

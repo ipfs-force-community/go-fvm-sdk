@@ -1,0 +1,2 @@
+[workspace]
+members = [ "tools/ci", "tools/sdk_tool"]

@@ -1,0 +1,10 @@
+[package]
+name = "ci"
+version = "0.1.0"
+edition = "2021"
+description = "CI script for Bevy"
+publish = false
+
+[dependencies]
+xshell = "0.2"
+bitflags = "1.3"

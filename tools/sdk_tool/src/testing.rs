@@ -124,7 +124,7 @@ pub fn exec(
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
         let account =
             tester.make_secp256k1_account(priv_key, TokenAmount::from(init_account.balance))?;
-        accounts.push(account)
+        accounts.push(account);
     }
     // Get wasm bin
     //  let wasm_bin = wat2wasm(wat).unwrap();
