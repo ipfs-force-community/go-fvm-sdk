@@ -1,0 +1,49 @@
+name: rust-check
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+env:
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+
+  check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: setup build cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            venus-worker/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+
+      - name: lint
+        run: |
+          cargo run -p ci -- lints
+
+      - name: test
+        run: |
+          cargo run -p ci -- test
+
+      - name: check build
+        run: |
+          cargo run -p ci -- compile

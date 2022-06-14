@@ -24,7 +24,10 @@ fn main() {
     let cli = Cli::parse();
     match &cli.command {
         Commands::Build(cfg) => {
-            wasmprocess::run_process(cfg).unwrap();
+            if let Err(e) = wasmprocess::run_process(cfg) {
+                println!("run build command fail {}", e);
+                std::process::exit(1);
+            }
         }
         Commands::Test(cfg) => testing::run_testing(cfg),
     }

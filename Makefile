@@ -2,7 +2,7 @@ current_dir = $(shell pwd)
 
 build-tool:
 ifeq (,$(wildcard ${current_dir}/bin/go-fvm-sdk-tools))
-	cd ./tools && cargo build --out-dir ${current_dir}/bin --release -Z unstable-options
+	cargo build -p go-fvm-sdk-tools --out-dir ${current_dir}/bin --release -Z unstable-options
 endif
 	
 build: build-tool
