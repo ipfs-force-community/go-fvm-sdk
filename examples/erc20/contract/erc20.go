@@ -1,10 +1,13 @@
 package contract
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"strconv"
+
+	typegen "github.com/whyrusleeping/cbor-gen"
+
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 
@@ -29,89 +32,112 @@ function transfer(address _to, uint256 _value) public returns (bool success)
 function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)
 function approve(address _spender, uint256 _value) public returns (bool success)
 function allowance(address _owner, address _spender) public view returns (uint256 remaining)
-
 */
 
-var zero = big.NewInt(0)
+//keep unused for code generation
+
+var zero = big.Zero()
 
 /*basic Token20*/
 type Erc20Token struct {
 	Name        string
 	Symbol      string
 	Decimals    uint8
-	TotalSupply big.Int
+	TotalSupply *big.Int
 
 	//todo cbor gen not support non-string key and map value
-	Balances map[string]big.Int
-	Allowed  map[string]big.Int //owner-spender
+	Balances map[string]*big.Int
+	Allowed  map[string]*big.Int //owner-spender
 }
 
-func Constructor(name string, symbol string, decimals uint8, totalSupply big.Int) *Erc20Token {
+func (e *Erc20Token) Export() map[int]interface{} {
+	return map[int]interface{}{
+		6: e.GetBalanceOf,
 
-	return &Erc20Token{
-		Name:        name,
-		Symbol:      symbol,
-		Decimals:    decimals,
-		TotalSupply: totalSupply,
-		Balances:    make(map[string]big.Int),
-		Allowed:     make(map[string]big.Int),
+		1: e.Constructor,
+
+		2: e.GetName,
+		3: e.GetSymbol,
+		4: e.GetDecimal,
+		5: e.GetTotalSupply,
+
+		7: e.Transfer,
+		8: e.TransferFrom,
+		9: e.Approval,
 	}
 }
 
-func LoadToken() *Erc20Token {
-	root, err := sdk.Root()
-	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
+type ConstructorReq struct {
+	Name        string
+	Symbol      string
+	Decimals    uint8
+	TotalSupply *big.Int
+}
+
+func (t *Erc20Token) Constructor(req *ConstructorReq) error {
+	state := &Erc20Token{
+		Name:        req.Name,
+		Symbol:      req.Symbol,
+		Decimals:    req.Decimals,
+		TotalSupply: req.TotalSupply,
+		Balances:    make(map[string]*big.Int),
+		Allowed:     make(map[string]*big.Int),
 	}
 
-	data, err := sdk.Get(root)
+	caller, err := sdk.Caller()
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unbale to get caller")
 	}
-	st := new(Erc20Token)
-	err = st.UnmarshalCBOR(bytes.NewReader(data))
-	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+
+	if caller != 1 {
+		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
 	}
-	return st
+
+	_ = sdk.SaveState(state)
+	return nil
 }
 
 /*GetDecimal return token Name of erc20 token*/
-func (t *Erc20Token) GetName() string {
-	return t.Name
+func (t *Erc20Token) GetName() types.CborString {
+	return types.CborString(t.Name)
 }
 
 /*GetDecimal return token Symbol of erc20 token*/
-func (t *Erc20Token) GetSymbol() string {
-	return t.Symbol
+func (t *Erc20Token) GetSymbol() types.CborString {
+	return types.CborString(t.Symbol)
 }
 
 /*GetDecimal return decimal of erc20 token*/
-func (t *Erc20Token) GetDecimal() uint8 {
-	return t.Decimals
+func (t *Erc20Token) GetDecimal() typegen.CborInt {
+	return typegen.CborInt(t.Decimals)
 }
 
 /*GetTotalSupply returns total number of tokens in existence*/
-func (t *Erc20Token) GetTotalSupply() big.Int {
+func (t *Erc20Token) GetTotalSupply() *big.Int {
 	return t.TotalSupply
 }
 
 /*GetBalanceOf sender by ID.
 
 * `args[0]` - the ID of user.*/
-func (t *Erc20Token) GetBalanceOf(addr address.Address) (big.Int, error) {
-	senderId, err := sdk.ResolveAddress(addr)
+func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
+	senderId, err := sdk.ResolveAddress(*addr)
 	if err != nil {
-		return big.Int{}, err
+		return nil, err
 	}
 	return t.getBalanceOf(senderId)
 }
 
-func (t *Erc20Token) getBalanceOf(act abi.ActorID) (big.Int, error) {
+func (t *Erc20Token) getBalanceOf(act abi.ActorID) (*big.Int, error) {
 	if balance, ok := t.Balances[actorToString(act)]; ok {
 		return balance, nil
 	}
-	return big.Int{}, fmt.Errorf("actor %s not exit", act)
+	return nil, fmt.Errorf("actor %s not exit", act)
+}
+
+type TransferReq struct {
+	ReceiverAddr   address.Address
+	TransferAmount *big.Int
 }
 
 /*Transfer token from current caller to a specified address.
@@ -120,17 +146,17 @@ func (t *Erc20Token) getBalanceOf(act abi.ActorID) (big.Int, error) {
 
 * `transferAmount` - the transfer amount.
  */
-func (t *Erc20Token) Transfer(receiverAddr address.Address, transferAmount big.Int) error {
+func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 	senderID, err := sdk.Caller()
 	if err != nil {
 		return err
 	}
-	receiverID, err := sdk.ResolveAddress(receiverAddr)
+	receiverID, err := sdk.ResolveAddress(transferReq.ReceiverAddr)
 	if err != nil {
 		return err
 	}
 
-	if transferAmount.LessThanEqual(big.Zero()) {
+	if transferReq.TransferAmount.LessThanEqual(big.Zero()) {
 		return errors.New("trasfer value must bigger than zero")
 	}
 
@@ -147,13 +173,18 @@ func (t *Erc20Token) Transfer(receiverAddr address.Address, transferAmount big.I
 		return err
 	}
 
-	if err := isSmallerOrEqual(transferAmount, balanceOfSender); err != nil {
+	if err := isSmallerOrEqual(transferReq.TransferAmount, balanceOfSender); err != nil {
 		return fmt.Errorf("transfer amount should be less than balance of sender (%v): %v", senderID, err)
 	}
 
-	t.Balances[actorToString(senderID)] = big.Sub(balanceOfSender, transferAmount)
-	t.Balances[actorToString(receiverID)] = big.Add(balanceOfReceiver, transferAmount)
+	t.Balances[actorToString(senderID)] = Sub(balanceOfSender, transferReq.TransferAmount)
+	t.Balances[actorToString(receiverID)] = Add(balanceOfReceiver, transferReq.TransferAmount)
 	return nil
+}
+
+type AllowanceReq struct {
+	OwnerAddr   address.Address
+	SpenderAddr address.Address
 }
 
 /*GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
@@ -161,25 +192,31 @@ func (t *Erc20Token) Transfer(receiverAddr address.Address, transferAmount big.I
 * `ownerAddr` - the ID of owner.
 
 * `spenderAddr` - the ID of spender*/
-func (t *Erc20Token) Allowance(ownerAddr, spenderAddr address.Address) (big.Int, error) {
-	ownerID, err := sdk.ResolveAddress(ownerAddr)
+func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
+	ownerID, err := sdk.ResolveAddress(req.OwnerAddr)
 	if err != nil {
-		return big.Int{}, err
+		return nil, err
 	}
 
-	spenderId, err := sdk.ResolveAddress(spenderAddr)
+	spenderId, err := sdk.ResolveAddress(req.SpenderAddr)
 	if err != nil {
-		return big.Int{}, err
+		return nil, err
 	}
 
 	return t.getAllowance(ownerID, spenderId)
 }
 
-func (t *Erc20Token) getAllowance(ownerID, spenderId abi.ActorID) (big.Int, error) {
+func (t *Erc20Token) getAllowance(ownerID, spenderId abi.ActorID) (*big.Int, error) {
 	if val, ok := t.Allowed[getAllowKey(ownerID, spenderId)]; ok {
 		return val, nil
 	}
-	return big.Zero(), nil
+	return &zero, nil
+}
+
+type TransferFromReq struct {
+	OwnerAddr      address.Address
+	SpenderAddr    address.Address
+	TransferAmount *big.Int
 }
 
 /*TransferFrom transfer tokens from token owner to receiver.
@@ -190,18 +227,18 @@ func (t *Erc20Token) getAllowance(ownerID, spenderId abi.ActorID) (big.Int, erro
 
 * `transferAmount` - the transfer amount.
  */
-func (t *Erc20Token) TransferFrom(ownerAddr, spenderAddr address.Address, transferAmount big.Int) error {
-	tokenOwnerID, err := sdk.ResolveAddress(ownerAddr)
+func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
+	tokenOwnerID, err := sdk.ResolveAddress(req.OwnerAddr)
 	if err != nil {
 		return err
 	}
 
-	receiverID, err := sdk.ResolveAddress(spenderAddr)
+	receiverID, err := sdk.ResolveAddress(req.SpenderAddr)
 	if err != nil {
 		return err
 	}
 
-	if transferAmount.LessThanEqual(big.Zero()) {
+	if req.TransferAmount.LessThanEqual(big.Zero()) {
 		return errors.New("send value must bigger than zero")
 	}
 
@@ -230,32 +267,37 @@ func (t *Erc20Token) TransferFrom(ownerAddr, spenderAddr address.Address, transf
 	}
 
 	if approvedAmount.LessThanEqual(big.Zero()) {
-		return fmt.Errorf("approved amount for %v-%v less than zero", ownerAddr, spenderAddr)
+		return fmt.Errorf("approved amount for %v-%v less than zero", req.OwnerAddr, req.SpenderAddr)
 	}
 
-	if err := isSmallerOrEqual(transferAmount, balanceOfTokenOwner); err != nil {
+	if err := isSmallerOrEqual(req.TransferAmount, balanceOfTokenOwner); err != nil {
 		return fmt.Errorf("transfer amount should be less than balance of token owner (%v): %v", tokenOwnerID, err)
 	}
-	if err := isSmallerOrEqual(transferAmount, approvedAmount); err != nil {
+	if err := isSmallerOrEqual(req.TransferAmount, approvedAmount); err != nil {
 		return fmt.Errorf("transfer amount should be less than approved spending amount of %v: %v", spenderID, err)
 	}
 
-	t.Balances[actorToString(tokenOwnerID)] = big.Sub(balanceOfTokenOwner, transferAmount)
-	t.Balances[actorToString(receiverID)] = big.Add(balanceOfReceiver, transferAmount)
-	t.Allowed[getAllowKey(tokenOwnerID, spenderID)] = big.Sub(approvedAmount, transferAmount)
+	t.Balances[actorToString(tokenOwnerID)] = Sub(balanceOfTokenOwner, req.TransferAmount)
+	t.Balances[actorToString(receiverID)] = Add(balanceOfReceiver, req.TransferAmount)
+	t.Allowed[getAllowKey(tokenOwnerID, spenderID)] = Sub(approvedAmount, req.TransferAmount)
 	return nil
+}
+
+type ApprovalReq struct {
+	SpenderAddr  address.Address
+	NewAllowance *big.Int
 }
 
 /*Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
 * `spenderAddr` - the ID of approved user.
 * `newAllowance` - the maximum approved amount.*/
-func (t *Erc20Token) Approval(spenderAddr address.Address, newAllowance big.Int) error {
-	spenderID, err := sdk.ResolveAddress(spenderAddr)
+func (t *Erc20Token) Approval(req *ApprovalReq) error {
+	spenderID, err := sdk.ResolveAddress(req.SpenderAddr)
 	if err != nil {
 		return err
 	}
 
-	if newAllowance.LessThanEqual(big.Zero()) {
+	if req.NewAllowance.LessThanEqual(big.Zero()) {
 		return errors.New("allow value must bigger than zero")
 	}
 
@@ -269,12 +311,12 @@ func (t *Erc20Token) Approval(spenderAddr address.Address, newAllowance big.Int)
 		return err
 	}
 
-	t.Allowed[getAllowKey(callerID, spenderID)] = big.Add(allowance, newAllowance)
+	t.Allowed[getAllowKey(callerID, spenderID)] = Add(allowance, req.NewAllowance)
 	return nil
 }
 
 /*checkBalance checks if sender's balance is >= 0*/
-func checkBalance(balance big.Int, mspID abi.ActorID) error {
+func checkBalance(balance *big.Int, mspID abi.ActorID) error {
 	if balance.LessThan(zero) {
 		return fmt.Errorf("Balance of sender %v is %v", mspID, balance)
 	}
@@ -282,8 +324,8 @@ func checkBalance(balance big.Int, mspID abi.ActorID) error {
 }
 
 /*isSmallerOrEqual returns `nil` if a is <= b*/
-func isSmallerOrEqual(a big.Int, b big.Int) error {
-	if a.GreaterThan(b) {
+func isSmallerOrEqual(a *big.Int, b *big.Int) error {
+	if a.GreaterThan(*b) {
 		return fmt.Errorf("%v should be <= to %v", a, b)
 	}
 	return nil
@@ -300,4 +342,12 @@ func actorFromString(actStr string) abi.ActorID {
 
 func getAllowKey(ownerID, spenderId abi.ActorID) string {
 	return actorToString(ownerID) + actorToString(spenderId)
+}
+
+func Sub(a, b *big.Int) *big.Int {
+	return &big.Int{big.NewInt(0).Sub(a.Int, b.Int)}
+}
+
+func Add(a, b *big.Int) *big.Int {
+	return &big.Int{big.NewInt(0).Add(a.Int, b.Int)}
 }

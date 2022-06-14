@@ -1,13 +1,20 @@
 package main
 
 import (
+	"erc20/contract"
+	"fmt"
 	"log"
 	"path/filepath"
+	"reflect"
 
-	"erc20/contract"
+	"github.com/filecoin-project/go-state-types/cbor"
 
 	gen "github.com/whyrusleeping/cbor-gen"
 )
+
+var unMarshallerT = reflect.TypeOf((*cbor.Unmarshaler)(nil)).Elem()
+var errorT = reflect.TypeOf((*error)(nil)).Elem()
+var marshallerT = reflect.TypeOf((*cbor.Marshaler)(nil)).Elem()
 
 type genTarget struct {
 	dir   string
@@ -16,6 +23,15 @@ type genTarget struct {
 }
 
 func main() {
+	gen_cbor_type()
+	stateT := reflect.TypeOf(contract.Erc20Token{})
+	err := gen_entry(stateT, "../entry.go")
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func gen_cbor_type() {
 	targets := []genTarget{
 		{
 			dir: "../contract",

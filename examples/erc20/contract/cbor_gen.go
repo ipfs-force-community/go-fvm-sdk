@@ -67,7 +67,7 @@ func (t *Erc20Token) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (map[string]big.Int) (map)
+	// t.Balances (map[string]*big.Int) (map)
 	{
 		if len(t.Balances) > 4096 {
 			return xerrors.Errorf("cannot marshal t.Balances map too large")
@@ -103,7 +103,7 @@ func (t *Erc20Token) MarshalCBOR(w io.Writer) error {
 		}
 	}
 
-	// t.Allowed (map[string]big.Int) (map)
+	// t.Allowed (map[string]*big.Int) (map)
 	{
 		if len(t.Allowed) > 4096 {
 			return xerrors.Errorf("cannot marshal t.Allowed map too large")
@@ -201,12 +201,22 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.TotalSupply: %w", err)
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.TotalSupply = new(big.Int)
+			if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.TotalSupply pointer: %w", err)
+			}
 		}
 
 	}
-	// t.Balances (map[string]big.Int) (map)
+	// t.Balances (map[string]*big.Int) (map)
 
 	maj, extra, err = cr.ReadHeader()
 	if err != nil {
@@ -219,7 +229,7 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("t.Balances: map too large")
 	}
 
-	t.Balances = make(map[string]big.Int, extra)
+	t.Balances = make(map[string]*big.Int, extra)
 
 	for i, l := 0, int(extra); i < l; i++ {
 
@@ -234,12 +244,22 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 			k = string(sval)
 		}
 
-		var v big.Int
+		var v *big.Int
 
 		{
 
-			if err := v.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling v: %w", err)
+			b, err := cr.ReadByte()
+			if err != nil {
+				return err
+			}
+			if b != cbg.CborNull[0] {
+				if err := cr.UnreadByte(); err != nil {
+					return err
+				}
+				v = new(big.Int)
+				if err := v.UnmarshalCBOR(cr); err != nil {
+					return xerrors.Errorf("unmarshaling v pointer: %w", err)
+				}
 			}
 
 		}
@@ -247,7 +267,7 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 		t.Balances[k] = v
 
 	}
-	// t.Allowed (map[string]big.Int) (map)
+	// t.Allowed (map[string]*big.Int) (map)
 
 	maj, extra, err = cr.ReadHeader()
 	if err != nil {
@@ -260,7 +280,7 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("t.Allowed: map too large")
 	}
 
-	t.Allowed = make(map[string]big.Int, extra)
+	t.Allowed = make(map[string]*big.Int, extra)
 
 	for i, l := 0, int(extra); i < l; i++ {
 
@@ -275,12 +295,22 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 			k = string(sval)
 		}
 
-		var v big.Int
+		var v *big.Int
 
 		{
 
-			if err := v.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling v: %w", err)
+			b, err := cr.ReadByte()
+			if err != nil {
+				return err
+			}
+			if b != cbg.CborNull[0] {
+				if err := cr.UnreadByte(); err != nil {
+					return err
+				}
+				v = new(big.Int)
+				if err := v.UnmarshalCBOR(cr); err != nil {
+					return xerrors.Errorf("unmarshaling v pointer: %w", err)
+				}
 			}
 
 		}
@@ -401,8 +431,18 @@ func (t *ConstructorReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.TotalSupply: %w", err)
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.TotalSupply = new(big.Int)
+			if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.TotalSupply pointer: %w", err)
+			}
 		}
 
 	}
@@ -471,8 +511,18 @@ func (t *TransferReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.TransferAmount: %w", err)
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.TransferAmount = new(big.Int)
+			if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.TransferAmount pointer: %w", err)
+			}
 		}
 
 	}
@@ -625,8 +675,18 @@ func (t *TransferFromReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.TransferAmount: %w", err)
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.TransferAmount = new(big.Int)
+			if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.TransferAmount pointer: %w", err)
+			}
 		}
 
 	}
@@ -695,8 +755,18 @@ func (t *ApprovalReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		if err := t.NewAllowance.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.NewAllowance: %w", err)
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.NewAllowance = new(big.Int)
+			if err := t.NewAllowance.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.NewAllowance pointer: %w", err)
+			}
 		}
 
 	}
