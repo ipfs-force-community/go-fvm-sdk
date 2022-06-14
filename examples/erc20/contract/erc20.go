@@ -9,8 +9,6 @@ import (
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-
 	"github.com/filecoin-project/go-state-types/abi"
 
 	"github.com/filecoin-project/go-state-types/big"
@@ -52,15 +50,12 @@ type Erc20Token struct {
 
 func (e *Erc20Token) Export() map[int]interface{} {
 	return map[int]interface{}{
-		6: e.GetBalanceOf,
-
 		1: e.Constructor,
-
 		2: e.GetName,
 		3: e.GetSymbol,
 		4: e.GetDecimal,
 		5: e.GetTotalSupply,
-
+		6: e.GetBalanceOf,
 		7: e.Transfer,
 		8: e.TransferFrom,
 		9: e.Approval,
@@ -83,17 +78,7 @@ func (t *Erc20Token) Constructor(req *ConstructorReq) error {
 		Balances:    make(map[string]*big.Int),
 		Allowed:     make(map[string]*big.Int),
 	}
-
-	caller, err := sdk.Caller()
-	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unbale to get caller")
-	}
-
-	if caller != 1 {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
-	}
-
-	_ = sdk.SaveState(state)
+	_ = sdk.Constructor(state)
 	return nil
 }
 

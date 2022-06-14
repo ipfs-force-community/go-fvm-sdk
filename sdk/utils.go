@@ -30,6 +30,20 @@ func SaveState(state cbor.Marshaler) cid.Cid {
 	return stCid
 }
 
+func Constructor(state cbor.Marshaler) error {
+	caller, err := Caller()
+	if err != nil {
+		Abort(ferrors.USR_ILLEGAL_STATE, "unbale to get caller")
+	}
+
+	if caller != 1 {
+		Abort(ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
+	}
+
+	_ = SaveState(state)
+	return nil
+}
+
 func LoadState(state cbor.Unmarshaler) {
 	root, err := Root()
 	if err != nil {

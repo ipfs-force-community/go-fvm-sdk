@@ -29,6 +29,10 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	err = genContractClient(stateT, "../client/client.go")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func gen_cbor_type() {

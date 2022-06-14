@@ -17,5 +17,15 @@
     }
   ],
   "cases":[
+    {
+      "name": "construct",
+      "binary": "erc20.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "method_num": 1,
+      "params":"84696d6f636b20746573746874657374436f696e05420064",
+      "expect_code": 0,
+      "expect_message": ""
+    }
   ]
 }

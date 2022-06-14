@@ -10,6 +10,9 @@ build: build-tool
 gen:
 	cd ./sdk/gen && go run main.go
 
+clean:
+	rm -rf ./bin/*
+
 gen-case:
 	cd ./sdk/cases && ./gen.sh ${current_dir}
 

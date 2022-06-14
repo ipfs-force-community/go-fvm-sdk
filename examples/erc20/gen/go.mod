@@ -4,9 +4,9 @@ go 1.17
 
 require (
 	erc20 v0.0.0-00010101000000-000000000000
-	github.com/filecoin-project/go-state-types v0.1.3
+	github.com/filecoin-project/go-state-types v0.1.9
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
-	golang.org/x/tools v0.0.0-20191029190741-b9c20aec41a5
+	golang.org/x/tools v0.1.5
 )
 
 replace (
@@ -37,8 +37,9 @@ require (
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/polydawn/refmt v0.0.0-20201211092308-30ac6d18308e // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 // indirect
+	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
+	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
-	lukechampine.com/blake3 v1.1.6 // indirect
+	lukechampine.com/blake3 v1.1.7 // indirect
 )

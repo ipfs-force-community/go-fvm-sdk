@@ -21,14 +21,11 @@ replace (
 
 require (
 	github.com/filecoin-project/go-address v0.0.6
-	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/go-state-types v0.1.3
-	github.com/filecoin-project/specs-actors v0.9.14 // indirect
-	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
+	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220412224951-92abd0e6e7ae
+	github.com/filecoin-project/venus v1.2.4
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
 	github.com/ipfs/go-cid v0.1.0
-	github.com/multiformats/go-multihash v0.1.0 // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
 )
