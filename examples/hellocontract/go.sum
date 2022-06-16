@@ -81,6 +81,8 @@ github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/huin/goupnp v1.0.0/go.mod h1:n9v9KO1tAxYH82qOn+UTIFQDmx5n1Zxd/ClZDMX7Bnc=
 github.com/huin/goutil v0.0.0-20170803182201-1ca381bf3150/go.mod h1:PpLOETDnJ0o3iZrZfqZzyLl6l7F3c6L1oWn7OICBi6o=
+github.com/ipfs-force-community/blake3 v1.1.8-0.20220609024944-51450f2b2fc0 h1:YJktQgmLM6FVPc+sWL5uzpfdyrbzCoFuYSvYyAeOntw=
+github.com/ipfs-force-community/blake3 v1.1.8-0.20220609024944-51450f2b2fc0/go.mod h1:e0XQzEQp6LtbXBhzYxRoh6s3kcmX+fMMg8sC9VgWloQ=
 github.com/ipfs-force-community/cbor-gen v0.0.0-20220421100448-dc345220256c h1:3h5NJ/k9kiG3pXVsilb6gnJbOy32dSYlYAwBaEhuEI0=
 github.com/ipfs-force-community/cbor-gen v0.0.0-20220421100448-dc345220256c/go.mod h1:fgkXqYy7bV2cFeIEOkVTZS/WjXARfBqSH6Q2qHL33hQ=
 github.com/ipfs-force-community/cpuid/v2 v2.0.13-0.20220421095210-bfbeb72f34dd h1:pFKTwNbmbABP/bagz92WWyr8tUyrg3xiS5EScp3ME+A=
@@ -89,8 +91,6 @@ github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872 h1:UMr
 github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872/go.mod h1:D0lmvLOXz6w7ZmLDGlhu8dLXYwW9Gt8YUXHznWhubM0=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c h1:Rn7a/fjlGT2oGgEgOKY3ygqm7PHUL2O1cOZScBsx3zU=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c/go.mod h1:kyQTKTiWOkwcA5wwN5pNCD2ga2IWchuWogcv2H/l884=
-github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045 h1:KhFo8W7PKJ3prmYFP/I8qmCUZWKCIW8jBqW+D5vJOcQ=
-github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045/go.mod h1:HqlmyZnbS1T2G93XX5Xyqf/2PERXFMvXX9h8HRuD6dY=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96 h1:7SS72VbmaaYbr5BGRB7bL7stlNwLeY5OVFL7J+Xwi7Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96/go.mod h1:f+LTnn56dRz2YGVXAZIW3myTjkbJhfyRDELQpWRHXto=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
@@ -366,5 +366,3 @@ gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
-lukechampine.com/blake3 v1.1.6 h1:H3cROdztr7RCfoaTpGZFQsrqvweFLrqS73j7L7cmR5c=
-lukechampine.com/blake3 v1.1.6/go.mod h1:tkKEOtDkNtklkXtLNEOGNq5tcV90tJiA1vAA12R78LA=

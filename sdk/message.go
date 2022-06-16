@@ -11,7 +11,6 @@ import (
 var InvocationCtx *types.InvocationContext
 
 func Caller() (abi.ActorID, error) {
-
 	if InvocationCtx == nil {
 		var err error
 		InvocationCtx, err = sys.VmContext()
@@ -56,6 +55,26 @@ func ValueReceived() (*types.TokenAmount, error) {
 	return &types.TokenAmount{ //avoud change
 		Lo: InvocationCtx.ValueReceived.Lo,
 		Hi: InvocationCtx.ValueReceived.Hi,
+	}, nil
+}
+
+/// Returns the message codec and parameters.
+func ParamsRaw(id types.BlockId) (*types.ParamsRaw, error) {
+	if id == types.NO_DATA_BLOCK_ID {
+		return &types.ParamsRaw{}, nil
+	}
+	state, err := sys.Stat(id)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := GetBlock(id, &state.Size)
+	if err != nil {
+		return nil, err
+	}
+	return &types.ParamsRaw{
+		Codec: state.Codec,
+		Raw:   block,
 	}, nil
 }
 

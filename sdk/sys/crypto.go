@@ -135,7 +135,7 @@ func VerifyConsensusFault(
 	if !types.ValidateConsensusFaultType(faultType) {
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("received an invalid fault type (%d) from the runtime", faultType))
 	}
-	target, err := address.NewIDAddress(verifyFault.Target)
+	target, err := address.NewIDAddress(uint64(verifyFault.Target))
 	if err != nil {
 		return nil, ferrors.NewFvmError(ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("unable to new id address for %d %v", verifyFault.Target, err))
 	}

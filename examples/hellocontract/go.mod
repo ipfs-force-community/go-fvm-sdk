@@ -3,12 +3,14 @@ module hellocontract
 go 1.16
 
 replace (
+	github.com/ipfs-force-community/go-fvm-sdk => ../..
 	github.com/ipfs/go-block-format => github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c
 	github.com/klauspost/cpuid/v2 => github.com/ipfs-force-community/cpuid/v2 v2.0.13-0.20220421095210-bfbeb72f34dd
 	github.com/minio/sha256-simd => github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96
 	github.com/whyrusleeping/cbor-gen => github.com/ipfs-force-community/cbor-gen v0.0.0-20220421100448-dc345220256c
 	golang.org/x/crypto => github.com/ipfs-force-community/crypto v0.0.0-20220421095836-dd8044371872
 	hellocontract => ./
+	lukechampine.com/blake3 => github.com/ipfs-force-community/blake3 v1.1.8-0.20220609024944-51450f2b2fc0
 )
 
 require (
@@ -18,11 +20,10 @@ require (
 )
 
 require (
-	github.com/filecoin-project/go-address v0.0.6
 	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/specs-actors v0.9.14 // indirect
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
-	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606080235-f183d12b8045
+	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
 	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.2.0 // indirect
 	github.com/multiformats/go-multihash v0.1.0 // indirect
