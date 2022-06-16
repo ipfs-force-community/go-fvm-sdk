@@ -46,6 +46,7 @@ func gen_cbor_type() {
 				contract.AllowanceReq{},
 				contract.TransferFromReq{},
 				contract.ApprovalReq{},
+				contract.FakeSetBalance{},
 			},
 		},
 	}

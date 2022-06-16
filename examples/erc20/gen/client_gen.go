@@ -59,6 +59,10 @@ var defaultClientImport = []typegen.Import{
 		Name:    "abi",
 		PkgPath: "github.com/filecoin-project/go-state-types/abi",
 	},
+	{
+		Name:    "typegen",
+		PkgPath: "github.com/whyrusleeping/cbor-gen",
+	},
 }
 
 var funcs = map[string]interface{}{

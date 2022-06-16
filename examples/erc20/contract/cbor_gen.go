@@ -618,8 +618,8 @@ func (t *TransferFromReq) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.SpenderAddr (address.Address) (struct)
-	if err := t.SpenderAddr.MarshalCBOR(cw); err != nil {
+	// t.ReceiverAddr (address.Address) (struct)
+	if err := t.ReceiverAddr.MarshalCBOR(cw); err != nil {
 		return err
 	}
 
@@ -662,12 +662,12 @@ func (t *TransferFromReq) UnmarshalCBOR(r io.Reader) (err error) {
 		}
 
 	}
-	// t.SpenderAddr (address.Address) (struct)
+	// t.ReceiverAddr (address.Address) (struct)
 
 	{
 
-		if err := t.SpenderAddr.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.SpenderAddr: %w", err)
+		if err := t.ReceiverAddr.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.ReceiverAddr: %w", err)
 		}
 
 	}
@@ -766,6 +766,86 @@ func (t *ApprovalReq) UnmarshalCBOR(r io.Reader) (err error) {
 			t.NewAllowance = new(big.Int)
 			if err := t.NewAllowance.UnmarshalCBOR(cr); err != nil {
 				return xerrors.Errorf("unmarshaling t.NewAllowance pointer: %w", err)
+			}
+		}
+
+	}
+	return nil
+}
+
+var lengthBufFakeSetBalance = []byte{130}
+
+func (t *FakeSetBalance) MarshalCBOR(w io.Writer) error {
+	if t == nil {
+		_, err := w.Write(cbg.CborNull)
+		return err
+	}
+
+	cw := cbg.NewCborWriter(w)
+
+	if _, err := cw.Write(lengthBufFakeSetBalance); err != nil {
+		return err
+	}
+
+	// t.Addr (address.Address) (struct)
+	if err := t.Addr.MarshalCBOR(cw); err != nil {
+		return err
+	}
+
+	// t.Balance (big.Int) (struct)
+	if err := t.Balance.MarshalCBOR(cw); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *FakeSetBalance) UnmarshalCBOR(r io.Reader) (err error) {
+	*t = FakeSetBalance{}
+
+	cr := cbg.NewCborReader(r)
+
+	maj, extra, err := cr.ReadHeader()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err == io.EOF {
+			err = io.ErrUnexpectedEOF
+		}
+	}()
+
+	if maj != cbg.MajArray {
+		return fmt.Errorf("cbor input should be of type array")
+	}
+
+	if extra != 2 {
+		return fmt.Errorf("cbor input had wrong number of fields")
+	}
+
+	// t.Addr (address.Address) (struct)
+
+	{
+
+		if err := t.Addr.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.Addr: %w", err)
+		}
+
+	}
+	// t.Balance (big.Int) (struct)
+
+	{
+
+		b, err := cr.ReadByte()
+		if err != nil {
+			return err
+		}
+		if b != cbg.CborNull[0] {
+			if err := cr.UnreadByte(); err != nil {
+				return err
+			}
+			t.Balance = new(big.Int)
+			if err := t.Balance.UnmarshalCBOR(cr); err != nil {
+				return xerrors.Errorf("unmarshaling t.Balance pointer: %w", err)
 			}
 		}
 

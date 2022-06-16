@@ -20,13 +20,103 @@
     {
       "name": "erc20",
       "binary": "erc20.wasm",
-      "constructor": "84696d6f636b20746573746874657374436f696e05420064",
+      "constructor": "846556656e757361560647005af3107a3fff",
        "cases": [
+         {
+           "name": "fake set",
+           "send_value": 0,
+           "method_num": 11,
+           "params":"82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b47005af3107a3fff",
+           "return_data": ""
+         },
          {
            "name": "get name",
            "send_value": 0,
            "method_num": 2,
-           "params":""
+           "params":"",
+           "return_data": "6556656e7573"
+         },
+         {
+           "name": "get sympol",
+           "send_value": 0,
+           "method_num": 3,
+           "return_data":"6156"
+         },
+         {
+           "name": "get decimal",
+           "send_value": 0,
+           "method_num": 4,
+           "return_data":"06"
+         },
+         {
+           "name": "get supply",
+           "send_value": 0,
+           "method_num": 5,
+           "return_data":"47005af3107a3fff"
+         },
+         {
+           "name": "get balance of owner",
+           "send_value": 0,
+           "method_num": 6,
+           "params": "550167bfc926cc3037e8237653ad3dd9d9b3c078a86b",
+           "return_data":"47005af3107a3fff"
+         },
+         {
+           "name": "transfer",
+           "send_value": 0,
+           "method_num": 7,
+           "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b7420064"
+         },
+         {
+           "name": "get balance of receiver",
+           "send_value": 0,
+           "method_num": 6,
+           "params": "55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
+           "return_data":"420064"
+         },
+         {
+           "name": "approval",
+           "send_value": 0,
+           "method_num": 9,
+           "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b74200c8"
+         },
+         {
+           "name": "approval two",
+           "send_value": 0,
+           "method_num": 9,
+           "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b74200c8"
+         },
+         {
+           "name": "get allowance",
+           "send_value": 0,
+           "method_num": 10,
+           "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
+           "return_data": "43000190"
+         },
+         {
+           "name": "transfer from",
+           "send_from": 1,
+           "send_value": 0,
+           "method_num": 8,
+           "params": "83550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7420032",
+           "return_data": ""
+         },
+         {
+           "name": "get allowance(check after transfer)",
+           "send_value": 0,
+           "method_num": 10,
+           "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
+           "return_data": "4300015e"
+         },
+         {
+           "name": "fail transfer from",
+           "send_from": 0,
+           "send_value": 0,
+           "method_num": 8,
+           "params": "8355011db1109ffc3c7adb42ba324834e2a679ef7514b7550167bfc926cc3037e8237653ad3dd9d9b3c078a86b420032",
+           "return_data": "",
+           "expect_code": 20,
+           "expect_message":"call error approved amount for 101-100 less than zero (20)"
          }
        ]
     }

@@ -36,10 +36,11 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	var callResult cbor.Marshaler
+	var raw *types.ParamsRaw
 	switch method {
 	case 1:
 		//Constuctor
-		raw, err := sdk.ParamsRaw(blockId)
+		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
@@ -81,7 +82,7 @@ func Invoke(blockId uint32) uint32 {
 
 	case 6:
 
-		raw, err := sdk.ParamsRaw(blockId)
+		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
@@ -98,7 +99,7 @@ func Invoke(blockId uint32) uint32 {
 
 	case 7:
 
-		raw, err := sdk.ParamsRaw(blockId)
+		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
@@ -117,7 +118,7 @@ func Invoke(blockId uint32) uint32 {
 
 	case 8:
 
-		raw, err := sdk.ParamsRaw(blockId)
+		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
@@ -136,7 +137,7 @@ func Invoke(blockId uint32) uint32 {
 
 	case 9:
 
-		raw, err := sdk.ParamsRaw(blockId)
+		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
@@ -153,6 +154,42 @@ func Invoke(blockId uint32) uint32 {
 			callResult = typegen.CborBool(true)
 		}
 
+	case 10:
+
+		raw, err = sdk.ParamsRaw(blockId)
+		if err != nil {
+			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.AllowanceReq
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		//have params/return/error
+		state := new(contract.Erc20Token)
+		sdk.LoadState(state)
+		callResult, err = state.Allowance(&req)
+
+	case 11:
+
+		raw, err = sdk.ParamsRaw(blockId)
+		if err != nil {
+			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.FakeSetBalance
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		//have params/error but no return val
+		state := new(contract.Erc20Token)
+		sdk.LoadState(state)
+		if err = state.FakeSetBalance(&req); err == nil {
+			callResult = typegen.CborBool(true)
+		}
+
 	default:
 		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unsupport method")
 	}
@@ -161,7 +198,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
 	}
 
-	if callResult != nil {
+	if !sdk.IsNil(callResult) {
 		buf := bytes.NewBufferString("")
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {

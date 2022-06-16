@@ -310,10 +310,11 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	var callResult cbor.Marshaler
+	var raw *types.ParamsRaw
 	switch method {
 {{range .Methods}}case {{.MethodNum}}:
 {{if eq .FuncName  "Constructor"}}  //Constuctor
-		{{if .HasParams}}raw, err := sdk.ParamsRaw(blockId)
+		{{if .HasParams}}raw, err = sdk.ParamsRaw(blockId)
 						if err != nil {
 							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 						}
@@ -328,7 +329,7 @@ func Invoke(blockId uint32) uint32 {
                 callResult = typegen.CborBool(true)
           {{end}}
 {{else}}
-		  {{if .HasParams}}raw, err := sdk.ParamsRaw(blockId)
+		  {{if .HasParams}}raw, err = sdk.ParamsRaw(blockId)
 								if err != nil {
 									sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 								}
@@ -397,7 +398,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
 	}
 
-	if callResult != nil {
+	if !sdk.IsNil(callResult) {
 		buf := bytes.NewBufferString("")
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {

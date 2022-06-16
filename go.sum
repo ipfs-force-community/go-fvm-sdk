@@ -82,8 +82,8 @@ github.com/ipfs-force-community/go-state-types v0.1.8-0.20220523102255-d400d329d
 github.com/ipfs-force-community/go-state-types v0.1.8-0.20220523102255-d400d329d9c1/go.mod h1:UwGVoMsULoCK+bWjEdd/xLCvLAQFBC7EDT477SKml+Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96 h1:7SS72VbmaaYbr5BGRB7bL7stlNwLeY5OVFL7J+Xwi7Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96/go.mod h1:f+LTnn56dRz2YGVXAZIW3myTjkbJhfyRDELQpWRHXto=
-github.com/ipfs-force-community/testify v1.7.1-0.20220507025933-e761b418477e h1:mblKzNSUT/sCRcRSxWCOl1k44mg5DENlrFBTvFigmZ4=
-github.com/ipfs-force-community/testify v1.7.1-0.20220507025933-e761b418477e/go.mod h1:osXe5QtS14l7+Z+EH5DSWbbmR9t1RKu3S2yKm9ZYdrw=
+github.com/ipfs-force-community/testify v1.7.1-0.20220616060316-ea4f53121ac3 h1:jOD7w0vxDcm8XqzFQWNxqAswfeJVmtBF3OLujqweHwc=
+github.com/ipfs-force-community/testify v1.7.1-0.20220616060316-ea4f53121ac3/go.mod h1:osXe5QtS14l7+Z+EH5DSWbbmR9t1RKu3S2yKm9ZYdrw=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
 github.com/ipfs/go-bitswap v0.1.0/go.mod h1:FFJEf18E9izuCqUtHxbWEvq+reg7o4CW5wSAE1wsxj0=
 github.com/ipfs/go-bitswap v0.1.2/go.mod h1:qxSWS4NXGs7jQ6zQvoPY3+NmOfHHG47mhkiLzBpJQIs=
