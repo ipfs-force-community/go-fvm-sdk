@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result};
 use clap::Parser;
 use colored::*;
 use fvm::executor::ApplyFailure;
@@ -20,8 +20,6 @@ use std::fs;
 use std::iter::Iterator;
 use std::path::PathBuf;
 use fvm::init_actor::INIT_ACTOR_ADDR;
-use libsecp256k1::PublicKeyFormat::Raw;
-use fvm_ipld_encoding::tuple::*;
 use fvm_ipld_encoding::{Cbor, RawBytes};
 use cid::Cid;
 use fvm_shared::bigint::Zero;
@@ -42,27 +40,43 @@ pub struct InitAccount {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TestJson {
     accounts: Vec<InitAccount>,
-    cases: Vec<WasmCase>,
-    contracts : Vec<ContractCase>,
+    #[serde(default)]
+    cases: Option<Vec<WasmCase>>,
+    #[serde(default)]
+    contracts : Option<Vec<ContractCase>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct WasmCase {
     name: String,
-    binary: String,
     method_num: u64,
-    actor_balance: u64,
-    send_value: u64,
-    params: String,
+    #[serde(default)]
     expect_code: u32,
+    #[serde(default)]
     expect_message: String,
+    #[serde(default)]
+    from_account: usize,
+    #[serde(default)]
+    params: String,
+    #[serde(default)]
+    send_value: u64,
+
+    //signle case specify
+    #[serde(default)]
+    binary: String,
+    #[serde(default)]
+    actor_balance: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ContractCase {
+    name: String,
     binary: String,
+    #[serde(default)]
     constructor: String,
-    cases: Vec<WasmCase>
+    #[serde(default)]
+    owner_account: usize,
+    cases: Vec<WasmCase>,
 }
 
 
@@ -72,10 +86,15 @@ pub fn run_testing(cfg: &TestConfig) {
 
     let test_json: TestJson = serde_json::from_slice(&buf).unwrap();
 
-    test_json.cases.iter().for_each(|test_case| { run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case)});
-    test_json.contracts.iter().for_each(|group_case| {
-        run_action_group(cfg.path.clone(), &test_json.accounts,  group_case).unwrap()
-    })
+    if let Some(cases) = test_json.cases {
+        cases.iter().for_each(|test_case| { run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case)});
+    }
+
+    if let Some(contracts) = test_json.contracts {
+        contracts.iter().for_each(|group_case| {
+            run_action_group(cfg.path.clone(), &test_json.accounts,  group_case).unwrap()
+        })
+    }
 }
 
 pub fn run_action_group(root_path: String, accounts_cfg: &Vec<InitAccount>, contract_case: &ContractCase) -> Result<()>{
@@ -92,25 +111,30 @@ pub fn run_action_group(root_path: String, accounts_cfg: &Vec<InitAccount>, cont
     let mut executor = tester.executor.unwrap();
     //install
     // Send message
+    let mut sequence = 0;
     let install_return: InstallReturn = {
+        let install_params = InstallParams{
+            code: RawBytes::from(buf)
+        }.marshal_cbor()?;
         let install_message = Message {
-            from: accounts[0].1,
+            from: accounts[contract_case.owner_account].1,
             to: INIT_ACTOR_ADDR,
             gas_limit: 1000000000000,
             method_num:3,
             value: BigInt::zero(),
-            params: RawBytes::from(buf),
+            params: RawBytes::from(install_params),
+            sequence,
             ..Message::default()
         };
 
-        let result =  executor.execute_message(install_message, ApplyKind::Explicit, 100)?;
-        if result.msg_receipt.exit_code.value() != 0 {
-            return Err(anyhow!("failed to install code"));
-        }
-        InstallReturn::unmarshal_cbor(result.msg_receipt.return_data.as_slice())
+        let ret =  executor.execute_message(install_message, ApplyKind::Explicit, 100)?;
+        check_message_receipt(contract_case.name.clone() + "_install_code", &ret, 0, "".to_owned());
+        InstallReturn::unmarshal_cbor(ret.msg_receipt.return_data.as_slice())
     }?;
 
+    println!("code cid {}", install_return.code_cid.clone());
     //create
+    sequence = sequence +1;
     let create_return:ExecReturn = {
         let constructor_params =  hex::decode(contract_case.constructor.clone())?;
         let exec_params = ExecParams{
@@ -119,30 +143,41 @@ pub fn run_action_group(root_path: String, accounts_cfg: &Vec<InitAccount>, cont
         }.marshal_cbor()?;
 
         let create_message = Message {
-            from: accounts[0].1,
+            from: accounts[contract_case.owner_account].1,
             to: INIT_ACTOR_ADDR,
             gas_limit: 1000000000000,
             method_num:2,
             value: BigInt::zero(),
             params:  RawBytes::from(exec_params),
+            sequence,
             ..Message::default()
         };
-        let result = executor.execute_message(create_message, ApplyKind::Explicit, 100)?;
-        if result.msg_receipt.exit_code.value() != 0 {
-            return Err(anyhow!("failed to install code"));
-        }
-        ExecReturn::unmarshal_cbor(result.msg_receipt.return_data.as_slice())
+        let ret = executor.execute_message(create_message, ApplyKind::Explicit, 100)?;
+        check_message_receipt(contract_case.name.clone() + "_create_actor", &ret, 0, "".to_owned());
+        ExecReturn::unmarshal_cbor(ret.msg_receipt.return_data.as_slice())
     }?;
     //invoke
+    println!("actor cid {}", create_return.id_address);
+    for wasm_case in &contract_case.cases {
+        sequence = sequence +1;
+        let message = Message {
+            from: accounts[wasm_case.from_account].1,
+            sequence,
+            to: create_return.id_address,
+            gas_limit: 1000000000000,
+            method_num:wasm_case.method_num,
+            value: BigInt::from(wasm_case.send_value),
+            ..Message::default()
+        };
 
-    for xx in &contract_case.cases {
-
+        let ret = executor.execute_message(message, ApplyKind::Explicit, 100)?;
+        check_message_receipt(contract_case.name.clone() +  "_"+ wasm_case.name.as_str(), &ret, wasm_case.expect_code, wasm_case.expect_message.clone())
     }
 
     Ok(())
 }
 
-pub fn run_signle_wasm(root_path: String, account: &Vec<InitAccount>, wasm_case: &WasmCase) {
+pub fn run_signle_wasm(root_path: String, accounts: &Vec<InitAccount>, wasm_case: &WasmCase) {
     let path: PathBuf = [root_path, wasm_case.binary.to_owned()]
         .iter()
         .collect();
@@ -150,38 +185,40 @@ pub fn run_signle_wasm(root_path: String, account: &Vec<InitAccount>, wasm_case:
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
     let ret = exec(
         &buf,
-        account,
-        wasm_case.method_num,
-        wasm_case.actor_balance,
-        wasm_case.send_value,
+        accounts,
+        wasm_case,
     )
         .unwrap();
-    if ret.msg_receipt.exit_code.value() != wasm_case.expect_code {
-        if let Some(fail_info) = ret.failure_info {
+    check_message_receipt(wasm_case.name.clone(), &ret, wasm_case.expect_code, wasm_case.expect_message.clone())
+}
+
+fn check_message_receipt(name: String, ret: &ApplyRet, expect_code: u32, expect_message: String) {
+    if ret.msg_receipt.exit_code.value() != expect_code {
+        if let Some(fail_info) = &ret.failure_info {
             panic!(
-                "case {} expect exit code {} but got {} {}",
-                wasm_case.name, wasm_case.expect_code, ret.msg_receipt.exit_code, fail_info
+                "{}:case {} expect exit code {} but got {} {}", "failed".red(),
+                name, expect_code, ret.msg_receipt.exit_code, fail_info
             )
         } else {
             panic!(
-                "case {} expect exit code {} but got {}",
-                wasm_case.name, wasm_case.expect_code, ret.msg_receipt.exit_code
+                "{}: case {} expect exit code {} but got {}", "failed".red(),
+                name, expect_code, ret.msg_receipt.exit_code
             )
         }
     }
 
-    if wasm_case.expect_code != 0 {
-        if let ApplyFailure::MessageBacktrace(mut trace) = ret.failure_info.unwrap() {
-            let abort_msg = trace.frames.pop().unwrap().message;
-            if abort_msg != wasm_case.expect_message {
+    if expect_code != 0 {
+        if let Some(ApplyFailure::MessageBacktrace( trace)) = &ret.failure_info {
+            let abort_msg = trace.frames.get(trace.frames.len()).unwrap();
+            if abort_msg.message != expect_message {
                 panic!(
-                    "case {} expect messcage {} but got {}",
-                    wasm_case.name, wasm_case.expect_message, abort_msg
+                    "{}: case {} expect messcage {} but got {}", "failed".red(),
+                    name, expect_message, abort_msg
                 )
             }
         }
     }
-    println! {"{}: case {}", "passed".green(), wasm_case.name}
+    println! {"{}: case {}", "passed".green(), name}
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Clone, Debug)]
@@ -208,9 +245,7 @@ pub fn new_tester(accounts_cfg: &[InitAccount]) -> Result<(Tester<MemoryBlocksto
 pub fn exec(
     wasm_bin: &[u8],
     init_accounts: &[InitAccount],
-    method_num: u64,
-    actor_balance: u64,
-    send_value: u64,
+    wasm_case: &WasmCase
 ) -> Result<ApplyRet> {
     // Instantiate tester
     let (mut tester, accounts) = new_tester(init_accounts)?;
@@ -222,14 +257,13 @@ pub fn exec(
     let state_cid = tester.set_state(&actor_state)?;
 
     // Set actor
-
     let actor_address = Address::new_id(10000);
     tester
         .set_actor_from_bin(
             wasm_bin,
             state_cid,
             actor_address,
-            BigInt::from(actor_balance),
+            BigInt::from(wasm_case.actor_balance),
         )
         .unwrap();
 
@@ -238,11 +272,11 @@ pub fn exec(
 
     // Send message
     let message = Message {
-        from: accounts[0].1,
+        from: accounts[wasm_case.from_account].1,
         to: actor_address,
         gas_limit: 1000000000000,
-        method_num,
-        value: BigInt::from(send_value),
+        method_num:wasm_case.method_num,
+        value: BigInt::from(wasm_case.send_value),
         ..Message::default()
     };
 
