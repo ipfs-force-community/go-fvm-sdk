@@ -6,8 +6,6 @@ import (
 	contract "erc20/contract"
 	fmt "fmt"
 
-	typegen "github.com/whyrusleeping/cbor-gen"
-
 	address "github.com/filecoin-project/go-address"
 	abi "github.com/filecoin-project/go-state-types/abi"
 	big "github.com/filecoin-project/go-state-types/big"
@@ -26,7 +24,7 @@ type FullNode interface {
 
 type IErc20TokenClient interface {
 	Install(context.Context, []byte) (*init8.InstallReturn, error)
-	Exec(context.Context, cid.Cid, []byte) (*init8.ExecReturn, error)
+	CreateActor(context.Context, cid.Cid, []byte) (*init8.ExecReturn, error)
 
 	Constructor(context.Context, *contract.ConstructorReq) error
 
@@ -55,7 +53,7 @@ type Erc20TokenClient struct {
 	Actor       address.Address
 }
 
-func (c *Erc20TokenClient) Exec(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
+func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
 	params, aErr := actors.SerializeParams(&init8.ExecParams{
 		CodeCID:           codeCid,
 		ConstructorParams: execParams,
@@ -177,7 +175,7 @@ func (c *Erc20TokenClient) GetName(ctx context.Context) (types2.CborString, erro
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(2),
 		Params: nil,
 	}
 
@@ -215,7 +213,7 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (types2.CborString, er
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(3),
 		Params: nil,
 	}
 
@@ -253,7 +251,7 @@ func (c *Erc20TokenClient) GetDecimal(ctx context.Context) (typegen.CborInt, err
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(4),
 		Params: nil,
 	}
 
@@ -291,7 +289,7 @@ func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context) (*big.Int, error)
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(5),
 		Params: nil,
 	}
 
@@ -333,7 +331,7 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(6),
 		Params: buf.Bytes(),
 	}
 
@@ -375,7 +373,7 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(7),
 		Params: buf.Bytes(),
 	}
 
@@ -409,7 +407,7 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(8),
 		Params: buf.Bytes(),
 	}
 
@@ -443,7 +441,7 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		To:     c.Actor,
 		From:   c.FromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
+		Method: abi.MethodNum(9),
 		Params: buf.Bytes(),
 	}
 

@@ -164,6 +164,7 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 
 	t.Balances[actorToString(senderID)] = Sub(balanceOfSender, transferReq.TransferAmount)
 	t.Balances[actorToString(receiverID)] = Add(balanceOfReceiver, transferReq.TransferAmount)
+	_ = sdk.SaveState(t)
 	return nil
 }
 
@@ -265,6 +266,7 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 	t.Balances[actorToString(tokenOwnerID)] = Sub(balanceOfTokenOwner, req.TransferAmount)
 	t.Balances[actorToString(receiverID)] = Add(balanceOfReceiver, req.TransferAmount)
 	t.Allowed[getAllowKey(tokenOwnerID, spenderID)] = Sub(approvedAmount, req.TransferAmount)
+	_ = sdk.SaveState(t)
 	return nil
 }
 
@@ -297,6 +299,7 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 	}
 
 	t.Allowed[getAllowKey(callerID, spenderID)] = Add(allowance, req.NewAllowance)
+	_ = sdk.SaveState(t)
 	return nil
 }
 
