@@ -57,7 +57,7 @@ func cryptoBatchVerifySeals(batchOff uintptr, batLen uint32, resultOff uintptr) 
 }
 
 func debugEnabled(ret uintptr) uint32 {
-	panic("ignore this error, just implement nonfvm for ide working")
+	return 0 //log usually used as global variable, stop panic when use this package
 }
 func debugLog(message uintptr, message_len uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")

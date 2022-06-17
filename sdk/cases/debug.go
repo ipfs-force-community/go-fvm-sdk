@@ -17,7 +17,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	assert.Nil(t, err, "create debug logger %v", err)
 
 	enabled := logger.Enabled()
-	assert.Equal(t, false, enabled)
+	assert.Equal(t, true, enabled)
 
 	err = logger.Log("")
 	assert.Nil(t, err)

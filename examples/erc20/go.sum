@@ -605,8 +605,8 @@ github.com/ipfs-force-community/metrics v1.0.0/go.mod h1:mn40SioMuKtjmRumHFy/fJ2
 github.com/ipfs-force-community/metrics v1.0.1-0.20211022060227-11142a08b729/go.mod h1:mn40SioMuKtjmRumHFy/fJ26Pn028XuDjUJE9dorjyw=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96 h1:7SS72VbmaaYbr5BGRB7bL7stlNwLeY5OVFL7J+Xwi7Q=
 github.com/ipfs-force-community/sha256-simd v1.0.1-0.20220421100150-fcbba4b6ea96/go.mod h1:f+LTnn56dRz2YGVXAZIW3myTjkbJhfyRDELQpWRHXto=
-github.com/ipfs-force-community/testify v1.7.1-0.20220507025933-e761b418477e h1:mblKzNSUT/sCRcRSxWCOl1k44mg5DENlrFBTvFigmZ4=
-github.com/ipfs-force-community/testify v1.7.1-0.20220507025933-e761b418477e/go.mod h1:osXe5QtS14l7+Z+EH5DSWbbmR9t1RKu3S2yKm9ZYdrw=
+github.com/ipfs-force-community/testify v1.7.1-0.20220616060316-ea4f53121ac3 h1:jOD7w0vxDcm8XqzFQWNxqAswfeJVmtBF3OLujqweHwc=
+github.com/ipfs-force-community/testify v1.7.1-0.20220616060316-ea4f53121ac3/go.mod h1:osXe5QtS14l7+Z+EH5DSWbbmR9t1RKu3S2yKm9ZYdrw=
 github.com/ipfs-force-community/venus-common-utils v0.0.0-20210924063144-1d3a5b30de87/go.mod h1:RTVEOzM+hkpqmcEWpyLDkx1oGO5r9ZWCgYxG/CsXzJQ=
 github.com/ipfs/bbloom v0.0.1/go.mod h1:oqo8CVWsJFMOZqTglBG4wydCE4IQA/G2/SEofB0rjUI=
 github.com/ipfs/bbloom v0.0.4/go.mod h1:cS9YprKXpoZ9lT0n/Mw/a6/aFV6DTjTLYHeA+gyqMG0=

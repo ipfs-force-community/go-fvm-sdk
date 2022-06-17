@@ -13,7 +13,7 @@ func Enabled() (bool, error) {
 		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get debug-enabled")
 	}
 
-	return result >= 0, nil
+	return result == 0, nil
 }
 
 func Log(msg string) error {

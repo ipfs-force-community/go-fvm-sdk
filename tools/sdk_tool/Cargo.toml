@@ -23,12 +23,13 @@ rand = "0.8.5"
 rand_chacha = "0.3"
 hex = "0.4.3"
 path-absolutize = "3.0.13"
+cid = { version = "0.8.3", default-features = false, features = ["serde-codec"] }
 
-fvm = {  git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7", default-features = false}
-fvm_shared = {  git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7" }
-fvm_ipld_hamt = {  git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7"}
-fvm_ipld_amt = { git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7" }
-fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm.git" , rev = "b5d75e7" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm.git" , rev = "b5d75e7" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7"  }
-fvm_integration_tests = { git = "https://github.com/filecoin-project/ref-fvm.git", rev = "b5d75e7" }
+fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental", default-features = false}
+fvm_shared = {  git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental" }
+fvm_ipld_hamt = {  git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental"}
+fvm_ipld_amt = { git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental" }
+fvm_ipld_car = { git = "https://github.com/ipfs-force-community/ref-fvm.git" , branch = "feat/keep_dep_experimental" }
+fvm_ipld_blockstore = { git = "https://github.com/ipfs-force-community/ref-fvm.git" , branch = "feat/keep_dep_experimental" }
+fvm_ipld_encoding = { git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental"  }
+fvm_integration_tests = { git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental" }

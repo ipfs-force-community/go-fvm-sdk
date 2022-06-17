@@ -15,6 +15,7 @@ import (
 	types "github.com/filecoin-project/venus/venus-shared/types"
 	types2 "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
+	typegen "github.com/whyrusleeping/cbor-gen"
 )
 
 type FullNode interface {
@@ -43,6 +44,10 @@ type IErc20TokenClient interface {
 	TransferFrom(context.Context, *contract.TransferFromReq) error
 
 	Approval(context.Context, *contract.ApprovalReq) error
+
+	Allowance(context.Context, *contract.AllowanceReq) (*big.Int, error)
+
+	FakeSetBalance(context.Context, *contract.FakeSetBalance) error
 }
 
 var _ IErc20TokenClient = (*Erc20TokenClient)(nil)
@@ -442,6 +447,82 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		From:   c.FromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(9),
+		Params: buf.Bytes(),
+	}
+
+	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return fmt.Errorf("actor execution failed")
+	}
+	return nil
+}
+
+func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq) (*big.Int, error) {
+	if c.Actor == address.Undef {
+		return nil, fmt.Errorf("unset actor address for call")
+	}
+
+	buf := bytes.NewBufferString("")
+	if err := p0.MarshalCBOR(buf); err != nil {
+		return nil, err
+	}
+	msg := &types.Message{
+		To:     c.Actor,
+		From:   c.FromAddress,
+		Value:  big.Zero(),
+		Method: abi.MethodNum(10),
+		Params: buf.Bytes(),
+	}
+
+	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return nil, fmt.Errorf("actor execution failed")
+	}
+	if len(wait.Receipt.Return) == 0 {
+		return nil, fmt.Errorf("expect get result for call")
+	}
+
+	result := new(big.Int)
+	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
+
+	return result, nil
+
+}
+
+func (c *Erc20TokenClient) FakeSetBalance(ctx context.Context, p0 *contract.FakeSetBalance) error {
+	if c.Actor == address.Undef {
+		return fmt.Errorf("unset actor address for call")
+	}
+
+	buf := bytes.NewBufferString("")
+	if err := p0.MarshalCBOR(buf); err != nil {
+		return err
+	}
+	msg := &types.Message{
+		To:     c.Actor,
+		From:   c.FromAddress,
+		Value:  big.Zero(),
+		Method: abi.MethodNum(11),
 		Params: buf.Bytes(),
 	}
 
