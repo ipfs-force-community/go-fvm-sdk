@@ -96,7 +96,7 @@ pub fn run_testing(cfg: &TestConfig) {
     if let Some(cases) = test_json.cases {
         cases
             .iter()
-            .filter(|v|   cfg.name.is_some() && v.name.eq(cfg.name.as_ref().unwrap()))
+            .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
             .for_each(|test_case| {
                 run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case);
             });
@@ -105,7 +105,7 @@ pub fn run_testing(cfg: &TestConfig) {
     if let Some(contracts) = &test_json.contracts {
         contracts
             .iter()
-            .filter(|v|   cfg.name.is_some() && v.name.eq(cfg.name.as_ref().unwrap()))
+            .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
             .for_each(|group_case| {
                 run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap();
             });
