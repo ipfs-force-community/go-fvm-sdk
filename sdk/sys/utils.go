@@ -6,7 +6,7 @@ import (
 )
 
 type emptyInterface struct {
-	_  uintptr
+	_    uintptr
 	word unsafe.Pointer
 }
 
