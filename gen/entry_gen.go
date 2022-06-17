@@ -6,9 +6,9 @@ import (
 	"go/format"
 	"os"
 
-	"github.com/filecoin-project/go-state-types/cbor"
-
 	"golang.org/x/tools/imports"
+
+	"github.com/filecoin-project/go-state-types/cbor"
 
 	typegen "github.com/whyrusleeping/cbor-gen"
 
@@ -60,7 +60,6 @@ func GenEntry(stateT reflect.Type, output string) error {
 	if err != nil {
 		return err
 	}
-
 	return formateAndWriteCode(buf.Bytes(), output)
 }
 
@@ -109,13 +108,12 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 	hasParam := false
 	for _, sortedFunc := range sortedFuncs {
 		functionT := reflect.TypeOf(sortedFunc.funcT)
-
 		if functionT.Kind() != reflect.Func {
 			return nil, fmt.Errorf("export must be function ")
 		}
 		var method = methodMap{}
 		v := reflect.ValueOf(sortedFunc.funcT)
-		method.FuncName = getFunctionName(v)
+		method.PkgName, method.FuncName = getFunctionName(v)
 		method.MethodNum = sortedFunc.method_num
 		method.StateName = stateName
 		//	functionT := function.Type
@@ -170,7 +168,8 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 
 	}
 	return &entryMeta{
-		Imports:   dedupImports(imports),
+		Imports: dedupImports(imports),
+		//PkgName:   ,
 		HasParam:  hasParam,
 		Methods:   methodsMap,
 		StateName: stateName,
@@ -206,16 +205,19 @@ func resolveTypeName(t reflect.Type, pkg string) string {
 	} else if pkgPath == pkg {
 		return t.Name()
 	}
-	return fmt.Sprintf("%s.%s", resolvePkgName(pkgPath, t.String()), t.Name())
+	return fmt.Sprintf("%s.%s", resolvePkgByFullName(pkgPath, t.String()), t.Name())
 }
 
-func resolvePkgName(path, typeName string) string {
+func resolvePkgByFullName(path, typeName string) string {
 	parts := strings.Split(typeName, ".")
 	if len(parts) != 2 {
 		panic(fmt.Sprintf("expected type to have a package name: %s", typeName))
 	}
 	defaultName := parts[0]
+	return resolvePkgName(path, defaultName)
+}
 
+func resolvePkgName(path, defaultName string) string {
 	knownPackageNamesMu.Lock()
 	defer knownPackageNamesMu.Unlock()
 
@@ -236,7 +238,6 @@ func resolvePkgName(path, typeName string) string {
 			return tryName
 		}
 	}
-
 }
 
 type sortMethod struct {
@@ -276,6 +277,7 @@ func dedupImports(imps []typegen.Import) []typegen.Import {
 type entryMeta struct {
 	Imports   []typegen.Import
 	HasParam  bool
+	PkgName   string
 	Methods   []methodMap
 	StateName string
 }
@@ -283,6 +285,7 @@ type entryMeta struct {
 type methodMap struct {
 	StateName      string
 	MethodNum      int
+	PkgName        string
 	FuncName       string
 	HasError       bool
 	HasParam       bool
@@ -332,7 +335,7 @@ func Invoke(blockId uint32) uint32 {
 {{if .HasParam}}var raw *types.ParamsRaw{{end}}
 	switch method {
 {{range .Methods}}case {{.MethodNum}}:
-{{if eq .FuncName  "Constructor"}}  //Constuctor
+{{if eq .MethodNum 1}}  //Constuctor
 		{{if .HasParam}}raw, err = sdk.ParamsRaw(blockId)
 						if err != nil {
 							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
@@ -342,9 +345,9 @@ func Invoke(blockId uint32) uint32 {
 						if err != nil {
 							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 						}
-						err = new({{.StateName}}).Constructor(&req)
+						err = {{.PkgName}}.{{.FuncName}}(&req)
 						callResult = typegen.CborBool(true)
-          {{else}}err = new({{.StateName}}).Constructor()
+          {{else}}err = {{.PkgName}}.{{.FuncName}}()
                 callResult = typegen.CborBool(true)
           {{end}}
 {{else}}
@@ -468,8 +471,20 @@ func defaultValue(t reflect.Type) string {
 		panic("unsupprt type")
 	}
 }
-func getFunctionName(temp reflect.Value) string {
-	strs := strings.Split((runtime.FuncForPC(temp.Pointer()).Name()), ".")
-	strs = strings.Split(strs[len(strs)-1], "-")
-	return strs[0]
+
+//hellocontract/contract.Constructor
+//hellocontract/contract.(*State).SayHello
+func getFunctionName(temp reflect.Value) (string, string) {
+	fullName := runtime.FuncForPC(temp.Pointer()).Name()
+
+	index := strings.LastIndex(fullName, "-")
+	if index > -1 {
+		fullName = fullName[:index]
+	}
+	split := strings.Split(fullName, ".")
+	name := split[len(split)-1]
+
+	split2 := strings.Split(split[0], "/")
+	pkgName := split2[len(split2)-1]
+	return resolvePkgName(split[0], pkgName), name
 }

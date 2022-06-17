@@ -44,10 +44,6 @@ var defaultClientImport = []typegen.Import{
 		PkgPath: "github.com/filecoin-project/go-address",
 	},
 	{
-		Name:    "big",
-		PkgPath: "github.com/filecoin-project/go-state-types/big",
-	},
-	{
 		Name:    "types",
 		PkgPath: "github.com/filecoin-project/venus/venus-shared/types",
 	},

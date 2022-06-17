@@ -38,7 +38,7 @@ func Invoke(blockId uint32) uint32 {
 	switch method {
 	case 1:
 		//Constuctor
-		err = new(contract.State).Constructor()
+		err = contract.Constructor()
 		callResult = typegen.CborBool(true)
 
 	case 2:

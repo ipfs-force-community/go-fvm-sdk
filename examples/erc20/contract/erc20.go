@@ -56,7 +56,7 @@ type Erc20Token struct {
 
 func (e *Erc20Token) Export() map[int]interface{} {
 	return map[int]interface{}{
-		1:  e.Constructor,
+		1:  Constructor,
 		2:  e.GetName,
 		3:  e.GetSymbol,
 		4:  e.GetDecimal,
@@ -77,7 +77,7 @@ type ConstructorReq struct {
 	TotalSupply *big.Int
 }
 
-func (t *Erc20Token) Constructor(req *ConstructorReq) error {
+func Constructor(req *ConstructorReq) error {
 	state := &Erc20Token{
 		Name:        req.Name,
 		Symbol:      req.Symbol,

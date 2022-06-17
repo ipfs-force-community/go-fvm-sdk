@@ -2,6 +2,7 @@ package main
 
 import (
 	"erc20/contract"
+	"fmt"
 	"log"
 	"reflect"
 
@@ -27,4 +28,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("gen for client %s", err)
 	}
+	fmt.Println("generate erc20 actor success")
 }

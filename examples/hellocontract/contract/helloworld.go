@@ -16,7 +16,7 @@ type State struct {
 
 func (e *State) Export() map[int]interface{} {
 	return map[int]interface{}{
-		1: e.Constructor,
+		1: Constructor,
 		2: e.SayHello,
 	}
 }
@@ -43,7 +43,7 @@ func NewState() *State {
 ///
 /// Method num 1. This is part of the Filecoin calling convention.
 /// InitActor#Exec will call the constructor on method_num = 1.
-func (st *State) Constructor() error {
+func Constructor() error {
 	// This constant should be part of the SDK.
 	// var  ActorID = 1;
 
