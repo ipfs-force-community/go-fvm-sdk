@@ -92,20 +92,20 @@ pub fn run_testing(cfg: &TestConfig) {
 
     if let Some(cases) = test_json.cases {
         cases.iter().for_each(|test_case| {
-            run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case)
+            run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case);
         });
     }
 
     if let Some(contracts) = test_json.contracts {
         contracts.iter().for_each(|group_case| {
-            run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap()
-        })
+            run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap();
+        });
     }
 }
 
 pub fn run_action_group(
     root_path: String,
-    accounts_cfg: &Vec<InitAccount>,
+    accounts_cfg: &[InitAccount],
     contract_case: &ContractCase,
 ) -> Result<()> {
     let path: PathBuf = [root_path, contract_case.binary.to_owned()]
@@ -202,13 +202,13 @@ pub fn run_action_group(
             wasm_case.expect_code,
             wasm_case.expect_message.clone(),
             hex::decode(wasm_case.return_data.clone())?,
-        )
+        );
     }
 
     Ok(())
 }
 
-pub fn run_signle_wasm(root_path: String, accounts: &Vec<InitAccount>, wasm_case: &WasmCase) {
+pub fn run_signle_wasm(root_path: String, accounts: &[InitAccount], wasm_case: &WasmCase) {
     let path: PathBuf = [root_path, wasm_case.binary.to_owned()].iter().collect();
     let buf = fs::read(path.clone())
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
@@ -219,7 +219,7 @@ pub fn run_signle_wasm(root_path: String, accounts: &Vec<InitAccount>, wasm_case
         wasm_case.expect_code,
         wasm_case.expect_message.clone(),
         vec![],
-    )
+    );
 }
 
 fn check_message_receipt(
@@ -265,7 +265,7 @@ fn check_message_receipt(
         }
     }
 
-    if expect_code == 0 && expect_receipt.len() > 0 {
+    if expect_code == 0 && !expect_receipt.is_empty() {
         let return_data = ret.msg_receipt.return_data.bytes().to_vec();
         if return_data != expect_receipt {
             panic!(
