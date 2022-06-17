@@ -20,17 +20,9 @@ require (
 )
 
 require (
-	github.com/filecoin-project/go-crypto v0.0.1 // indirect
-	github.com/filecoin-project/specs-actors v0.9.14 // indirect
-	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
+	github.com/filecoin-project/go-address v0.0.6
+	github.com/filecoin-project/go-state-types v0.1.9
+	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220412224951-92abd0e6e7ae
+	github.com/filecoin-project/venus v1.2.4
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
-	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
-	github.com/ipfs/go-ipld-format v0.2.0 // indirect
-	github.com/multiformats/go-multihash v0.1.0 // indirect
-	github.com/polydawn/refmt v0.0.0-20201211092308-30ac6d18308e // indirect
-	github.com/smartystreets/goconvey v1.6.4 // indirect
-	github.com/warpfork/go-wish v0.0.0-20200122115046-b9ea61034e4a // indirect
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

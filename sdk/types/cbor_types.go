@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 
@@ -30,4 +31,19 @@ func (cb *CborString) UnmarshalCBOR(r io.Reader) error {
 	}
 	*cb = CborString(str)
 	return nil
+}
+
+// Wraps already-serialized bytes as CBOR-marshalable.
+type CBORBytes []byte
+
+func (b CBORBytes) MarshalCBOR(w io.Writer) error {
+	_, err := w.Write(b)
+	return err
+}
+
+func (b *CBORBytes) UnmarshalCBOR(r io.Reader) error {
+	var c bytes.Buffer
+	_, err := c.ReadFrom(r)
+	*b = c.Bytes()
+	return err
 }
