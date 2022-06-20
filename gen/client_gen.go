@@ -131,6 +131,7 @@ package client
 
 import ({{range .}}{{.Name}} "{{.PkgPath}}"
 {{end}}
+v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
@@ -152,9 +153,45 @@ func genClientImplemnt(w io.Writer, meta entryMeta) error {
 var _ I{{trimPackage .StateName}}Client = (*{{trimPackage .StateName}}Client)(nil)
 
 type {{trimPackage .StateName}}Client struct {
-	Node        FullNode
-	FromAddress address.Address
-	Actor       address.Address
+	node        v0.FullNode
+	fromAddress address.Address
+	actor       address.Address
+}
+
+
+//Option option func
+type Option func(opt ClientOption)
+
+//ClientOption option for set client config
+type ClientOption struct {
+	fromAddress address.Address
+	actor       address.Address
+}
+
+//SetFromAddressOpt used to set from address who send actor messages
+func SetFromAddressOpt(fromAddress address.Address) Option {
+	return func(opt ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+//SetActorOpt used to set exit actoraddress
+func SetActorOpt(actor address.Address) Option {
+	return func(opt ClientOption) {
+		opt.actor = actor
+	}
+}
+
+func New{{trimPackage .StateName}}Client(fullNode v0.FullNode, opts ...Option) *{{trimPackage .StateName}}Client {
+	cfg := ClientOption{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	return &{{trimPackage .StateName}}Client{
+		node: fullNode,
+		fromAddress: cfg.fromAddress,
+		actor:       cfg.actor,
+	}
 }
 
 func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
@@ -168,18 +205,18 @@ func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, code
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -207,18 +244,18 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 3,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -279,7 +316,7 @@ type I{{trimPackage .StateName}}Client interface {
 func genClientParamsReturnMethod(w io.Writer, entry methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) ({{.ReturnTypeName}}, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("unset actor address for call")
 	}
 
@@ -288,19 +325,19 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		return {{.DefaultReturn|raw}}, err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -334,7 +371,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 func genClientParamsNOReturnMethod(w io.Writer, entry methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return  fmt.Errorf("unset actor address for call")
 	}
 
@@ -343,19 +380,19 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		return  err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return  fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -379,24 +416,24 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 func genClientNoParamsReturnMethod(w io.Writer, entry methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({{.ReturnTypeName}}, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -430,24 +467,24 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({
 func genClientNoParamsNoReturnMethod(w io.Writer, entry methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}

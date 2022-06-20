@@ -14,6 +14,8 @@ import (
 	types "github.com/filecoin-project/venus/venus-shared/types"
 	types2 "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
+
+	v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
@@ -33,9 +35,44 @@ type IStateClient interface {
 var _ IStateClient = (*StateClient)(nil)
 
 type StateClient struct {
-	Node        FullNode
-	FromAddress address.Address
-	Actor       address.Address
+	node        v0.FullNode
+	fromAddress address.Address
+	actor       address.Address
+}
+
+//Option option func
+type Option func(opt ClientOption)
+
+//ClientOption option for set client config
+type ClientOption struct {
+	fromAddress address.Address
+	actor       address.Address
+}
+
+//SetFromAddressOpt used to set from address who send actor messages
+func SetFromAddressOpt(fromAddress address.Address) Option {
+	return func(opt ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+//SetActorOpt used to set exit actoraddress
+func SetActorOpt(actor address.Address) Option {
+	return func(opt ClientOption) {
+		opt.actor = actor
+	}
+}
+
+func NewStateClient(fullNode v0.FullNode, opts ...Option) *StateClient {
+	cfg := ClientOption{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	return &StateClient{
+		node:        fullNode,
+		fromAddress: cfg.fromAddress,
+		actor:       cfg.actor,
+	}
 }
 
 func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
@@ -49,18 +86,18 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, execPara
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -88,18 +125,18 @@ func (c *StateClient) Install(ctx context.Context, code []byte) (*init8.InstallR
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 3,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -118,24 +155,24 @@ func (c *StateClient) Install(ctx context.Context, code []byte) (*init8.InstallR
 }
 
 func (c *StateClient) Constructor(ctx context.Context) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(1),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -148,24 +185,24 @@ func (c *StateClient) Constructor(ctx context.Context) error {
 }
 
 func (c *StateClient) SayHello(ctx context.Context) (types2.CBORBytes, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(2),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
