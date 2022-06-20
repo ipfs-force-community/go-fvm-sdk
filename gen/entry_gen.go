@@ -476,11 +476,8 @@ func defaultValue(t reflect.Type) string {
 //hellocontract/contract.(*State).SayHello
 func getFunctionName(temp reflect.Value) (string, string) {
 	fullName := runtime.FuncForPC(temp.Pointer()).Name()
+	fullName = strings.TrimSuffix(fullName, "-fm")
 
-	index := strings.LastIndex(fullName, "-")
-	if index > -1 {
-		fullName = fullName[:index]
-	}
 	split := strings.Split(fullName, ".")
 	name := split[len(split)-1]
 
