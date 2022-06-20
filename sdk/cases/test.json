@@ -18,7 +18,7 @@
   ],
   "cases":[
     {
-      "name": "abort USR_ILLEGAL_ARGUMENT",
+      "name": "abort_USR_ILLEGAL_ARGUMENT",
       "binary": "abort.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -28,7 +28,7 @@
       "expect_message": "test_abort USR_ILLEGAL_ARGUMENT"
     },
     {
-      "name": "abort SYS_SENDER_STATE_INVALID ",
+      "name": "abort_SYS_SENDER_STATE_INVALID ",
       "binary": "abort.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -38,7 +38,7 @@
       "expect_message": "test_abort SYS_SENDER_STATE_INVALID"
     },
     {
-      "name": "ipld test ",
+      "name": "ipld_test ",
       "binary": "ipld.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -48,7 +48,7 @@
       "expect_message": ""
     },
     {
-      "name": "message test ",
+      "name": "message_test ",
       "binary": "message.wasm",
       "actor_balance": 0,
       "send_value": 10,
@@ -58,7 +58,7 @@
       "expect_message": ""
     },
     {
-      "name": "sself test ",
+      "name": "sself_test ",
       "binary": "sself.wasm",
       "actor_balance": 20,
       "send_value": 0,
@@ -68,7 +68,7 @@
       "expect_message": ""
     },
     {
-      "name": "network test",
+      "name": "network_test",
       "binary": "network.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -78,7 +78,7 @@
       "expect_message": ""
     },
     {
-      "name": "gas test",
+      "name": "gas_test",
       "binary": "gas.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -88,7 +88,7 @@
       "expect_message": ""
     },
     {
-      "name": "debug log test",
+      "name": "debug_log_test",
       "binary": "debug.wasm",
       "actor_balance": 0,
       "send_value": 0,
@@ -98,7 +98,7 @@
       "expect_message": ""
     },
     {
-      "name": "send test SYS_ILLEGAL_INSTRUCTION(resource not found)",
+      "name": "send_test_SYS_ILLEGAL_INSTRUCTION(resource not found)",
       "binary": "send.wasm",
       "actor_balance": 10,
       "send_value": 0,
@@ -108,7 +108,7 @@
       "expect_message": "wasm `unreachable` instruction executed"
     },
     {
-      "name": "send test",
+      "name": "send_test",
       "binary": "send.wasm",
       "actor_balance": 10,
       "send_value": 0,
@@ -118,7 +118,7 @@
       "expect_message": ""
     },
     {
-      "name": "send test SYS_ILLEGAL_INSTRUCTION(insufficient funds)",
+      "name": "send_test_SYS_ILLEGAL_INSTRUCTION(insufficient funds)",
       "binary": "send.wasm",
       "actor_balance": 10,
       "send_value": 0,

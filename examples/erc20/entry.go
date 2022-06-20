@@ -49,7 +49,7 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
-		err = new(contract.Erc20Token).Constructor(&req)
+		err = contract.Constructor(&req)
 		callResult = typegen.CborBool(true)
 
 	case 2:

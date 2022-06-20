@@ -28,8 +28,11 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct TestConfig {
-    #[clap(short, long)]
+    #[clap(last = true)]
     path: String,
+
+    #[clap(short, long)]
+    name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -91,15 +94,21 @@ pub fn run_testing(cfg: &TestConfig) {
     let test_json: TestJson = serde_json::from_slice(&buf).unwrap();
 
     if let Some(cases) = test_json.cases {
-        cases.iter().for_each(|test_case| {
-            run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case);
-        });
+        cases
+            .iter()
+            .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
+            .for_each(|test_case| {
+                run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case);
+            });
     }
 
-    if let Some(contracts) = test_json.contracts {
-        contracts.iter().for_each(|group_case| {
-            run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap();
-        });
+    if let Some(contracts) = &test_json.contracts {
+        contracts
+            .iter()
+            .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
+            .for_each(|group_case| {
+                run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap();
+            });
     }
 }
 

@@ -16,6 +16,8 @@ import (
 	types2 "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
 	typegen "github.com/whyrusleeping/cbor-gen"
+
+	v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
@@ -53,9 +55,44 @@ type IErc20TokenClient interface {
 var _ IErc20TokenClient = (*Erc20TokenClient)(nil)
 
 type Erc20TokenClient struct {
-	Node        FullNode
-	FromAddress address.Address
-	Actor       address.Address
+	node        v0.FullNode
+	fromAddress address.Address
+	actor       address.Address
+}
+
+//Option option func
+type Option func(opt ClientOption)
+
+//ClientOption option for set client config
+type ClientOption struct {
+	fromAddress address.Address
+	actor       address.Address
+}
+
+//SetFromAddressOpt used to set from address who send actor messages
+func SetFromAddressOpt(fromAddress address.Address) Option {
+	return func(opt ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+//SetActorOpt used to set exit actoraddress
+func SetActorOpt(actor address.Address) Option {
+	return func(opt ClientOption) {
+		opt.actor = actor
+	}
+}
+
+func NewErc20TokenClient(fullNode v0.FullNode, opts ...Option) *Erc20TokenClient {
+	cfg := ClientOption{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	return &Erc20TokenClient{
+		node:        fullNode,
+		fromAddress: cfg.fromAddress,
+		actor:       cfg.actor,
+	}
 }
 
 func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
@@ -69,18 +106,18 @@ func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, exe
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -108,18 +145,18 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*init8.Ins
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.FromAddress,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: 3,
 		Params: params,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -138,7 +175,7 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*init8.Ins
 }
 
 func (c *Erc20TokenClient) Constructor(ctx context.Context, p0 *contract.ConstructorReq) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -147,19 +184,19 @@ func (c *Erc20TokenClient) Constructor(ctx context.Context, p0 *contract.Constru
 		return err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(1),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -172,24 +209,24 @@ func (c *Erc20TokenClient) Constructor(ctx context.Context, p0 *contract.Constru
 }
 
 func (c *Erc20TokenClient) GetName(ctx context.Context) (types2.CborString, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(2),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return "", fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -210,24 +247,24 @@ func (c *Erc20TokenClient) GetName(ctx context.Context) (types2.CborString, erro
 }
 
 func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (types2.CborString, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(3),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return "", fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -248,24 +285,24 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (types2.CborString, er
 }
 
 func (c *Erc20TokenClient) GetDecimal(ctx context.Context) (typegen.CborInt, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return 0, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(4),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return 0, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return 0, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -286,24 +323,24 @@ func (c *Erc20TokenClient) GetDecimal(ctx context.Context) (typegen.CborInt, err
 }
 
 func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context) (*big.Int, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(5),
 		Params: nil,
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -324,7 +361,7 @@ func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context) (*big.Int, error)
 }
 
 func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address) (*big.Int, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
@@ -333,19 +370,19 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 		return nil, err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(6),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -366,7 +403,7 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 }
 
 func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferReq) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -375,19 +412,19 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 		return err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(7),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -400,7 +437,7 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 }
 
 func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.TransferFromReq) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -409,19 +446,19 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 		return err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(8),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -434,7 +471,7 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 }
 
 func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalReq) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -443,19 +480,19 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		return err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(9),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -468,7 +505,7 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 }
 
 func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq) (*big.Int, error) {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
@@ -477,19 +514,19 @@ func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.Allowance
 		return nil, err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(10),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return nil, fmt.Errorf("error waiting for message: %w", err)
 	}
@@ -510,7 +547,7 @@ func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.Allowance
 }
 
 func (c *Erc20TokenClient) FakeSetBalance(ctx context.Context, p0 *contract.FakeSetBalance) error {
-	if c.Actor == address.Undef {
+	if c.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -519,19 +556,19 @@ func (c *Erc20TokenClient) FakeSetBalance(ctx context.Context, p0 *contract.Fake
 		return err
 	}
 	msg := &types.Message{
-		To:     c.Actor,
-		From:   c.FromAddress,
+		To:     c.actor,
+		From:   c.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(11),
 		Params: buf.Bytes(),
 	}
 
-	smsg, err := c.Node.MpoolPushMessage(ctx, msg, nil)
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
 	if err != nil {
 		return fmt.Errorf("failed to push message: %w", err)
 	}
 
-	wait, err := c.Node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
 	if err != nil {
 		return fmt.Errorf("error waiting for message: %w", err)
 	}
