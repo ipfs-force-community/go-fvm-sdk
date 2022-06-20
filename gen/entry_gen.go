@@ -100,22 +100,18 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		return nil, fmt.Errorf("assert Export return type fail,")
 	}
 
-	stateName := typeName(pkg, stateT)
-	var methodsMap []methodMap
-	var imports []typegen.Import
-	imports = append(imports, typegen.ImportsForType(pkg, stateT)...)
+	var methodsMap []*methodMap
 	sortedFuncs := sortMap(exports)
 	hasParam := false
+	typesToImport := []reflect.Type{stateT}
 	for _, sortedFunc := range sortedFuncs {
 		functionT := reflect.TypeOf(sortedFunc.funcT)
 		if functionT.Kind() != reflect.Func {
 			return nil, fmt.Errorf("export must be function ")
 		}
-		var method = methodMap{}
-		v := reflect.ValueOf(sortedFunc.funcT)
-		method.PkgName, method.FuncName = getFunctionName(v)
+		var method = &methodMap{}
+		method.FuncT = reflect.ValueOf(sortedFunc.funcT)
 		method.MethodNum = sortedFunc.method_num
-		method.StateName = stateName
 		//	functionT := function.Type
 
 		if functionT.NumIn() > 1 {
@@ -126,9 +122,9 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 				return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
 			}
 			method.HasParam = true
+			method.ParamsType = functionT.In(0)
 			hasParam = true
-			method.ParamsTypeName = typeName(pkg, functionT.In(0))
-			imports = append(imports, typegen.ImportsForType(pkg, functionT.In(0))...)
+			typesToImport = append(typesToImport, functionT.In(0))
 		}
 
 		if functionT.NumOut() > 2 {
@@ -145,16 +141,15 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			}
 			method.HasReturn = true
 			method.HasError = true
-			method.ReturnTypeName = typeName(pkg, functionT.Out(0))
-			method.DefaultReturn = defaultValue(functionT.Out(0))
-			imports = append(imports, typegen.ImportsForType(pkg, functionT.Out(0))...)
+			method.ReturnType = functionT.Out(0)
+			typesToImport = append(typesToImport, functionT.Out(0))
 		} else if functionT.NumOut() == 1 {
 			if functionT.Out(0).AssignableTo(errorT) {
 				method.HasReturn = false
 				method.HasError = true
 			} else {
-				method.ReturnTypeName = typeName(pkg, functionT.Out(0))
-				method.DefaultReturn = defaultValue(functionT.Out(0))
+				typesToImport = append(typesToImport, functionT.Out(0))
+				method.ReturnType = functionT.Out(0)
 				method.HasReturn = true
 				method.HasError = false
 			}
@@ -166,6 +161,26 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 
 		methodsMap = append(methodsMap, method)
 
+	}
+
+	//resolve package and name
+	imports := defaultClientImport
+	for _, importType := range typesToImport {
+		imports = append(imports, ImportsForType(pkg, importType)...)
+	}
+	imports = dedupImports(imports)
+
+	stateName := typeName(pkg, stateT)
+	for _, m := range methodsMap {
+		m.PkgName, m.FuncName = getFunctionName(m.FuncT)
+		m.StateName = stateName
+		if m.HasParam {
+			m.ParamsTypeName = typeName(pkg, m.ParamsType)
+		}
+		if m.HasReturn {
+			m.ReturnTypeName = typeName(pkg, m.ReturnType)
+			m.DefaultReturn = defaultValue(m.ReturnType)
+		}
 	}
 	return &entryMeta{
 		Imports: dedupImports(imports),
@@ -274,23 +289,46 @@ func dedupImports(imps []typegen.Import) []typegen.Import {
 	return deduped
 }
 
+func ImportsForType(currPkg string, t reflect.Type) []typegen.Import {
+	switch t.Kind() {
+	case reflect.Array, reflect.Slice, reflect.Ptr:
+		return ImportsForType(currPkg, t.Elem())
+	case reflect.Map:
+		return dedupImports(append(ImportsForType(currPkg, t.Key()), ImportsForType(currPkg, t.Elem())...))
+	default:
+		path := t.PkgPath()
+		if path == "" || path == currPkg {
+			// built-in or in current package.
+			return nil
+		}
+
+		return []typegen.Import{{PkgPath: path, Name: resolvePkgByFullName(path, t.String())}}
+	}
+}
+
 type entryMeta struct {
 	Imports   []typegen.Import
 	HasParam  bool
 	PkgName   string
-	Methods   []methodMap
+	Methods   []*methodMap
 	StateName string
+	StateType reflect.Type
 }
 
 type methodMap struct {
-	StateName      string
-	MethodNum      int
-	PkgName        string
-	FuncName       string
-	HasError       bool
-	HasParam       bool
-	HasReturn      bool
+	StateName string
+	MethodNum int
+	FuncT     reflect.Value
+	PkgName   string
+	FuncName  string
+	HasError  bool
+	HasParam  bool
+	HasReturn bool
+
+	ParamsType     reflect.Type
 	ParamsTypeName string
+
+	ReturnType     reflect.Type
 	ReturnTypeName string
 	DefaultReturn  string
 }
@@ -301,14 +339,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/filecoin-project/go-state-types/cbor"
-
-	typegen "github.com/whyrusleeping/cbor-gen"
-
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
-
 	{{range .Imports}}
 	 {{.Name}} "{{.PkgPath}}"
 	{{end}}
@@ -332,7 +362,7 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	var callResult cbor.Marshaler
-{{if .HasParam}}var raw *types.ParamsRaw{{end}}
+{{if .HasParam}}var raw *sdkTypes.ParamsRaw{{end}}
 	switch method {
 {{range .Methods}}case {{.MethodNum}}:
 {{if eq .MethodNum 1}}  //Constuctor
@@ -426,13 +456,13 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(types.DAG_CBOR, buf.Bytes())
+		id, err := sdk.PutBlock(sdkTypes.DAG_CBOR, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {
-		return types.NO_DATA_BLOCK_ID
+		return sdkTypes.NO_DATA_BLOCK_ID
 	}
 }
 
@@ -476,11 +506,8 @@ func defaultValue(t reflect.Type) string {
 //hellocontract/contract.(*State).SayHello
 func getFunctionName(temp reflect.Value) (string, string) {
 	fullName := runtime.FuncForPC(temp.Pointer()).Name()
+	fullName = strings.TrimSuffix(fullName, "-fm")
 
-	index := strings.LastIndex(fullName, "-")
-	if index > -1 {
-		fullName = fullName[:index]
-	}
 	split := strings.Split(fullName, ".")
 	name := split[len(split)-1]
 
