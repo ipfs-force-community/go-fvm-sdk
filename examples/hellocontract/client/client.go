@@ -1,9 +1,9 @@
 package client
 
 import (
-	bytes "bytes"
-	context "context"
-	fmt "fmt"
+	"bytes"
+	"context"
+	"fmt"
 
 	address "github.com/filecoin-project/go-address"
 	abi "github.com/filecoin-project/go-state-types/abi"
@@ -12,7 +12,7 @@ import (
 	init8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/init"
 	actors "github.com/filecoin-project/venus/venus-shared/actors"
 	types "github.com/filecoin-project/venus/venus-shared/types"
-	types2 "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
 
 	v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
@@ -29,7 +29,7 @@ type IStateClient interface {
 
 	Constructor(context.Context) error
 
-	SayHello(context.Context) (types2.CBORBytes, error)
+	SayHello(context.Context) (sdkTypes.CBORBytes, error)
 }
 
 var _ IStateClient = (*StateClient)(nil)
@@ -184,7 +184,7 @@ func (c *StateClient) Constructor(ctx context.Context) error {
 	return nil
 }
 
-func (c *StateClient) SayHello(ctx context.Context) (types2.CBORBytes, error) {
+func (c *StateClient) SayHello(ctx context.Context) (sdkTypes.CBORBytes, error) {
 	if c.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
@@ -215,7 +215,7 @@ func (c *StateClient) SayHello(ctx context.Context) (types2.CBORBytes, error) {
 		return nil, fmt.Errorf("expect get result for call")
 	}
 
-	result := new(types2.CBORBytes)
+	result := new(sdkTypes.CBORBytes)
 	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
 
 	return *result, nil

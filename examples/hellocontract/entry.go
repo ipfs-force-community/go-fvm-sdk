@@ -5,13 +5,15 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/filecoin-project/go-state-types/cbor"
+	cbor "github.com/filecoin-project/go-state-types/cbor"
+
+	sdk "github.com/ipfs-force-community/go-fvm-sdk/sdk"
+
+	ferrors "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
+
+	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	typegen "github.com/whyrusleeping/cbor-gen"
-
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	contract "hellocontract/contract"
 )
@@ -62,12 +64,12 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(types.DAG_CBOR, buf.Bytes())
+		id, err := sdk.PutBlock(sdkTypes.DAG_CBOR, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {
-		return types.NO_DATA_BLOCK_ID
+		return sdkTypes.NO_DATA_BLOCK_ID
 	}
 }

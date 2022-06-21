@@ -12,18 +12,6 @@ import (
 
 var defaultClientImport = []typegen.Import{
 	{
-		Name:    "bytes",
-		PkgPath: "bytes",
-	},
-	{
-		Name:    "context",
-		PkgPath: "context",
-	},
-	{
-		Name:    "fmt",
-		PkgPath: "fmt",
-	},
-	{
 		Name:    "actors",
 		PkgPath: "github.com/filecoin-project/venus/venus-shared/actors",
 	},
@@ -48,6 +36,10 @@ var defaultClientImport = []typegen.Import{
 		PkgPath: "github.com/filecoin-project/venus/venus-shared/types",
 	},
 	{
+		Name:    "sdkTypes",
+		PkgPath: "github.com/ipfs-force-community/go-fvm-sdk/sdk/types",
+	},
+	{
 		Name:    "cid",
 		PkgPath: "github.com/ipfs/go-cid",
 	},
@@ -58,6 +50,18 @@ var defaultClientImport = []typegen.Import{
 	{
 		Name:    "typegen",
 		PkgPath: "github.com/whyrusleeping/cbor-gen",
+	},
+	{
+		Name:    "cbor",
+		PkgPath: "github.com/filecoin-project/go-state-types/cbor",
+	},
+	{
+		Name:    "sdk",
+		PkgPath: "github.com/ipfs-force-community/go-fvm-sdk/sdk",
+	},
+	{
+		Name:    "ferrors",
+		PkgPath: "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors",
 	},
 }
 
@@ -313,7 +317,7 @@ type I{{trimPackage .StateName}}Client interface {
 	return render.Execute(w, entry)
 }
 
-func genClientParamsReturnMethod(w io.Writer, entry methodMap) error {
+func genClientParamsReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) ({{.ReturnTypeName}}, error) {
 	if c.actor == address.Undef {
@@ -368,7 +372,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 	return render.Execute(w, entry)
 }
 
-func genClientParamsNOReturnMethod(w io.Writer, entry methodMap) error {
+func genClientParamsNOReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) error {
 	if c.actor == address.Undef {
@@ -413,7 +417,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 	return render.Execute(w, entry)
 }
 
-func genClientNoParamsReturnMethod(w io.Writer, entry methodMap) error {
+func genClientNoParamsReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({{.ReturnTypeName}}, error) {
 	if c.actor == address.Undef {
@@ -464,7 +468,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({
 	return render.Execute(w, entry)
 }
 
-func genClientNoParamsNoReturnMethod(w io.Writer, entry methodMap) error {
+func genClientNoParamsNoReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
 func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) error {
 	if c.actor == address.Undef {
