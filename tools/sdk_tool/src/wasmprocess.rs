@@ -1,3 +1,4 @@
+use crate::utils;
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use parity_wasm::elements::Type::Function;
@@ -8,7 +9,6 @@ use parity_wasm::elements::{
 use path_absolutize::*;
 use std::collections::HashMap;
 use std::env;
-use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -128,9 +128,7 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 
     pub fn build(&mut self) -> Result<&mut Self> {
-        if !check_tinygo_install()? {
-            return Err(anyhow!("unbale to found tinygo(fvm), please intall this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"));
-        }
+        utils::check_tinygo_install()?;
         let output = Command::new("tinygo")
             .args([
                 "build",
@@ -507,19 +505,6 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 }
 
-fn check_tinygo_install() -> Result<bool> {
-    match Command::new("tinygo").arg("version").spawn() {
-        Ok(_) => Ok(true),
-        Err(e) => {
-            if let ErrorKind::NotFound = e.kind() {
-                Ok(false)
-            } else {
-                Err(anyhow!("check err {}", e))
-            }
-        }
-    }
-}
-
 trait TryString {
     fn try_to_string(&self) -> Result<String>;
 }
@@ -527,7 +512,7 @@ trait TryString {
 impl TryString for PathBuf {
     fn try_to_string(&self) -> Result<String> {
         self.to_str()
-            .ok_or_else(|| anyhow!("unbale to get string from pathbuf"))
+            .ok_or_else(|| anyhow!("unable to get string from pathbuf"))
             .map(|v| v.to_string())
     }
 }

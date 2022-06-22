@@ -20,6 +20,7 @@ use fvm_shared::state::StateTreeVersion;
 use fvm_shared::version::NetworkVersion;
 use hex::FromHex;
 use libsecp256k1::SecretKey;
+use path_absolutize::Absolutize;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::iter::Iterator;
@@ -119,7 +120,10 @@ pub fn run_action_group(
 ) -> Result<()> {
     let path: PathBuf = [root_path, contract_case.binary.to_owned()]
         .iter()
-        .collect();
+        .collect::<PathBuf>()
+        .absolutize()
+        .map(|v| v.into_owned())
+        .expect("get binary path");
     let buf = fs::read(path.clone())
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
     // Instantiate tester
@@ -218,7 +222,12 @@ pub fn run_action_group(
 }
 
 pub fn run_signle_wasm(root_path: String, accounts: &[InitAccount], wasm_case: &WasmCase) {
-    let path: PathBuf = [root_path, wasm_case.binary.to_owned()].iter().collect();
+    let path: PathBuf = [root_path, wasm_case.binary.to_owned()]
+        .iter()
+        .collect::<PathBuf>()
+        .absolutize()
+        .map(|v| v.into_owned())
+        .expect("get binary path");
     let buf = fs::read(path.clone())
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
     let ret = exec(&buf, accounts, wasm_case).unwrap();

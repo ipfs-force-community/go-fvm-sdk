@@ -1,10 +1,10 @@
 package client
 
 import (
-	bytes "bytes"
-	context "context"
+	"bytes"
+	"context"
 	contract "erc20/contract"
-	fmt "fmt"
+	"fmt"
 
 	address "github.com/filecoin-project/go-address"
 	abi "github.com/filecoin-project/go-state-types/abi"
@@ -13,7 +13,7 @@ import (
 	init8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/init"
 	actors "github.com/filecoin-project/venus/venus-shared/actors"
 	types "github.com/filecoin-project/venus/venus-shared/types"
-	types2 "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
 	typegen "github.com/whyrusleeping/cbor-gen"
 
@@ -31,9 +31,9 @@ type IErc20TokenClient interface {
 
 	Constructor(context.Context, *contract.ConstructorReq) error
 
-	GetName(context.Context) (types2.CborString, error)
+	GetName(context.Context) (sdkTypes.CborString, error)
 
-	GetSymbol(context.Context) (types2.CborString, error)
+	GetSymbol(context.Context) (sdkTypes.CborString, error)
 
 	GetDecimal(context.Context) (typegen.CborInt, error)
 
@@ -208,7 +208,7 @@ func (c *Erc20TokenClient) Constructor(ctx context.Context, p0 *contract.Constru
 	return nil
 }
 
-func (c *Erc20TokenClient) GetName(ctx context.Context) (types2.CborString, error) {
+func (c *Erc20TokenClient) GetName(ctx context.Context) (sdkTypes.CborString, error) {
 	if c.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
@@ -239,14 +239,14 @@ func (c *Erc20TokenClient) GetName(ctx context.Context) (types2.CborString, erro
 		return "", fmt.Errorf("expect get result for call")
 	}
 
-	result := new(types2.CborString)
+	result := new(sdkTypes.CborString)
 	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
 
 	return *result, nil
 
 }
 
-func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (types2.CborString, error) {
+func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (sdkTypes.CborString, error) {
 	if c.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
@@ -277,7 +277,7 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (types2.CborString, er
 		return "", fmt.Errorf("expect get result for call")
 	}
 
-	result := new(types2.CborString)
+	result := new(sdkTypes.CborString)
 	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
 
 	return *result, nil
