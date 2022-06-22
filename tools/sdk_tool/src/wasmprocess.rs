@@ -512,7 +512,7 @@ trait TryString {
 impl TryString for PathBuf {
     fn try_to_string(&self) -> Result<String> {
         self.to_str()
-            .ok_or_else(|| anyhow!("unbale to get string from pathbuf"))
+            .ok_or_else(|| anyhow!("unable to get string from pathbuf"))
             .map(|v| v.to_string())
     }
 }

@@ -11,7 +11,7 @@ pub fn check_tinygo_install() -> Result<()> {
         Ok(_) => Ok(()),
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
-                Err(anyhow!("unbale to found tinygo(fvm), please install this tool in https://github.com/ipfs-force-community/tinygo/releases"))
+                Err(anyhow!("unable to found tinygo(fvm), please install this tool in https://github.com/ipfs-force-community/tinygo/releases"))
             } else {
                 Err(anyhow!("fvm-tinygo not install, please install  err {}", e))
             }
@@ -28,7 +28,7 @@ pub fn check_fvm_tool_install() -> Result<()> {
         Ok(_) => Ok(()),
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
-                Err(anyhow!("unbale to found go-fvm-sdk-tools(fvm), please install this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"))
+                Err(anyhow!("unable to found go-fvm-sdk-tools(fvm), please install this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"))
             } else {
                 Err(anyhow!("check err {}", e))
             }
@@ -56,7 +56,7 @@ pub fn check_go_install() -> Result<bool> {
         }
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
-                Err(anyhow!("unbale to found go-fvm-sdk-tools(fvm), please install this tool in https://go.dev/dl"))
+                Err(anyhow!("unable to found go-fvm-sdk-tools(fvm), please install this tool in https://go.dev/dl"))
             } else {
                 Err(anyhow!("check err {}", e))
             }

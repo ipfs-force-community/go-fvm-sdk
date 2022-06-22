@@ -49,7 +49,7 @@ func Constructor() error {
 
 	caller, err := sdk.Caller()
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unbale to get caller")
+		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to get caller")
 	}
 
 	if caller != 1 {

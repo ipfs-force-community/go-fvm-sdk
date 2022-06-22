@@ -34,7 +34,7 @@ func SaveState(state cbor.Marshaler) cid.Cid {
 func Constructor(state cbor.Marshaler) error {
 	caller, err := Caller()
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, "unbale to get caller")
+		Abort(ferrors.USR_ILLEGAL_STATE, "unable to get caller")
 	}
 
 	if caller != 1 {
