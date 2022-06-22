@@ -24,6 +24,8 @@ rand_chacha = "0.3"
 hex = "0.4.3"
 path-absolutize = "3.0.13"
 cid = { version = "0.8.3", default-features = false, features = ["serde-codec"] }
+xshell = "0.2"
+walkdir = "2"
 
 fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental", default-features = false}
 fvm_shared = {  git = "https://github.com/ipfs-force-community/ref-fvm.git", branch = "feat/keep_dep_experimental" }

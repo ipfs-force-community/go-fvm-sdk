@@ -1,3 +1,4 @@
+use crate::utils;
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use parity_wasm::elements::Type::Function;
@@ -128,9 +129,7 @@ impl<'a> GoFvmBinProcessor<'a> {
     }
 
     pub fn build(&mut self) -> Result<&mut Self> {
-        if !check_tinygo_install()? {
-            return Err(anyhow!("unbale to found tinygo(fvm), please intall this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"));
-        }
+        utils::check_tinygo_install()?;
         let output = Command::new("tinygo")
             .args([
                 "build",

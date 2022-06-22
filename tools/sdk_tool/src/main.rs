@@ -1,4 +1,6 @@
+mod template;
 mod testing;
+mod utils;
 mod wasmprocess;
 
 use clap::Parser;
@@ -18,6 +20,8 @@ enum Commands {
     Build(wasmprocess::BuildCLiConfig),
     /// test wasm on fvm
     Test(testing::TestConfig),
+    /// create new template project by module name
+    New(template::NewTemplateConfig),
 }
 
 fn main() {
@@ -30,5 +34,11 @@ fn main() {
             }
         }
         Commands::Test(cfg) => testing::run_testing(cfg),
+        Commands::New(cfg) => {
+            if let Err(e) = template::new_template_project(cfg) {
+                println!("run new template command fail {}", e);
+                std::process::exit(1);
+            }
+        }
     }
 }
