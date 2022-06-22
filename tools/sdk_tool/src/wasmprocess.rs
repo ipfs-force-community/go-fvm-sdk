@@ -9,7 +9,6 @@ use parity_wasm::elements::{
 use path_absolutize::*;
 use std::collections::HashMap;
 use std::env;
-use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -503,19 +502,6 @@ impl<'a> GoFvmBinProcessor<'a> {
             }
         }
         None
-    }
-}
-
-fn check_tinygo_install() -> Result<bool> {
-    match Command::new("tinygo").arg("version").spawn() {
-        Ok(_) => Ok(true),
-        Err(e) => {
-            if let ErrorKind::NotFound = e.kind() {
-                Ok(false)
-            } else {
-                Err(anyhow!("check err {}", e))
-            }
-        }
     }
 }
 

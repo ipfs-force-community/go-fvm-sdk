@@ -1,8 +1,7 @@
 use crate::utils;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use std::env::current_dir;
-use std::fmt::format;
 use std::fs;
 use xshell::{cmd, Shell};
 
@@ -18,7 +17,7 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
     utils::check_tinygo_install()?;
     utils::check_go_install()?;
     utils::check_fvm_tool_install()?;
-    let mut template_name = "gofvm-counter";
+    let template_name = "gofvm-counter";
     //market
     let sh = Shell::new()?;
     cmd!(
@@ -26,23 +25,29 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
         "git clone https://github.com/ipfs-force-community/gofvm-counter.git"
     )
     .run()
-    .expect("unable to checkout template project");
+    .map_err(|e| anyhow!("unable to checkout template project {}", e))?;
 
     let mut old_tmp_dir = current_dir()?;
     old_tmp_dir.push(template_name);
     sh.change_dir(&old_tmp_dir);
-    cmd!(sh, "rm -rf .git").run().expect("unable to remove git");
+    cmd!(sh, "rm -rf .git")
+        .run()
+        .map_err(|e| anyhow!("unable to remove git {}", e))?;
 
     sh.change_dir(current_dir()?);
     let mut module_name = template_name.to_string();
     if let Some(new_module_name) = &cfg.name {
         sh.change_dir(current_dir()?);
-        sh.cmd("mv").args([template_name, new_module_name])
+        sh.cmd("mv")
+            .args([template_name, new_module_name])
             .run()
-            .expect(format!(
-                "unable to rename template project to {}",
-                new_module_name
-            ).as_str());
+            .map_err(|e| {
+                anyhow!(
+                    "unable to rename template project to {} {}",
+                    new_module_name,
+                    e
+                )
+            })?;
         module_name = new_module_name.to_string();
     }
 
@@ -57,7 +62,7 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
                 if let Ok(meta) = file.metadata() {
                     return meta.is_file();
                 }
-                return false;
+                false
             })
         {
             let file_content = fs::read_to_string(file.path())?;
@@ -70,7 +75,7 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
     sh.change_dir(new_cur_dir.clone());
     cmd!(sh, "mkdir client")
         .run()
-        .expect("unable to create client dir");
+        .map_err(|e| anyhow!("unable to create client dir {}", e))?;
 
     let mut gen_dir = new_cur_dir.clone();
     gen_dir.push("gen");
@@ -78,23 +83,24 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
 
     cmd!(sh, "go mod tidy")
         .run()
-        .expect("unable to create client dir");
+        .map_err(|e| anyhow!("unable to create client dir {}", e))?;
     cmd!(sh, "go run main.go")
         .run()
-        .expect("unable to create run gen tool");
+        .map_err(|e| anyhow!("unable to create run gen tool {}", e))?;
 
     sh.change_dir(&new_cur_dir);
     cmd!(sh, "go mod tidy")
         .run()
-        .expect("unable to build template in template project");
+        .map_err(|e| anyhow!("unable to build template in template project {}", e))?;
 
-    sh.cmd("go-fvm-sdk-tools").args(["build", "-o", &(module_name + ".wasm")])
+    sh.cmd("go-fvm-sdk-tools")
+        .args(["build", "-o", &(module_name + ".wasm")])
         .run()
-        .expect("unable to build template in template project");
+        .map_err(|e| anyhow!("unable to build template in template project {}", e))?;
 
     cmd!(sh, "go-fvm-sdk-tools test -- ./tests")
         .run()
-        .expect("unable to run test in template project");
+        .map_err(|e| anyhow!("unable to run test in template project {}", e))?;
 
     Ok(())
 }
