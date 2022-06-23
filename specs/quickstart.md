@@ -12,7 +12,7 @@ Add above tools to your ```PATH``` environment.
 export PATH=$PATH:<dir to go-fvm-sdk>:<tinygo dir/bin>:<go dir>/bin
 ```
 
-## Create an actor
+## Create an actor project
 
 ```sh
 go-fvm-sdk-tools new -- mycounter
