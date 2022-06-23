@@ -22,7 +22,7 @@ If all goes well, a template actor project will be genereated for you. Write new
 
 ## Generator
 
-Generator takes care of the following aspect of the actor code...
+Generator takes care of following aspects of the actor code...
 
 1. Actor states and input/output files for the marshal/unmarshal of actor state
 2. Entry code for the actor
