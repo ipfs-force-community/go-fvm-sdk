@@ -1,6 +1,6 @@
 # Quick Start
 
-## requirement
+## Requirement
 
 1. install git on the machine
 2. install go version 1.16.x/1.17.x [install golang](https://go.dev/doc/install)
@@ -12,7 +12,7 @@ add above tools to your ```PATH```environment
 export PATH=$PATH:<dir to go-fvm-sdk>:<tinygo dir/bin>:<go dir>/bin
 ```
 
-## checkout actor example
+## Checkout actor example
 
 ```sh
 go-fvm-sdk-tools new -- mycounter
@@ -20,7 +20,7 @@ go-fvm-sdk-tools new -- mycounter
 
 If everything is ok, you can get the a simple project, and then you can try your own idea in this example. but **After modify contract colde, you need to re-run the generate command**
 
-## generate code
+## Generate code
 
 the generate tool produce three kinds of code
 1. marshal/unmarshal code of (actor state)/(method input and output)
@@ -31,14 +31,14 @@ the generate tool produce three kinds of code
 cd gen && go run main.go
 ```
 
-## compile
+## Compile
 
 this command 
 ```sh
 go-fvm-sdk-tools build  #execute this in project root path
 ```
 
-## test
+## Test
 
 ```sh
 {
