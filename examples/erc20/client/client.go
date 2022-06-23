@@ -132,6 +132,7 @@ func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, exe
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
+	c.actor = result.IDAddress
 	return &result, nil
 }
 

@@ -235,6 +235,7 @@ func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, code
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
+	c.actor = result.IDAddress
 	return &result, nil
 }
 
