@@ -103,6 +103,10 @@ func GenContractClient(stateT reflect.Type, output string) error {
 	}
 	//write implement
 	for _, method := range entryMeta.Methods {
+		if method.FuncName == "Constructor" {
+			//skip constructor function, because this only called by init actor
+			continue
+		}
 		if method.HasReturn {
 			if method.HasParam {
 				if err = genClientParamsReturnMethod(buf, method); err != nil {
@@ -160,6 +164,7 @@ type {{trimPackage .StateName}}Client struct {
 	node        v0.FullNode
 	fromAddress address.Address
 	actor       address.Address
+	codeCid     cid.Cid
 }
 
 
@@ -170,6 +175,7 @@ type Option func(opt ClientOption)
 type ClientOption struct {
 	fromAddress address.Address
 	actor       address.Address
+	codeCid     cid.Cid
 }
 
 //SetFromAddressOpt used to set from address who send actor messages
@@ -183,6 +189,13 @@ func SetFromAddressOpt(fromAddress address.Address) Option {
 func SetActorOpt(actor address.Address) Option {
 	return func(opt ClientOption) {
 		opt.actor = actor
+	}
+}
+
+//SetCodeCid used to set actor code cid
+func SetCodeCid(codeCid cid.Cid) Option {
+	return func(opt ClientOption) {
+		opt.codeCid = codeCid
 	}
 }
 
@@ -275,6 +288,7 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
+	c.codeCid = result.CodeCid
 	return &result, nil
 }
 `
@@ -293,6 +307,7 @@ type I{{trimPackage .StateName}}Client interface {
 	Install( context.Context,  []byte) (*init8.InstallReturn, error)
 	CreateActor( context.Context,  cid.Cid,  []byte) (*init8.ExecReturn, error)
 	{{range .Methods}}
+    {{if ne .FuncName "Constructor"}}
 		{{if .HasParam}}
 			{{if .HasReturn}}
 						{{.FuncName}}(context.Context, {{.ParamsTypeName}}) ({{.ReturnTypeName}}, error)
@@ -306,6 +321,7 @@ type I{{trimPackage .StateName}}Client interface {
 				{{.FuncName}}(context.Context, {{.ParamsTypeName}}) error
 			{{end}}
 		{{end}}
+	{{end}}
 	{{end}}
 }
 `
