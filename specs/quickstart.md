@@ -3,7 +3,7 @@
 ## Requirement
 
 1. Install [git](https://github.com/git-guides/install-git) 
-2. Install [Go](https://github.com/git-guides/install-git) version 1.16.x/1.17.x
+2. Install [Go](https://go.dev/doc/install) version 1.16.x/1.17.x
 3. Install `TinyGo` - fvm [release](https://github.com/ipfs-force-community/tinygo/tags)
 4. Install [go-fvm-sdk](https://github.com/ipfs-force-community/go-fvm-sdk/releases); Then rename it to `go-fvm-sdk-tools`
 
