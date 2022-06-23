@@ -48,8 +48,8 @@ jobs:
 
       - name: install tinygo
         run: |
-          wget -q https://github.com/ipfs-force-community/tinygo/releases/download/fvm%400.0.1/ubuntu_20.04_linux.tar.gz
-          sudo tar -xvf ubuntu_20.04_linux.tar.gz -C /usr/local
+          wget -q https://github.com/ipfs-force-community/tinygo/releases/download/fvm%400.0.1/tinygo_ubuntu_20.04_linux.tar.gz
+          sudo tar -xvf tinygo_ubuntu_20.04_linux.tar.gz -C /usr/local
           sudo chmod 777 /usr/local/tinygo/bin/*
 
       - name: Build
