@@ -112,6 +112,7 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, execPara
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
+	c.actor = result.IDAddress
 	return &result, nil
 }
 
