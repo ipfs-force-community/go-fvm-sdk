@@ -24,7 +24,7 @@ If all goes well, a template actor project will be genereated for you. Write new
 
 Generator takes care of following aspects of the actor code...
 
-1. Actor states and input/output files for the marshal/unmarshal of actor state
+1. Marshal and unmarshal code for actor state structs
 2. Entry code for the actor
 3. Actor client code which you can use to interact with filecoin
 
