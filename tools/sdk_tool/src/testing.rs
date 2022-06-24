@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use cid::Cid;
 use clap::Parser;
 use colored::*;
@@ -22,16 +22,19 @@ use hex::FromHex;
 use libsecp256k1::SecretKey;
 use path_absolutize::Absolutize;
 use serde::{Deserialize, Serialize};
+use std::env::current_dir;
 use std::fs;
 use std::iter::Iterator;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct TestConfig {
+    //specify test file path
     #[clap(last = true)]
-    path: String,
+    path: Option<String>,
 
+    //specify which test case to run
     #[clap(short, long)]
     name: Option<String>,
 }
@@ -88,9 +91,17 @@ pub struct ContractCase {
     cases: Vec<WasmCase>,
 }
 
-pub fn run_testing(cfg: &TestConfig) {
-    let case_meta_path: PathBuf = [cfg.path.clone(), "test.json".to_string()].iter().collect();
-    let buf = fs::read(case_meta_path).unwrap();
+pub fn run_testing(cfg: &TestConfig) -> Result<()> {
+    let mut root_dir = if let Some(dir) = &cfg.path {
+        Path::new(dir).to_path_buf()
+    } else {
+        current_dir()?
+    };
+
+    if root_dir.extension().is_none() {
+        root_dir.push("test.json");
+    }
+    let buf = fs::read(root_dir).unwrap();
 
     let test_json: TestJson = serde_json::from_slice(&buf).unwrap();
 
@@ -99,7 +110,14 @@ pub fn run_testing(cfg: &TestConfig) {
             .iter()
             .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
             .for_each(|test_case| {
-                run_signle_wasm(cfg.path.clone(), &test_json.accounts, test_case);
+                if let Err(e) = run_signle_wasm(&test_json.accounts, test_case) {
+                    panic!(
+                        "{}:case {} run failed {}",
+                        "failed".red(),
+                        test_case.name,
+                        e
+                    )
+                }
             });
     }
 
@@ -108,30 +126,38 @@ pub fn run_testing(cfg: &TestConfig) {
             .iter()
             .filter(|v| cfg.name.is_none() || v.name.eq(cfg.name.as_ref().unwrap()))
             .for_each(|group_case| {
-                run_action_group(cfg.path.clone(), &test_json.accounts, group_case).unwrap();
+                if let Err(e) = run_action_group(&test_json.accounts, group_case) {
+                    panic!(
+                        "{}:case {} run failed {}",
+                        "failed".red(),
+                        group_case.name,
+                        e
+                    )
+                }
             });
     }
+
+    Ok(())
 }
 
-pub fn run_action_group(
-    root_path: String,
-    accounts_cfg: &[InitAccount],
-    contract_case: &ContractCase,
-) -> Result<()> {
-    let path: PathBuf = [root_path, contract_case.binary.to_owned()]
-        .iter()
-        .collect::<PathBuf>()
-        .absolutize()
-        .map(|v| v.into_owned())
-        .expect("get binary path");
+pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCase) -> Result<()> {
+    let path: PathBuf = [
+        current_dir()?,
+        Path::new(&contract_case.binary).to_path_buf(),
+    ]
+    .iter()
+    .collect::<PathBuf>()
+    .absolutize()
+    .map(|v| v.into_owned())
+    .expect("get binary path");
     let buf = fs::read(path.clone())
-        .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
+        .unwrap_or_else(|_| panic!("path {} not found", path.to_str().get_or_insert("unknown")));
     // Instantiate tester
     let (mut tester, accounts) = new_tester(accounts_cfg)?;
     // Instantiate machine
     tester.instantiate_machine()?;
 
-    let mut executor = tester.executor.unwrap();
+    let mut executor = tester.executor.expect("unable to get executor");
 
     //install
     // Send message
@@ -221,16 +247,21 @@ pub fn run_action_group(
     Ok(())
 }
 
-pub fn run_signle_wasm(root_path: String, accounts: &[InitAccount], wasm_case: &WasmCase) {
-    let path: PathBuf = [root_path, wasm_case.binary.to_owned()]
+pub fn run_signle_wasm(accounts: &[InitAccount], wasm_case: &WasmCase) -> Result<()> {
+    let path: PathBuf = [current_dir()?, Path::new(&wasm_case.binary).to_path_buf()]
         .iter()
         .collect::<PathBuf>()
         .absolutize()
         .map(|v| v.into_owned())
         .expect("get binary path");
-    let buf = fs::read(path.clone())
-        .unwrap_or_else(|_| panic!("path {} not found", path.to_str().unwrap()));
-    let ret = exec(&buf, accounts, wasm_case).unwrap();
+    let buf = fs::read(path.clone()).map_err(|e| {
+        anyhow!(
+            "path {} not found {}",
+            path.to_str().get_or_insert("known"),
+            e
+        )
+    })?;
+    let ret = exec(&buf, accounts, wasm_case)?;
     check_message_receipt(
         wasm_case.name.clone(),
         &ret,
@@ -238,6 +269,7 @@ pub fn run_signle_wasm(root_path: String, accounts: &[InitAccount], wasm_case: &
         wasm_case.expect_message.clone(),
         vec![],
     );
+    Ok(())
 }
 
 fn check_message_receipt(
