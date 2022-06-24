@@ -82,3 +82,10 @@ go-fvm-sdk-tools build  #在项目根目录运行
 ```sh
 go-fvm-sdk-tools test -- <存放test文件的目录>
 ```
+
+## Notice
+
+1. 不要使用panic，trap模式下发生panic不会打印panic的原因
+2. 尽量不使用反射，反射的开销比较大，另一方面tinygo对反射支持的并不是很好。
+3. 如果需要json marshal/unmarshal，可以使用代码生成库来生成marshal/unmarshal方法，避免直接调用go的json库，其他序列化方法类似。
+4. 不要直接使用map，使用amt map来存取数据
