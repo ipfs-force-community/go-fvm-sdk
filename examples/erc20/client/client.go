@@ -29,8 +29,6 @@ type IErc20TokenClient interface {
 	Install(context.Context, []byte) (*init8.InstallReturn, error)
 	CreateActor(context.Context, cid.Cid, []byte) (*init8.ExecReturn, error)
 
-	Constructor(context.Context, *contract.ConstructorReq) error
-
 	GetName(context.Context) (sdkTypes.CborString, error)
 
 	GetSymbol(context.Context) (sdkTypes.CborString, error)
@@ -58,6 +56,7 @@ type Erc20TokenClient struct {
 	node        v0.FullNode
 	fromAddress address.Address
 	actor       address.Address
+	codeCid     cid.Cid
 }
 
 //Option option func
@@ -67,6 +66,7 @@ type Option func(opt ClientOption)
 type ClientOption struct {
 	fromAddress address.Address
 	actor       address.Address
+	codeCid     cid.Cid
 }
 
 //SetFromAddressOpt used to set from address who send actor messages
@@ -80,6 +80,13 @@ func SetFromAddressOpt(fromAddress address.Address) Option {
 func SetActorOpt(actor address.Address) Option {
 	return func(opt ClientOption) {
 		opt.actor = actor
+	}
+}
+
+//SetCodeCid used to set actor code cid
+func SetCodeCid(codeCid cid.Cid) Option {
+	return func(opt ClientOption) {
+		opt.codeCid = codeCid
 	}
 }
 
@@ -172,41 +179,8 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*init8.Ins
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
+	c.codeCid = result.CodeCid
 	return &result, nil
-}
-
-func (c *Erc20TokenClient) Constructor(ctx context.Context, p0 *contract.ConstructorReq) error {
-	if c.actor == address.Undef {
-		return fmt.Errorf("unset actor address for call")
-	}
-
-	buf := bytes.NewBufferString("")
-	if err := p0.MarshalCBOR(buf); err != nil {
-		return err
-	}
-	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(1),
-		Params: buf.Bytes(),
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return fmt.Errorf("actor execution failed")
-	}
-	return nil
 }
 
 func (c *Erc20TokenClient) GetName(ctx context.Context) (sdkTypes.CborString, error) {
