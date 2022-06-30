@@ -17,4 +17,4 @@ gen-case:
 	cd ./sdk/cases && ./gen.sh ${current_dir}
 
 test: build gen-case
-	${current_dir}/bin/go-fvm-sdk-tools test -- ./sdk/cases
+	cd ./sdk/cases && ${current_dir}/bin/go-fvm-sdk-tools test

@@ -33,7 +33,12 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Commands::Test(cfg) => testing::run_testing(cfg),
+        Commands::Test(cfg) => {
+            if let Err(e) = testing::run_testing(cfg) {
+                println!("run test command fail {}", e);
+                std::process::exit(1);
+            }
+        }
         Commands::New(cfg) => {
             if let Err(e) = template::new_template_project(cfg) {
                 println!("run new template command fail {}", e);
