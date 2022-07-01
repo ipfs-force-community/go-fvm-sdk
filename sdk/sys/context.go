@@ -7,7 +7,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func VmContext() (*types.InvocationContext, error) {
+func VMContext() (*types.InvocationContext, error) {
 	var result types.InvocationContext
 	code := vmContext(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {

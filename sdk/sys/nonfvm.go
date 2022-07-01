@@ -7,22 +7,22 @@ func vmAbort(code uint32, msgOff uintptr, msgLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32 {
+func actorResolveAddress(ret uintptr, addrOff uintptr, addrLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorGetActorCodeCid(ret uintptr, addr_off uintptr, addr_len uint32, obuf_off uintptr, obuf_len uint32) uint32 {
+func actorGetActorCodeCid(ret uintptr, addrOff uintptr, addrLen uint32, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorResolveBuiltinActorType(ret uintptr, cid_off uintptr) uint32 {
+func actorResolveBuiltinActorType(ret uintptr, cidOff uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorGetCodeCidForType(ret uintptr, typ int32, obuf_off uintptr, obuf_len uint32) uint32 {
+func actorGetCodeCidForType(ret uintptr, typ int32, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorNewActorAddress(ret uintptr, obuf_off uintptr, obuf_len uint32) uint32 {
+func actorNewActorAddress(ret uintptr, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorCreateActor(actor_id uint64, typ_off uintptr) uint32 {
+func actorCreateActor(actorID uint64, typOff uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
@@ -59,11 +59,11 @@ func cryptoBatchVerifySeals(batchOff uintptr, batLen uint32, resultOff uintptr) 
 func debugEnabled(ret uintptr) uint32 {
 	return 0 //log usually used as global variable, stop panic when use this package
 }
-func debugLog(message uintptr, message_len uint32) uint32 {
+func debugLog(message uintptr, messageLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func gasCharge(name_off uintptr, name_len uint32, amount uint64) uint32 {
+func gasCharge(nameOff uintptr, nameLen uint32, amount uint64) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
@@ -73,13 +73,13 @@ func ipldOpen(ret uintptr, cid uintptr) uint32 {
 func ipldCreate(ret uintptr, codec uint64, data uintptr, len uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func ipldRead(ret uintptr, id uint32, offset uint32, obuf uintptr, max_len uint32) uint32 {
+func ipldRead(ret uintptr, id uint32, offset uint32, obuf uintptr, maxLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 func ipldStat(ret uintptr, id uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func ipldLink(ret uintptr, id uint32, hash_fun uint64, hash_len uint32, cid uintptr, cid_max_len uint32) uint32 {
+func ipldLink(ret uintptr, id uint32, hashFun uint64, hashLen uint32, cid uintptr, cidMaxLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
@@ -90,14 +90,14 @@ func networkTotalFilCircSupply(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func getChainRandomness(ret uintptr, tag int64, epoch int64, entropy_off uintptr, entropy_len uint32) uint32 {
+func getChainRandomness(ret uintptr, tag int64, epoch int64, entropyOff uintptr, entryopyLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func getBeaconRandomness(ret uintptr, tag int64, epoch int64, entropy_off uintptr, entropy_len uint32) uint32 {
+func getBeaconRandomness(ret uintptr, tag int64, epoch int64, entropyOff uintptr, entryopyLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func sysSend(ret uintptr, recipient_off uintptr, recipient_len uint32, method uint64, params uint32, value_hi uint64, value_lo uint64) uint32 {
+func sysSend(ret uintptr, recipientOff uintptr, recipientLen uint32, method uint64, params uint32, valueHI uint64, valueLow uint64) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 

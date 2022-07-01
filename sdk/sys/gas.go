@@ -6,7 +6,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
-/// Charge gas for the operation identified by name.
+// Charge charge gas for the operation identified by name.
 func Charge(name string, compute uint64) error {
 	nameBufPtr, nameBufLen := GetStringPointerAndLen(name)
 	code := gasCharge(nameBufPtr, nameBufLen, compute)

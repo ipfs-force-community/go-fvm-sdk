@@ -5,7 +5,7 @@ import (
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
 )
 
-type BlockId = uint32
+type BlockID = uint32
 type Codec = uint64
 
 func ValidateConsensusFaultType(c runtime.ConsensusFaultType) bool {
@@ -14,7 +14,7 @@ func ValidateConsensusFaultType(c runtime.ConsensusFaultType) bool {
 
 type IpldOpen struct {
 	Codec Codec
-	Id    uint32
+	ID    uint32
 	Size  uint32
 }
 
@@ -30,7 +30,7 @@ type ResolveAddress struct {
 
 type Send struct {
 	ExitCode uint32
-	ReturnID BlockId
+	ReturnID BlockID
 }
 
 type VerifyConsensusFault struct {

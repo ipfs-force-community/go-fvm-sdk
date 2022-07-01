@@ -30,12 +30,12 @@ func ComputeUnsealedSectorCid(
 	return sys.ComputeUnsealedSectorCid(proofType, pieces)
 }
 
-/// Verifies a sector seal proof.
+// VerifySeal verifies a sector seal proof.
 func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
 	return sys.VerifySeal(info)
 }
 
-/// Verifies a sector seal proof.
+//VerifyPost verifies a sector seal proof.
 func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
 	return sys.VerifyPost(info)
 }

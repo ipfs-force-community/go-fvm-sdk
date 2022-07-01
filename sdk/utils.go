@@ -19,7 +19,7 @@ func SaveState(state cbor.Marshaler) cid.Cid {
 		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 	stBytes := buf.Bytes()
-	stCid, err := Put(0xb220, 32, types.DAG_CBOR, stBytes)
+	stCid, err := Put(0xb220, 32, types.DAGCbor, stBytes)
 	if err != nil {
 		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}

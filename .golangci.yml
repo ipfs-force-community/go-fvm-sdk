@@ -32,7 +32,14 @@ issues:
 linters-settings:
   goconst:
     min-occurrences: 6
-
+  revive:
+    rules:
+      # disalbe check for: exported fucntion|type|variable must have a comment or unexported
+      - name: exported
+        disabled: true
+  stylecheck:
+    # disable 'ST1000' : package must have a package comment
+    checks: ["all", "-ST1000"]
 run:
 skip-dirs-use-default: false
 skip-dirs:

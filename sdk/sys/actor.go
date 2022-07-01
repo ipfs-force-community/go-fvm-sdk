@@ -27,7 +27,7 @@ func ResolveAddress(addr address.Address) (abi.ActorID, error) {
 
 func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
-	buf := make([]byte, types.MAX_CID_LEN)
+	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	var result int32
 	code := actorGetActorCodeCid(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen, bufPtr, bufLen)
@@ -57,7 +57,7 @@ func ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
 }
 
 func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
-	buf := make([]byte, types.MAX_CID_LEN)
+	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
 	var cidLen int32
@@ -73,7 +73,7 @@ func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 }
 
 func NewActorAddress() (address.Address, error) {
-	buf := make([]byte, types.MAX_ACTOR_ADDR_LEN)
+	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
 	var addrLen uint32
@@ -84,11 +84,11 @@ func NewActorAddress() (address.Address, error) {
 	return address.NewFromBytes(buf[:addrLen])
 }
 
-func CreateActor(actorId abi.ActorID, codeCid cid.Cid) error {
+func CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
-	code := actorCreateActor(uint64(actorId), addrBufPtr)
+	code := actorCreateActor(uint64(actorID), addrBufPtr)
 	if code != 0 {
-		return ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor type %d code cid %s", actorId, codeCid))
+		return ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor type %d code cid %s", actorID, codeCid))
 	}
 	return nil
 }

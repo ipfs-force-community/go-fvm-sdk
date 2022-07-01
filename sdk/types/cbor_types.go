@@ -33,7 +33,7 @@ func (cb *CborString) UnmarshalCBOR(r io.Reader) error {
 	return nil
 }
 
-// Wraps already-serialized bytes as CBOR-marshalable.
+// CBORBytes Wraps already-serialized bytes as CBOR-marshalable.
 type CBORBytes []byte
 
 func (b CBORBytes) MarshalCBOR(w io.Writer) error {

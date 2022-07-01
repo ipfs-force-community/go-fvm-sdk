@@ -13,7 +13,7 @@ var InvocationCtx *types.InvocationContext
 func Caller() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -24,7 +24,7 @@ func Caller() (abi.ActorID, error) {
 func Receiver() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -35,7 +35,7 @@ func Receiver() (abi.ActorID, error) {
 func MethodNumber() (abi.MethodNum, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -46,7 +46,7 @@ func MethodNumber() (abi.MethodNum, error) {
 func ValueReceived() (*types.TokenAmount, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return nil, err
 		}
@@ -58,9 +58,9 @@ func ValueReceived() (*types.TokenAmount, error) {
 	}, nil
 }
 
-/// Returns the message codec and parameters.
-func ParamsRaw(id types.BlockId) (*types.ParamsRaw, error) {
-	if id == types.NO_DATA_BLOCK_ID {
+// ParamsRaw returns the message codec and parameters.
+func ParamsRaw(id types.BlockID) (*types.ParamsRaw, error) {
+	if id == types.NoDataBlockID {
 		return &types.ParamsRaw{}, nil
 	}
 	state, err := sys.Stat(id)
@@ -81,7 +81,7 @@ func ParamsRaw(id types.BlockId) (*types.ParamsRaw, error) {
 func CurrEpoch() (abi.ChainEpoch, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -92,7 +92,7 @@ func CurrEpoch() (abi.ChainEpoch, error) {
 func Version() (network.Version, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
