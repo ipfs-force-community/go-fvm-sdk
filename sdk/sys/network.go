@@ -7,6 +7,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
+// BaseFee gets the base fee for the current epoch.
 func BaseFee() (*types.TokenAmount, error) {
 	result := new(types.TokenAmount)
 	code := networkBaseFee(uintptr(unsafe.Pointer(result)))
@@ -17,6 +18,7 @@ func BaseFee() (*types.TokenAmount, error) {
 	return result, nil
 }
 
+// TotalFilCircSupply gets the circulating supply.
 func TotalFilCircSupply() (*types.TokenAmount, error) {
 	result := new(types.TokenAmount)
 	code := networkTotalFilCircSupply(uintptr(unsafe.Pointer(result)))

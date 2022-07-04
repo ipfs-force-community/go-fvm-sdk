@@ -1,3 +1,4 @@
+// Package sdk : a go-fvm-sdk for creation actors.
 package sdk
 
 import (

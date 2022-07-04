@@ -8,8 +8,10 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 )
 
+// InvocationCtx the runtime context in actor method invocation.
 var InvocationCtx *types.InvocationContext
 
+// Caller get caller, from address of message
 func Caller() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
@@ -21,6 +23,7 @@ func Caller() (abi.ActorID, error) {
 	return InvocationCtx.Caller, nil
 }
 
+// Receiver get recevier, to address of message
 func Receiver() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
@@ -32,6 +35,7 @@ func Receiver() (abi.ActorID, error) {
 	return InvocationCtx.Receiver, nil
 }
 
+// MethodNumber method number
 func MethodNumber() (abi.MethodNum, error) {
 	if InvocationCtx == nil {
 		var err error
@@ -43,6 +47,7 @@ func MethodNumber() (abi.MethodNum, error) {
 	return InvocationCtx.MethodNumber, nil
 }
 
+// ValueReceived the amount was transferred in message
 func ValueReceived() (*types.TokenAmount, error) {
 	if InvocationCtx == nil {
 		var err error
@@ -78,6 +83,7 @@ func ParamsRaw(id types.BlockID) (*types.ParamsRaw, error) {
 	}, nil
 }
 
+// CurrEpoch get network current epoch
 func CurrEpoch() (abi.ChainEpoch, error) {
 	if InvocationCtx == nil {
 		var err error
@@ -89,6 +95,7 @@ func CurrEpoch() (abi.ChainEpoch, error) {
 	return InvocationCtx.NetworkCurrEpoch, nil
 }
 
+// Version network version
 func Version() (network.Version, error) {
 	if InvocationCtx == nil {
 		var err error

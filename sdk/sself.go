@@ -45,6 +45,10 @@ func CurrentBalance() *types.TokenAmount {
 	return tok
 }
 
+// SelfDestruct destroys the calling actor, sending its current balance
+// to the supplied address, which cannot be itself.
+//
+// Fails if the beneficiary doesn't exist or is the actor being deleted.
 func SelfDestruct(addr addr.Address) error {
 	return sys.SelfDestruct(addr)
 }

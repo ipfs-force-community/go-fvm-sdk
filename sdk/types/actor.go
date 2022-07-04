@@ -1,3 +1,4 @@
+// Package types go-fvm-sdk types
 package types
 
 type ActorType int32

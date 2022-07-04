@@ -16,11 +16,14 @@ linters:
     - stylecheck
     - gosimple
     - goimports
-
 issues:
-  exclude:
-
   exclude-rules:
+    - path: sdk/types
+      linters:
+        - revive
+    - path: sdk/sys
+      linters:
+        - revive
     - path: pkg/constants
       linters:
         - errcheck
@@ -28,20 +31,10 @@ issues:
       linters:
         - errcheck
   exclude-use-default: false
-
 linters-settings:
   goconst:
     min-occurrences: 6
-  revive:
-    rules:
-      # disalbe check for: exported fucntion|type|variable must have a comment or unexported
-      - name: exported
-        disabled: true
-  stylecheck:
-    # disable 'ST1000' : package must have a package comment
-    checks: ["all", "-ST1000"]
 run:
-skip-dirs-use-default: false
-skip-dirs:
-  - pkg/constants$
-  - pkg/util/test$
+  skip-dirs-use-default: false
+  skip-dirs: "(testing)"
+  skip-files: "(.*_gen\\.go$)"

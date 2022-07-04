@@ -1,3 +1,4 @@
+// Package ferrors fvm errors
 package ferrors
 
 import (

@@ -12,6 +12,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
+// SaveState save actor state
 func SaveState(state cbor.Marshaler) cid.Cid {
 	buf := bytes.NewBuffer([]byte{})
 	err := state.MarshalCBOR(buf)
@@ -31,6 +32,7 @@ func SaveState(state cbor.Marshaler) cid.Cid {
 	return stCid
 }
 
+// Constructor construct a acor with initialize state
 func Constructor(state cbor.Marshaler) error {
 	caller, err := Caller()
 	if err != nil {
@@ -45,6 +47,7 @@ func Constructor(state cbor.Marshaler) error {
 	return nil
 }
 
+// LoadState loads actors current state
 func LoadState(state cbor.Unmarshaler) {
 	root, err := Root()
 	if err != nil {
@@ -61,7 +64,7 @@ func LoadState(state cbor.Unmarshaler) {
 	}
 }
 
-func LoadStateFromCid(cid cid.Cid, state cbor.Unmarshaler) { //nolint
+func LoadStateFromCid(cid cid.Cid, state cbor.Unmarshaler) { // nolint
 	data, err := Get(cid)
 	if err != nil {
 		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
@@ -82,7 +85,7 @@ func unpackEFace(obj interface{}) *eface {
 	return (*eface)(unsafe.Pointer(&obj))
 }
 
-func IsNil(obj interface{}) bool {
+func IsNil(obj interface{}) bool { // nolint
 	if obj == nil {
 		return true
 	}

@@ -58,7 +58,6 @@ func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (uint32
 	code := ipldLink(uintptr(unsafe.Pointer(&result)), id, hashFun, hashLen, cidBufPtr, cidBufLen)
 	if code != 0 {
 		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to read ipld ")
-	} else {
-		return result, nil
 	}
+	return result, nil
 }

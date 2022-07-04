@@ -11,6 +11,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
+// Send sends a message to another actor.
 func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value types.TokenAmount) (*types.Receipt, error) {
 	var (
 		paramsID uint32
