@@ -66,22 +66,22 @@ func ComputeUnsealedSectorCid(
 		}
 	}
 	piecesPtr, piecesLen := GetSlicePointerAndLen(buf.Bytes())
-	cidBuf := make([]byte, types.MAX_CID_LEN)
+	cidBuf := make([]byte, types.MaxCidLen)
 	cidBufPtr, _ := GetSlicePointerAndLen(cidBuf)
 	var cidLen uint32
-	code := cryptoComputeUnsealedSectorCid(uintptr(unsafe.Pointer(&cidLen)), int64(proofType), piecesPtr, piecesLen, cidBufPtr, types.MAX_CID_LEN)
+	code := cryptoComputeUnsealedSectorCid(uintptr(unsafe.Pointer(&cidLen)), int64(proofType), piecesPtr, piecesLen, cidBufPtr, types.MaxCidLen)
 	if code != 0 {
 		return cid.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
 	}
 
-	_, sId, err := cid.CidFromBytes(cidBuf[:cidLen])
+	_, sID, err := cid.CidFromBytes(cidBuf[:cidLen])
 	if err != nil {
 		return cid.Undef, fmt.Errorf("unable to decode cid from compute unseal sector cid result, cid len %d, cid content %v %w", cidLen, cidBuf[:cidLen], err)
 	}
-	return sId, nil
+	return sID, nil
 }
 
-/// Verifies a sector seal proof.
+// VerifySeal Verifies a sector seal proof.
 func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)
@@ -97,7 +97,7 @@ func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
 	return result == 0, nil
 }
 
-/// Verifies a sector seal proof.
+// VerifyPost Verifies a sector seal proof.
 func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)

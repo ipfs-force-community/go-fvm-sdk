@@ -20,7 +20,7 @@ func SelfRoot(cidBuf []byte) (uint32, error) {
 }
 
 func SelfSetRoot(id cid.Cid) error {
-	buf := make([]byte, types.MAX_CID_LEN)
+	buf := make([]byte, types.MaxCidLen)
 	copy(buf, id.Bytes())
 	cidBufPtr, _ := GetSlicePointerAndLen(buf)
 	code := sselfSetRoot(cidBufPtr)
@@ -42,7 +42,7 @@ func SelfCurrentBalance() (*types.TokenAmount, error) {
 
 func SelfDestruct(addr addr.Address) error {
 	addrPtr, addrLen := GetSlicePointerAndLen(addr.Bytes())
-	code := selfDestruct(addrPtr, uint32(addrLen))
+	code := selfDestruct(addrPtr, addrLen)
 	if code != 0 {
 		return ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create ipld")
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 func Open(id cid.Cid) (*types.IpldOpen, error) {
-	cidBuf := make([]byte, types.MAX_CID_LEN)
+	cidBuf := make([]byte, types.MaxCidLen)
 	copy(cidBuf, id.Bytes())
 	cidBufPtr, _ := GetSlicePointerAndLen(cidBuf)
 
@@ -52,13 +52,12 @@ func Stat(id uint32) (*types.IpldStat, error) {
 	return result, nil
 }
 
-func BlockLink(id uint32, hash_fun uint64, hash_len uint32, cidBuf []byte) (uint32, error) {
+func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (uint32, error) {
 	result := uint32(0)
 	cidBufPtr, cidBufLen := GetSlicePointerAndLen(cidBuf)
-	code := ipldLink(uintptr(unsafe.Pointer(&result)), id, hash_fun, hash_len, cidBufPtr, cidBufLen)
+	code := ipldLink(uintptr(unsafe.Pointer(&result)), id, hashFun, hashLen, cidBufPtr, cidBufLen)
 	if code != 0 {
 		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to read ipld ")
-	} else {
-		return result, nil
 	}
+	return result, nil
 }

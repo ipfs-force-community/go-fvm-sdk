@@ -1,9 +1,10 @@
 package sys
 
 import (
+	"unsafe"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"unsafe"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
@@ -18,4 +19,3 @@ func Send(to address.Address, method uint64, params uint32, value types.TokenAmo
 
 	return send, nil
 }
-

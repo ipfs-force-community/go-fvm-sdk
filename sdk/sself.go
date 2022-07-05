@@ -9,11 +9,11 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-/// Get the IPLD root CID. Fails if the actor doesn't have state (before the first call to
-/// `set_root` and after actor deletion).
+// Root Get the IPLD root CID. Fails if the actor doesn't have state (before the first call to
+// `set_root` and after actor deletion).
 func Root() (cid.Cid, error) {
 	// I really hate this CID interface. Why can't I just have bytes?
-	cidBuf := make([]byte, types.MAX_CID_LEN)
+	cidBuf := make([]byte, types.MaxCidLen)
 	cidBufLen, err := sys.SelfRoot(cidBuf)
 	if err != nil {
 		return cid.Undef, err
@@ -26,17 +26,17 @@ func Root() (cid.Cid, error) {
 	return cid, err
 }
 
-/// Set the actor's state-tree root.
-///
-/// Fails if:
-///
-/// - The new root is not in the actor's "reachable" set.
-/// - Fails if the actor has been deleted.
+// SetRoot set the actor's state-tree root.
+//
+// Fails if:
+//
+// - The new root is not in the actor's "reachable" set.
+// - Fails if the actor has been deleted.
 func SetRoot(c cid.Cid) error {
 	return sys.SelfSetRoot(c)
 }
 
-/// Gets the current balance for the calling actor.
+// CurrentBalance gets the current balance for the calling actor.
 func CurrentBalance() *types.TokenAmount {
 	tok, err := sys.SelfCurrentBalance()
 	if err != nil {
@@ -45,6 +45,10 @@ func CurrentBalance() *types.TokenAmount {
 	return tok
 }
 
+// SelfDestruct destroys the calling actor, sending its current balance
+// to the supplied address, which cannot be itself.
+//
+// Fails if the beneficiary doesn't exist or is the actor being deleted.
 func SelfDestruct(addr addr.Address) error {
 	return sys.SelfDestruct(addr)
 }

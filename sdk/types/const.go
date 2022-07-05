@@ -1,14 +1,18 @@
 package types
 
-/// The maximum supported CID size. (SPEC_AUDIT)
-const MAX_CID_LEN = 100
+const (
+	//MaxCidLen The maximum supported CID size. (SPEC_AUDIT)
+	MaxCidLen = 100
 
-/// The maximum actor address length (class 2 addresses).
-const MAX_ACTOR_ADDR_LEN = 21
+	//MaxActorAddrLen The maximum actor address length (class 2 addresses).
+	MaxActorAddrLen = 21
 
-// TODO find something to reference.
-const DAG_CBOR uint64 = 0x71
+	//DAGCbor dag codec
+	DAGCbor uint64 = 0x71 // TODO find something to reference.
 
-const NO_DATA_BLOCK_ID uint32 = 0
+	//NoDataBlockID specify noblock in params and return
+	NoDataBlockID uint32 = 0
 
-const UNIT uint32 = 0
+	//UNIT block unit
+	UNIT uint32 = 0
+)

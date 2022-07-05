@@ -8,12 +8,14 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 )
 
+// InvocationCtx the runtime context in actor method invocation.
 var InvocationCtx *types.InvocationContext
 
+// Caller get caller, from address of message
 func Caller() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -21,10 +23,11 @@ func Caller() (abi.ActorID, error) {
 	return InvocationCtx.Caller, nil
 }
 
+// Receiver get recevier, to address of message
 func Receiver() (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -32,10 +35,11 @@ func Receiver() (abi.ActorID, error) {
 	return InvocationCtx.Receiver, nil
 }
 
+// MethodNumber method number
 func MethodNumber() (abi.MethodNum, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -43,10 +47,11 @@ func MethodNumber() (abi.MethodNum, error) {
 	return InvocationCtx.MethodNumber, nil
 }
 
+// ValueReceived the amount was transferred in message
 func ValueReceived() (*types.TokenAmount, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return nil, err
 		}
@@ -58,9 +63,9 @@ func ValueReceived() (*types.TokenAmount, error) {
 	}, nil
 }
 
-/// Returns the message codec and parameters.
-func ParamsRaw(id types.BlockId) (*types.ParamsRaw, error) {
-	if id == types.NO_DATA_BLOCK_ID {
+// ParamsRaw returns the message codec and parameters.
+func ParamsRaw(id types.BlockID) (*types.ParamsRaw, error) {
+	if id == types.NoDataBlockID {
 		return &types.ParamsRaw{}, nil
 	}
 	state, err := sys.Stat(id)
@@ -78,10 +83,11 @@ func ParamsRaw(id types.BlockId) (*types.ParamsRaw, error) {
 	}, nil
 }
 
+// CurrEpoch get network current epoch
 func CurrEpoch() (abi.ChainEpoch, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}
@@ -89,10 +95,11 @@ func CurrEpoch() (abi.ChainEpoch, error) {
 	return InvocationCtx.NetworkCurrEpoch, nil
 }
 
+// Version network version
 func Version() (network.Version, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VmContext()
+		InvocationCtx, err = sys.VMContext()
 		if err != nil {
 			return 0, err
 		}

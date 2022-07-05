@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 
 	"github.com/filecoin-project/go-address"
@@ -10,18 +11,19 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
+// Send sends a message to another actor.
 func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value types.TokenAmount) (*types.Receipt, error) {
 	var (
 		paramsID uint32
 		err      error
 	)
 	if len(params) > 0 {
-		paramsID, err = sys.Create(types.DAG_CBOR, params)
+		paramsID, err = sys.Create(types.DAGCbor, params)
 		if err != nil {
 			return nil, fmt.Errorf("invalid params: %w", err)
 		}
 	} else {
-		paramsID = types.NO_DATA_BLOCK_ID
+		paramsID = types.NoDataBlockID
 	}
 
 	send, err := sys.Send(to, uint64(method), paramsID, value)
@@ -31,7 +33,7 @@ func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value
 
 	var returnData types.RawBytes
 	var exitCode = ferrors.ExitCode(send.ExitCode)
-	if exitCode == ferrors.OK && send.ReturnID != types.NO_DATA_BLOCK_ID {
+	if exitCode == ferrors.OK && send.ReturnID != types.NoDataBlockID {
 		ipldStat, err := sys.Stat(send.ReturnID)
 		if err != nil {
 			return nil, fmt.Errorf("return id ipld-stat: %w", err)
