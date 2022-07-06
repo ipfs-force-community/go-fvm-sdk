@@ -50,8 +50,12 @@ pub fn check_go_install() -> Result<bool> {
                     return Ok(true);
                 }
             }
-            Err(anyhow!("incorrect go version:{},must in {:?}", version_str, SUPPORT_GO_VERSIONS))
-        },
+            Err(anyhow!(
+                "incorrect go version:{},must in {:?}",
+                version_str,
+                SUPPORT_GO_VERSIONS
+            ))
+        }
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
                 Err(anyhow!("unable to found go-fvm-sdk-tools(fvm), please install this tool in https://go.dev/dl"))
@@ -62,4 +66,4 @@ pub fn check_go_install() -> Result<bool> {
     }
 }
 
-const SUPPORT_GO_VERSIONS: &'static [&'static str] = &["go1.16.", "go1.17.", "go1.18."];
+const SUPPORT_GO_VERSIONS: &[&str] = &["go1.16.", "go1.17.", "go1.18."];
