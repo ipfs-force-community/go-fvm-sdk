@@ -1,10 +1,15 @@
 package contract
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	stdbig "math/big"
 	"strconv"
 
+	"github.com/ipfs/go-cid"
+
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
 	typegen "github.com/whyrusleeping/cbor-gen"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -34,8 +39,6 @@ function allowance(address _owner, address _spender) public view returns (uint25
 
 //keep unused for code generation
 
-var zero = big.Zero()
-
 var logger sdk.Logger
 
 func init() {
@@ -50,8 +53,8 @@ type Erc20Token struct {
 	TotalSupply *big.Int
 
 	//todo cbor gen not support non-string key and map value
-	Balances map[string]*big.Int
-	Allowed  map[string]*big.Int //owner-spender
+	Balances cid.Cid //map[string]*big.Int
+	Allowed  cid.Cid // map[string]*big.Int //owner-spender
 }
 
 func (e *Erc20Token) Export() map[int]interface{} {
@@ -78,20 +81,40 @@ type ConstructorReq struct {
 }
 
 func Constructor(req *ConstructorReq) error {
-	state := &Erc20Token{
-		Name:        req.Name,
-		Symbol:      req.Symbol,
-		Decimals:    req.Decimals,
-		TotalSupply: req.TotalSupply,
-		Balances:    make(map[string]*big.Int),
-		Allowed:     make(map[string]*big.Int),
+	emptyMap, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+	emptyRoot, err := emptyMap.Root()
+	if err != nil {
+		return err
 	}
 	caller, err := sdk.Caller()
 	if err != nil {
 		return err
 	}
-	state.Balances[actorToString(caller)] = req.TotalSupply //todo call is init actor but not message real sendor wait for ref fvm fix this issue
-	logger.Logf("construct %s  set %s token to %s", req.Name, actorToString(caller), req.TotalSupply.String())
+
+	//todo call is init actor but not message real sendor wait for ref fvm fix this issue
+	err = emptyMap.Put(types.ActorKey(caller), req.TotalSupply)
+	if err != nil {
+		return err
+	}
+
+	balanceRoot, err := emptyMap.Root()
+	if err != nil {
+		return err
+	}
+
+	state := &Erc20Token{
+		Name:        req.Name,
+		Symbol:      req.Symbol,
+		Decimals:    req.Decimals,
+		TotalSupply: req.TotalSupply,
+		Balances:    balanceRoot,
+		Allowed:     emptyRoot,
+	}
+
+	logger.Logf("construct token %s  issue %s token to %s", req.Name, req.TotalSupply.String(), actorToString(caller))
 	_ = sdk.Constructor(state)
 	return nil
 }
@@ -107,7 +130,19 @@ func (t *Erc20Token) FakeSetBalance(req *FakeSetBalance) error {
 	if err != nil {
 		return err
 	}
-	t.Balances[actorToString(addrId)] = req.Balance
+
+	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+	err = balanceMap.Put(types.ActorKey(addrId), req.Balance)
+	if err != nil {
+		return err
+	}
+	t.Balances, err = balanceMap.Root()
+	if err != nil {
+		return err
+	}
 	_ = sdk.SaveState(t)
 	return nil
 }
@@ -144,10 +179,16 @@ func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
 }
 
 func (t *Erc20Token) getBalanceOf(act abi.ActorID) (*big.Int, error) {
-	if balance, ok := t.Balances[actorToString(act)]; ok {
-		return balance, nil
+	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+	if err != nil {
+		return nil, err
 	}
-	return &zero, nil
+	var balance = &big.Int{stdbig.NewInt(0)}
+	_, err = balanceMap.Get(types.ActorKey(act), balance)
+	if err != nil {
+		return nil, err
+	}
+	return balance, nil
 }
 
 type TransferReq struct {
@@ -192,9 +233,23 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 		return fmt.Errorf("transfer amount should be less than balance of sender (%v): %v", senderID, err)
 	}
 
-	t.Balances[actorToString(senderID)] = sub(balanceOfSender, transferReq.TransferAmount)
-	t.Balances[actorToString(receiverID)] = add(balanceOfReceiver, transferReq.TransferAmount)
-	logger.Logf("from %d to %d amount %s", senderID, receiverID, transferReq.TransferAmount.String())
+	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+
+	if err = balanceMap.Put(types.ActorKey(senderID), sub(balanceOfSender, transferReq.TransferAmount)); err != nil {
+		return err
+	}
+	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, transferReq.TransferAmount)); err != nil {
+		return err
+	}
+	newBalanceMapRoot, err := balanceMap.Root()
+	if err != nil {
+		return err
+	}
+	t.Balances = newBalanceMapRoot
+	logger.Logf("transfer from %d to %d amount %s", senderID, receiverID, transferReq.TransferAmount.String())
 	_ = sdk.SaveState(t)
 	return nil
 }
@@ -224,10 +279,17 @@ func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
 }
 
 func (t *Erc20Token) getAllowance(ownerID, spenderId abi.ActorID) (*big.Int, error) {
-	if val, ok := t.Allowed[getAllowKey(ownerID, spenderId)]; ok {
-		return val, nil
+	allowBalanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Allowed, adt.BalanceTableBitwidth)
+	if err != nil {
+		return nil, err
 	}
-	return &zero, nil
+
+	balance := &big.Int{stdbig.NewInt(0)}
+	if _, err = allowBalanceMap.Get(types.StringKey(getAllowKey(ownerID, spenderId)), balance); err != nil {
+		return nil, err
+	}
+
+	return balance, nil
 }
 
 type TransferFromReq struct {
@@ -294,9 +356,35 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 		return fmt.Errorf("transfer amount should be less than approved spending amount of %v: %v", spenderID, err)
 	}
 
-	t.Balances[actorToString(tokenOwnerID)] = sub(balanceOfTokenOwner, req.TransferAmount)
-	t.Balances[actorToString(receiverID)] = add(balanceOfReceiver, req.TransferAmount)
-	t.Allowed[getAllowKey(tokenOwnerID, spenderID)] = sub(approvedAmount, req.TransferAmount)
+	store := adt.AdtStore(context.Background())
+	balanceMap, err := adt.AsMap(store, t.Balances, adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+
+	allowBalanceMap, err := adt.AsMap(store, t.Allowed, adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+
+	if err = balanceMap.Put(types.ActorKey(tokenOwnerID), sub(balanceOfTokenOwner, req.TransferAmount)); err != nil {
+		return err
+	}
+
+	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, req.TransferAmount)); err != nil {
+		return err
+	}
+
+	if err = allowBalanceMap.Put(types.StringKey(getAllowKey(tokenOwnerID, spenderID)), sub(approvedAmount, req.TransferAmount)); err != nil {
+		return err
+	}
+
+	if t.Balances, err = balanceMap.Root(); err != nil {
+		return err
+	}
+	if t.Allowed, err = allowBalanceMap.Root(); err != nil {
+		return err
+	}
 	_ = sdk.SaveState(t)
 	return nil
 }
@@ -329,7 +417,19 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 		return err
 	}
 
-	t.Allowed[getAllowKey(callerID, spenderID)] = add(allowance, req.NewAllowance)
+	allowBalanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Allowed, adt.BalanceTableBitwidth)
+	if err != nil {
+		return err
+	}
+
+	err = allowBalanceMap.Put(types.StringKey(getAllowKey(callerID, spenderID)), add(allowance, req.NewAllowance))
+	if err != nil {
+		return err
+	}
+	t.Allowed, err = allowBalanceMap.Root()
+	if err != nil {
+		return err
+	}
 	_ = sdk.SaveState(t)
 	logger.Logf("approval %s for %s", getAllowKey(callerID, spenderID), req.NewAllowance.String())
 	return nil
@@ -337,8 +437,8 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 
 /*checkBalance checks if sender's balance is >= 0*/
 func checkBalance(balance *big.Int, mspID abi.ActorID) error {
-	if balance.LessThan(zero) {
-		return fmt.Errorf("Balance of sender %v is %v", mspID, balance)
+	if balance.LessThan(big.Zero()) {
+		return fmt.Errorf("balance of sender %v is %v", mspID, balance)
 	}
 	return nil
 }

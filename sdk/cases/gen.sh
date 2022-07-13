@@ -1,4 +1,4 @@
-#/bin/bash.
+#!/bin/bash
 
 root_dir=$1
 echo ${root_dir}

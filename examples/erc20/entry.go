@@ -14,7 +14,6 @@ import (
 	sdk "github.com/ipfs-force-community/go-fvm-sdk/sdk"
 
 	ferrors "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
@@ -47,6 +46,7 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
+
 		var req contract.ConstructorReq
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
@@ -54,7 +54,6 @@ func Invoke(blockId uint32) uint32 {
 		}
 		err = contract.Constructor(&req)
 		callResult = typegen.CborBool(true)
-
 	case 2:
 
 		//no params no error but have return value
@@ -207,12 +206,12 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(types.DAGCbor, buf.Bytes())
+		id, err := sdk.PutBlock(sdkTypes.DAGCbor, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {
-		return types.NoDataBlockID
+		return sdkTypes.NoDataBlockID
 	}
 }

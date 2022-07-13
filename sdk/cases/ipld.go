@@ -19,7 +19,7 @@ func Invoke(_ uint32) uint32 { //nolint
 
 	data := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	//create
-	stCid, err := sdk.Put(0xb220, 32, types.DAGCbor, data)
+	stCid, err := sdk.Put(types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, data)
 	assert.Nil(t, err, "unable to put block %v", err)
 	//cid assert
 	assert.Equal(t, stCid.String(), "bafy2bzacedpfdhph46exiifylwgpd5dwukzg763u5burfjpcesqhblyt4k5wg")
