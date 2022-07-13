@@ -85,3 +85,10 @@ Run the test.
 ```sh
 go-fvm-sdk-tools test -- <directory for test file>
 ```
+
+## Notice
+
+1. Try not to use panic, trap mode won't print panic reason.
+2. Try not to use reflection, the overhead of reflection is a little high, on the other hand, tinygo does not support reflection very well.
+3. If developer must use json, code generation tool to generate marshal/unmarshal methods.
+4. Do not use map directly, use amt map instead.
