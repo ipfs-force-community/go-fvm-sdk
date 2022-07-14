@@ -5,6 +5,11 @@ import (
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
 )
 
+const (
+	BLAKE2B256 uint64 = 0xb220
+	BLAKE2BLEN uint32 = 32
+)
+
 type BlockID = uint32
 type Codec = uint64
 

@@ -67,77 +67,18 @@ func (t *Erc20Token) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (map[string]*big.Int) (map)
-	{
-		if len(t.Balances) > 4096 {
-			return xerrors.Errorf("cannot marshal t.Balances map too large")
-		}
+	// t.Balances (cid.Cid) (struct)
 
-		if err := cw.WriteMajorTypeHeader(cbg.MajMap, uint64(len(t.Balances))); err != nil {
-			return err
-		}
-
-		keys := make([]string, 0, len(t.Balances))
-		for k := range t.Balances {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			v := t.Balances[k]
-
-			if len(k) > cbg.MaxLength {
-				return xerrors.Errorf("Value in field k was too long")
-			}
-
-			if err := cw.WriteMajorTypeHeader(cbg.MajTextString, uint64(len(k))); err != nil {
-				return err
-			}
-			if _, err := io.WriteString(w, string(k)); err != nil {
-				return err
-			}
-
-			if err := v.MarshalCBOR(cw); err != nil {
-				return err
-			}
-
-		}
+	if err := cbg.WriteCid(cw, t.Balances); err != nil {
+		return xerrors.Errorf("failed to write cid field t.Balances: %w", err)
 	}
 
-	// t.Allowed (map[string]*big.Int) (map)
-	{
-		if len(t.Allowed) > 4096 {
-			return xerrors.Errorf("cannot marshal t.Allowed map too large")
-		}
+	// t.Allowed (cid.Cid) (struct)
 
-		if err := cw.WriteMajorTypeHeader(cbg.MajMap, uint64(len(t.Allowed))); err != nil {
-			return err
-		}
-
-		keys := make([]string, 0, len(t.Allowed))
-		for k := range t.Allowed {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			v := t.Allowed[k]
-
-			if len(k) > cbg.MaxLength {
-				return xerrors.Errorf("Value in field k was too long")
-			}
-
-			if err := cw.WriteMajorTypeHeader(cbg.MajTextString, uint64(len(k))); err != nil {
-				return err
-			}
-			if _, err := io.WriteString(w, string(k)); err != nil {
-				return err
-			}
-
-			if err := v.MarshalCBOR(cw); err != nil {
-				return err
-			}
-
-		}
+	if err := cbg.WriteCid(cw, t.Allowed); err != nil {
+		return xerrors.Errorf("failed to write cid field t.Allowed: %w", err)
 	}
+
 	return nil
 }
 
@@ -216,106 +157,28 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 		}
 
 	}
-	// t.Balances (map[string]*big.Int) (map)
+	// t.Balances (cid.Cid) (struct)
 
-	maj, extra, err = cr.ReadHeader()
-	if err != nil {
-		return err
-	}
-	if maj != cbg.MajMap {
-		return fmt.Errorf("expected a map (major type 5)")
-	}
-	if extra > 4096 {
-		return fmt.Errorf("t.Balances: map too large")
-	}
+	{
 
-	t.Balances = make(map[string]*big.Int, extra)
-
-	for i, l := 0, int(extra); i < l; i++ {
-
-		var k string
-
-		{
-			sval, err := cbg.ReadString(cr)
-			if err != nil {
-				return err
-			}
-
-			k = string(sval)
+		c, err := cbg.ReadCid(cr)
+		if err != nil {
+			return xerrors.Errorf("failed to read cid field t.Balances: %w", err)
 		}
 
-		var v *big.Int
+		t.Balances = c
 
-		{
+	}
+	// t.Allowed (cid.Cid) (struct)
 
-			b, err := cr.ReadByte()
-			if err != nil {
-				return err
-			}
-			if b != cbg.CborNull[0] {
-				if err := cr.UnreadByte(); err != nil {
-					return err
-				}
-				v = new(big.Int)
-				if err := v.UnmarshalCBOR(cr); err != nil {
-					return xerrors.Errorf("unmarshaling v pointer: %w", err)
-				}
-			}
+	{
 
+		c, err := cbg.ReadCid(cr)
+		if err != nil {
+			return xerrors.Errorf("failed to read cid field t.Allowed: %w", err)
 		}
 
-		t.Balances[k] = v
-
-	}
-	// t.Allowed (map[string]*big.Int) (map)
-
-	maj, extra, err = cr.ReadHeader()
-	if err != nil {
-		return err
-	}
-	if maj != cbg.MajMap {
-		return fmt.Errorf("expected a map (major type 5)")
-	}
-	if extra > 4096 {
-		return fmt.Errorf("t.Allowed: map too large")
-	}
-
-	t.Allowed = make(map[string]*big.Int, extra)
-
-	for i, l := 0, int(extra); i < l; i++ {
-
-		var k string
-
-		{
-			sval, err := cbg.ReadString(cr)
-			if err != nil {
-				return err
-			}
-
-			k = string(sval)
-		}
-
-		var v *big.Int
-
-		{
-
-			b, err := cr.ReadByte()
-			if err != nil {
-				return err
-			}
-			if b != cbg.CborNull[0] {
-				if err := cr.UnreadByte(); err != nil {
-					return err
-				}
-				v = new(big.Int)
-				if err := v.UnmarshalCBOR(cr); err != nil {
-					return xerrors.Errorf("unmarshaling v pointer: %w", err)
-				}
-			}
-
-		}
-
-		t.Allowed[k] = v
+		t.Allowed = c
 
 	}
 	return nil

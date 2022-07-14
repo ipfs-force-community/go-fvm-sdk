@@ -456,13 +456,13 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(sdkTypes.DAG_CBOR, buf.Bytes())
+		id, err := sdk.PutBlock(sdkTypes.DAGCbor, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {
-		return sdkTypes.NO_DATA_BLOCK_ID
+		return sdkTypes.NoDataBlockID
 	}
 }
 

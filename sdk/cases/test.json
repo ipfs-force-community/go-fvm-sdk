@@ -126,6 +126,15 @@
       "method_num": 3,
       "expect_code": 4,
       "expect_message": "wasm `unreachable` instruction executed"
+    },
+    {
+      "name": "adt_test",
+      "binary": "adt.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "method_num": 1,
+      "params":"",
+      "expect_code": 0
     }
   ]
 }
