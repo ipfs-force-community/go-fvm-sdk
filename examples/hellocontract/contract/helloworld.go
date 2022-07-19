@@ -46,16 +46,7 @@ func NewState() *State {
 func Constructor() error {
 	// This constant should be part of the SDK.
 	// var  ActorID = 1;
-
-	caller, err := sdk.Caller()
-	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to get caller")
-	}
-
-	if caller != 1 {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
-	}
-	_ = sdk.SaveState(&State{})
+	_ = sdk.Constructor(&State{})
 	return nil
 }
 

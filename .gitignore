@@ -1,4 +1,3 @@
-*.wasm
 *.wat
 target
 ./bin/*
