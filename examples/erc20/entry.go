@@ -46,7 +46,6 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
-
 		var req contract.ConstructorReq
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
@@ -54,6 +53,7 @@ func Invoke(blockId uint32) uint32 {
 		}
 		err = contract.Constructor(&req)
 		callResult = typegen.CborBool(true)
+
 	case 2:
 
 		//no params no error but have return value
