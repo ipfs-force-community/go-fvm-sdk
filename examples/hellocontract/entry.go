@@ -10,7 +10,8 @@ import (
 	sdk "github.com/ipfs-force-community/go-fvm-sdk/sdk"
 
 	ferrors "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+
+	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	typegen "github.com/whyrusleeping/cbor-gen"
 
@@ -63,12 +64,12 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(types.DAGCbor, buf.Bytes())
+		id, err := sdk.PutBlock(sdkTypes.DAGCbor, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {
-		return types.NoDataBlockID
+		return sdkTypes.NoDataBlockID
 	}
 }
