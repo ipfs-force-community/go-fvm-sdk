@@ -1,7 +1,9 @@
+*.wasm
 *.wat
 target
 ./bin/*
 .idea
+.vscode
 ./tesx
 *.log
 /bin

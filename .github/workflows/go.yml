@@ -49,8 +49,9 @@ jobs:
       - name: install tinygo
         run: |
           wget -q https://github.com/ipfs-force-community/tinygo/releases/download/fvm%400.0.1/tinygo_ubuntu_20.04_linux.tar.gz
-          sudo tar -xvf tinygo_ubuntu_20.04_linux.tar.gz -C /usr/local
+          sudo tar -xf tinygo_ubuntu_20.04_linux.tar.gz -C /usr/local
           sudo chmod 777 /usr/local/tinygo/bin/*
+          rm tinygo_ubuntu_20.04_linux.tar.gz
 
       - name: Build
         run: |
@@ -73,8 +74,3 @@ jobs:
         run: |
           export PATH=$PATH:/usr/local/tinygo/bin
           make test
-
-      - name: Example
-        run: |
-          export PATH=$PATH:/usr/local/tinygo/bin
-          cargo run -p ci -- example
