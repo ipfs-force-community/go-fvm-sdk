@@ -1,0 +1,52 @@
+name: build for test/release
+
+on:
+  push:
+    branches: [master]
+    tags: ['**']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+          fetch-depth: '0'
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: setup build cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/sdk_tool/Cargo.lock') }}
+
+      - name: Build
+        run: |
+          make build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64
+          path: target/release/go-fvm-sdk-tools
+
+      - name: shasum
+        run: shasum -a 256 target/release/go-fvm-sdk-tools > target/release/go-fvm-sdk-tools.sha256
+        shell: bash
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64.sha256
+          path: target/release/go-fvm-sdk-tools
