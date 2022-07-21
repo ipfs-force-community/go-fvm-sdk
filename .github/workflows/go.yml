@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: dependencies
+        run: sudo apt update && sudo apt install -y
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -39,7 +42,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             ./target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/sdk_tool/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
       - name: install deps
         run: |

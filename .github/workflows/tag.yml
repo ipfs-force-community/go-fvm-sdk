@@ -13,6 +13,10 @@ jobs:
         with:
           submodules: 'true'
           fetch-depth: '0'
+
+      - name: dependencies
+        run: sudo apt update && sudo apt install -y
+
       - name: setup rust
         uses: actions-rs/toolchain@v1
         with:
@@ -31,22 +35,21 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             ./target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/sdk_tool/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
       - name: Build
         run: |
           make build
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64
-          path: target/release/go-fvm-sdk-tools
+          cp target/release/go-fvm-sdk-tools target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64
 
       - name: shasum
-        run: shasum -a 256 target/release/go-fvm-sdk-tools > target/release/go-fvm-sdk-tools.sha256
+        run: shasum -a 256 target/release/go-fvm-sdk-tools > target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64.sha256
         shell: bash
 
-      - uses: actions/upload-artifact@v3
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64.sha256
-          path: target/release/go-fvm-sdk-tools
+          files: |
+            target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64.sha256
+            target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux-amd64
