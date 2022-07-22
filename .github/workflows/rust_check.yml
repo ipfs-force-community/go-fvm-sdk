@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: dependencies
+        run: sudo apt update && sudo apt install -y
+
       - name: setup rust
         uses: actions-rs/toolchain@v1
         with:
@@ -34,7 +37,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             venus-worker/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
       - name: lint
         run: |
