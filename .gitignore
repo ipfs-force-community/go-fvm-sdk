@@ -6,4 +6,5 @@ target
 .vscode
 ./tesx
 *.log
+*.patch
 /bin

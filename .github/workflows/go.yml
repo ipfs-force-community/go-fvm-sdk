@@ -51,15 +51,18 @@ jobs:
 
       - name: install tinygo
         run: |
-          wget -q https://github.com/ipfs-force-community/tinygo/releases/download/fvm%400.0.1/tinygo_ubuntu_20.04_linux.tar.gz
-          sudo tar -xf tinygo_ubuntu_20.04_linux.tar.gz -C /usr/local
-          sudo chmod 777 /usr/local/tinygo/bin/*
-          rm tinygo_ubuntu_20.04_linux.tar.gz
+          wget https://github.com/tinygo-org/tinygo/releases/download/v0.25.0/tinygo_0.25.0_amd64.deb
+          sudo dpkg -i tinygo_0.25.0_amd64.deb
+          rm tinygo_0.25.0_amd64.deb
 
       - name: Build
         run: |
           make build
           make install
+
+      - name: patch
+        run: |
+          sudo go-fvm-sdk-tools patch
 
       - name: Lint
         run: |
