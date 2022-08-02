@@ -137,7 +137,7 @@ impl<'a> GoFvmBinProcessor<'a> {
             .args([
                 "build",
                 "-target",
-                "wasi",
+                "fvm",
                 "-no-debug",
                 "-panic",
                 "trap",
