@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::utils;
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -16,17 +17,23 @@ pub fn apply_patch(_: &PatchConfig) -> Result<()> {
     let envs = utils::get_tinygo_env()?;
     println!("{:?}", envs);
 
+    let mut go_patch_map:HashMap<String, String> = HashMap::new();
+    go_patch_map.insert("1.17.x".to_string(), "go_v1.17.x.patch".to_string());
+
+    let mut tinygo_patch_map:HashMap<String, String> = HashMap::new();
+    tinygo_patch_map.insert("1.17.x".to_string(), "tinygo_v0.24.x.patch".to_string());
+
     let version_str = utils::get_tinygo_version()?;
-    let re = Regex::new(r"\d+\.\d+\.").unwrap();
+    let re = Regex::new(r"\d+\.\d+\.\d+").unwrap();
     let version_arr: Vec<String> = re
         .captures_iter(version_str.as_str())
         .map(|c| c[0].to_string())
         .collect();
-    let tinyo_version = version_arr.get(0).unwrap();
+    let tinygo_version = version_arr.get(0).unwrap();
     let go_version = version_arr.get(1).unwrap();
     println!(
-        "go version {}.x tinygo version {}.x",
-        go_version, tinyo_version
+        "go version {} tinygo version {}",
+        go_version, tinygo_version
     );
 
     let dir = env::current_dir()?;
@@ -35,33 +42,45 @@ pub fn apply_patch(_: &PatchConfig) -> Result<()> {
     {
         let go_root_path = envs.get("GOROOT").expect("unable to locate GOROOT");
         println!("go root path {}", go_root_path);
-        utils::download_file(format!("https://raw.githubusercontent.com/ipfs-force-community/go_tinygo_patch/main/patchs/fmt_v{}x.patch", go_version).as_str(),
-                             format!("fmt_v{}x.patch", go_version).as_str())?;
+        let default_patch_name = &format!("go_v{}.patch", default_version(go_version));
+        let patch_name = go_patch_map.get(go_version).unwrap_or_else(|| default_patch_name);
+
+        utils::download_file(format!("https://raw.githubusercontent.com/ipfs-force-community/go_tinygo_patch/main/patchs/{}", patch_name).as_str(), patch_name)?;
 
         let sh = Shell::new()?;
         sh.change_dir(Path::new(&go_root_path));
         sh.cmd("patch")
             .arg("-p1")
             .arg("-i")
-            .arg(format!("{}/fmt_v{}x.patch", current_dir, go_version))
+            .arg(format!("{}/{}", current_dir, patch_name))
             .run()
             .map_err(|e| anyhow!("unable to apply patch for go {}", e))?;
+        std::fs::remove_file(patch_name)?;
     }
     {
         let tinygo_root_path = envs.get("TINYGOROOT").expect("unable to locate TINYGOROOT");
         println!("tinygo root path {}", tinygo_root_path);
-        utils::download_file(format!("https://raw.githubusercontent.com/ipfs-force-community/go_tinygo_patch/main/patchs/tinygo_0.24.0_reflect.patch").as_str(),
-                             format!("tinygo_0.24.0_reflect.patch").as_str())?;
+        let default_patch_name = &format!("tinygo_v{}.patch", default_version(tinygo_version));
+        let patch_name = tinygo_patch_map.get(tinygo_version).unwrap_or_else(|| default_patch_name);
+        utils::download_file(format!("https://raw.githubusercontent.com/ipfs-force-community/go_tinygo_patch/main/patchs/{}", patch_name).as_str(), patch_name)?;
 
         let sh = Shell::new()?;
         sh.change_dir(Path::new(&tinygo_root_path));
         sh.cmd("patch")
             .arg("-p1")
             .arg("-i")
-            .arg(format!("{}/tinygo_0.24.0_reflect.patch", current_dir))
+            .arg(format!("{}/{}", current_dir, patch_name))
             .run()
             .map_err(|e| anyhow!("unable to apply patch for tinygo {}", e))?;
+        std::fs::remove_file(patch_name)?;
     }
 
     Ok(())
+}
+
+fn default_version(str: &str) -> String {
+   let mut version_seq: Vec<String>=  str.split(".").map(|s| s.to_string()).collect();
+    version_seq.pop().unwrap();
+    version_seq.push("x".to_owned());
+    version_seq.join(".")
 }
