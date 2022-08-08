@@ -52,6 +52,7 @@ pub fn apply_patch(_: &PatchConfig) -> Result<()> {
         sh.cmd("patch")
             .arg("-p1")
             .arg("-i")
+            .arg("-f")
             .arg(format!("{}/{}", current_dir, patch_name))
             .run()
             .map_err(|e| anyhow!("unable to apply patch for go {}", e))?;
@@ -69,6 +70,7 @@ pub fn apply_patch(_: &PatchConfig) -> Result<()> {
         sh.cmd("patch")
             .arg("-p1")
             .arg("-i")
+            .arg("-f")
             .arg(format!("{}/{}", current_dir, patch_name))
             .run()
             .map_err(|e| anyhow!("unable to apply patch for tinygo {}", e))?;
