@@ -98,7 +98,7 @@ pub fn new_template_project(cfg: &NewTemplateConfig) -> Result<()> {
         .run()
         .map_err(|e| anyhow!("unable to build template in template project {}", e))?;
 
-    cmd!(sh, "go-fvm-sdk-tools test -- ./tests")
+    cmd!(sh, "go-fvm-sdk-tools test")
         .run()
         .map_err(|e| anyhow!("unable to run test in template project {}", e))?;
 

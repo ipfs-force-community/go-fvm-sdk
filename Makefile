@@ -17,6 +17,10 @@ code-gen:
 clean:
 	rm -rf ./bin/*
 
+lint:
+	golangci-lint run
+	cargo run -p ci -- lint
+
 test: build code-gen
 	cd ./sdk/cases && go-fvm-sdk-tools test
 	cd ./examples/hellocontract && go-fvm-sdk-tools test
