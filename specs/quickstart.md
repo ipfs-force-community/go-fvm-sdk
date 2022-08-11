@@ -4,13 +4,20 @@
 
 1. Install [git](https://github.com/git-guides/install-git) 
 2. Install [Go](https://go.dev/doc/install) version 1.16.x/1.17.x
-3. Install `TinyGo` - fvm [release](https://github.com/ipfs-force-community/tinygo/tags)
+3. Install [TinyGo](https://tinygo.org/getting-started/install/)
 4. Install [go-fvm-sdk](https://github.com/ipfs-force-community/go-fvm-sdk/releases); Then rename it to `go-fvm-sdk-tools`
 
-Add above tools to your ```PATH``` environment.
+Add go-fvm-sdk-tools tools to your ```PATH``` environment.
 ```bash
-export PATH=$PATH:<dir to go-fvm-sdk>:<tinygo dir/bin>:<go dir>/bin
+export PATH=$PATH:<dir to go-fvm-sdk>
 ```
+
+## Patch your local environment
+
+```bash
+go-fvm-sdk-tools patch
+```
+this command change your local go/tinygo std package,  this may cause other code not work properly. more details refer link [patch](https://github.com/ipfs-force-community/go_tinygo_patch)
 
 ## Create an actor project
 
@@ -42,8 +49,10 @@ go-fvm-sdk-tools build  # execute at project root
 ## Test
 
 ```sh
+grep -v '#' > test.json << EOF
 {
-  "accounts": [ # mock accounts, used for the send test message
+  # mock accounts, used for the send test message
+  "accounts": [ 
     {
       "priv_key": "6c3b9aa767f785b537c0d8ba5fa54677e6a6e281320dfbb27c889b8fa460670f",
       "address": "f1m674sjwmga36qi3wkowt3wozwpahrkdlvd4tpci",
@@ -62,26 +71,38 @@ go-fvm-sdk-tools build  # execute at project root
   ],
   "contracts":[
     {
-      "name": "counter",                  # test name
-      "binary": "../gofvm-counter.wasm",  # Path to the binary that is generated during compile step
-      "constructor": "",                  # contructor parameters
+      # test name
+      "name": "counter",       
+      # Path to the binary that is generated during compile step           
+      "binary": "../gofvm-counter.wasm",  
+      # contructor parameters
+      "constructor": "",                 
       "cases": [
-        {                                 # execute specify method that defined in actor
-          "name": "increase",             # test name
-          "method_num": 2,                # which actor method to run
-          "params": "1832"                # actor method parameter
-          "send_from": 0,                 # caller of this test message
-          "expect_code": 0,               # expect code if fail
-          "expect_message": "",           # expect message if fail
-          "return_data": "",              # check return_data if any
+       # execute specify method that defined in actor
+        {           
+          # test name
+          "name": "increase",    
+          # which actor method to run         
+          "method_num": 2, 
+          # actor method parameter              
+          "params": "1832"   
+          # caller of this test message             
+          "send_from": 0,           
+          # expect code if fail      
+          "expect_code": 0,       
+          # expect message if fail        
+          "expect_message": "",      
+          # check return_data if any     
+          "return_data": "",              
         },
       ]
     }
   ]
 }
+EOF
 ```
 
 Run the test.
 ```sh
-go-fvm-sdk-tools test -- <directory for test file>
+go-fvm-sdk-tools test
 ```

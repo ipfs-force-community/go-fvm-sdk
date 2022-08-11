@@ -9,8 +9,9 @@ use parity_wasm::elements::{
 use path_absolutize::*;
 use std::collections::HashMap;
 use std::env;
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -109,6 +110,9 @@ pub fn run_process(cfg: &BuildCLiConfig) -> Result<()> {
 
     let mut features = wabt::Features::new();
     features.set_annotations_enabled(true);
+    features.set_bulk_memory_enabled(true);
+    features.set_sat_float_to_int_enabled(true);
+    features.set_sign_extension_enabled(true);
     let wat_bin = wabt::wat2wasm_with_features(wat_str, features)?;
     std::fs::write(build_opts.output_wasm_path, wat_bin)?;
     Ok(())
@@ -141,8 +145,6 @@ impl<'a> GoFvmBinProcessor<'a> {
                 &self.build_cfg.output_wasm_path,
                 &self.build_cfg.code_path,
             ])
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
             .spawn()?
             .wait_with_output()
             .expect("unable to get output");
@@ -153,6 +155,8 @@ impl<'a> GoFvmBinProcessor<'a> {
             )));
         }
 
+        io::stdout().write_all(&output.stdout).unwrap();
+        io::stderr().write_all(&output.stderr).unwrap();
         let module = parity_wasm::deserialize_file(&self.build_cfg.output_wasm_path)?
             .parse_names()
             .map_err(|_| anyhow!("parser names in wasm"))?;
