@@ -7,6 +7,7 @@ use fvm::executor::ApplyRet;
 use fvm::executor::{ApplyKind, Executor};
 use fvm::init_actor::INIT_ACTOR_ADDR;
 use fvm::machine::Machine;
+use fvm_integration_tests::dummy::DummyExterns;
 use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
@@ -26,7 +27,6 @@ use std::env::current_dir;
 use std::fs;
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
-
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct TestConfig {
@@ -155,7 +155,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
     // Instantiate tester
     let (mut tester, accounts) = new_tester(accounts_cfg)?;
     // Instantiate machine
-    tester.instantiate_machine()?;
+    tester.instantiate_machine(DummyExterns)?;
 
     let mut executor = tester.executor.expect("unable to get executor");
 
@@ -337,7 +337,7 @@ struct State {
 
 pub fn new_tester(
     accounts_cfg: &[InitAccount],
-) -> Result<(Tester<MemoryBlockstore>, Vec<Account>)> {
+) -> Result<(Tester<MemoryBlockstore, DummyExterns>, Vec<Account>)> {
     let mut tester = Tester::new(
         NetworkVersion::V15,
         StateTreeVersion::V4,
@@ -380,7 +380,7 @@ pub fn exec(
         .unwrap();
 
     // Instantiate machine
-    tester.instantiate_machine()?;
+    tester.instantiate_machine(DummyExterns)?;
 
     // Send message
     let message = Message {
