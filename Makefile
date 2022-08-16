@@ -1,6 +1,6 @@
 build:
 ifeq (,$(wildcard ${current_dir}/bin/go-fvm-sdk-tools))
-	cargo build -p go-fvm-sdk-tools --release
+	BUILD_FIL_NETWORK=devnet-wasm cargo build -p go-fvm-sdk-tools --release
 endif
 
 install:build

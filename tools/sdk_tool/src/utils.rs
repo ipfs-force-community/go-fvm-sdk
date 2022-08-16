@@ -100,11 +100,14 @@ pub fn check_go_install() -> Result<bool> {
         Ok(child) => {
             let output = child.wait_with_output()?;
             let version_str = String::from_utf8(output.stdout)?;
-            if version_str.contains("go1.16.") || version_str.contains("go1.17.") {
+            if version_str.contains("go1.16.")
+                || version_str.contains("go1.17.")
+                || version_str.contains("go1.18.")
+            {
                 Ok(true)
             } else {
                 Err(anyhow!(
-                    "uncorect go version must be go 1.16.x/go1.17.x but got {}",
+                    "uncorect go version must be go 1.16.x/go1.17.x/go1.18.x but got {}",
                     version_str
                 ))
             }
@@ -123,7 +126,15 @@ pub fn check_go_install() -> Result<bool> {
 
 pub fn download_file(path: &str, file_path: &str) -> Result<()> {
     let mut resp = reqwest::blocking::get(path)?;
-    let mut out = File::create(file_path)?;
-    io::copy(&mut resp, &mut out)?;
-    Ok(())
+    if resp.status().is_success() {
+        let mut out = File::create(file_path)?;
+        io::copy(&mut resp, &mut out)?;
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "download {} fail status {}",
+            file_path,
+            resp.status()
+        ))
+    }
 }
