@@ -103,11 +103,12 @@ pub fn check_go_install() -> Result<bool> {
             if version_str.contains("go1.16.")
                 || version_str.contains("go1.17.")
                 || version_str.contains("go1.18.")
+                || version_str.contains("go1.19")
             {
                 Ok(true)
             } else {
                 Err(anyhow!(
-                    "uncorect go version must be go 1.16.x/go1.17.x/go1.18.x but got {}",
+                    "uncorect go version must be go 1.16.x/go1.17.x/go1.18.x/go1.19 but got {}",
                     version_str
                 ))
             }

@@ -2,8 +2,9 @@ package adt
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"fmt"
+
+	"github.com/minio/sha256-simd"
 
 	hamt "github.com/filecoin-project/go-hamt-ipld/v3"
 	"github.com/filecoin-project/go-state-types/abi"
