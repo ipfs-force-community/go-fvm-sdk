@@ -12,6 +12,7 @@ require (
 	github.com/filecoin-project/specs-actors/v7 v7.0.0
 	github.com/golang/mock v1.6.0
 	github.com/ipfs/go-cid v0.1.0
+	github.com/minio/sha256-simd v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
@@ -24,7 +25,6 @@ require (
 	github.com/ipfs/go-ipld-cbor v0.0.6-0.20211211231443-5d9b9e1f6fa8 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.6 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
-	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/multiformats/go-base32 v0.0.3 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
