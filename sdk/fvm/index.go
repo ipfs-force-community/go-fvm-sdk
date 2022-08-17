@@ -6,16 +6,29 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
+type FakeReporter struct {
+}
+
+func (f *FakeReporter) Errorf(format string, args ...interface{}) {
+
+}
+func (f *FakeReporter) Fatalf(format string, args ...interface{}) {
+
+}
+
 type Fvm interface {
 	Open(id cid.Cid) (*types.IpldOpen, error)
 }
 
 var mockFvmInstance *MockFvm
+var mockFvmInstanceCtl *gomock.Controller
 
-func InitMockFvm() {
-	rep := FakeReporter{}
-	ctl := gomock.NewController(&rep)
-	defer ctl.Finish()
-	mockFvm := NewMockFvm(ctl)
-	mockFvmInstance = mockFvm
+func EpochFinish() {
+	mockFvmInstanceCtl.Finish()
+}
+func InitMockFvm(t gomock.TestReporter) {
+	mockFvmInstanceCtl = gomock.NewController(t)
+	// defer ctl.Finish()
+	mockFvmInstance = NewMockFvm(mockFvmInstanceCtl)
+
 }
