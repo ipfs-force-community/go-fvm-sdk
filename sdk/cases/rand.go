@@ -14,12 +14,14 @@ func Invoke(_ uint32) uint32 { //nolint
 	t := testing.NewTestingT()
 	defer t.CheckResult()
 
-	// todo  panicked at 'not yet implemented'
-	_, err := sdk.GetChainRandomness(crypto.DomainSeparationTag_TicketProduction, 0, []byte{})
+	randValue, err := sdk.GetChainRandomness(crypto.DomainSeparationTag_TicketProduction, 0, []byte{})
 	assert.Nil(t, err, "get chain randomness %v", err)
+	t.Infof("got chain randomness %v", randValue)
+	assert.NotEmpty(t, randValue)
 
-	_, err = sdk.GetBeaconRandomness(crypto.DomainSeparationTag_SealRandomness, 0, []byte{})
+	randValue, err = sdk.GetBeaconRandomness(crypto.DomainSeparationTag_SealRandomness, 0, []byte{})
 	assert.Nil(t, err, "get beacon randomness %v", err)
-
+	t.Infof("got beacon randomness %v", randValue)
+	assert.NotEmpty(t, randValue)
 	return 0
 }
