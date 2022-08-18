@@ -135,6 +135,15 @@
       "method_num": 1,
       "params":"",
       "expect_code": 0
+    },
+    {
+      "name": "rand_test",
+      "binary": "rand.wasm",
+      "actor_balance": 0,
+      "send_value": 0,
+      "method_num": 1,
+      "params":"",
+      "expect_code": 0
     }
   ]
 }
