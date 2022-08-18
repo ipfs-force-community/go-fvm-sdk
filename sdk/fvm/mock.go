@@ -2,9 +2,8 @@ package fvm
 
 import (
 	"github.com/golang/mock/gomock"
+	"github.com/ipfs/go-cid"
 )
-
-
 
 type ExpectOptions struct {
 	Do          func(f interface{})
@@ -16,15 +15,17 @@ type ExpectOptions struct {
 }
 
 var (
-	MatchAny = gomock.Any
-	MatchEq  = gomock.Eq
-	MatchNil = gomock.Nil
-	MatchLen = gomock.Len
-	MatchNot = gomock.Not
+	MatchAny                = gomock.Any
+	MatchEq                 = gomock.Eq
+	MatchNil                = gomock.Nil
+	MatchLen                = gomock.Len
+	MatchNot                = gomock.Not
+	MatchAssignableToTypeOf = gomock.AssignableToTypeOf
+	MatchInAnyOrder         = gomock.InAnyOrder
 )
 
 func initcall(call *gomock.Call, op *ExpectOptions) {
-	if op != nil {
+	if op == nil {
 		return
 	}
 	if op.Do != nil {
@@ -54,7 +55,7 @@ func initcall(call *gomock.Call, op *ExpectOptions) {
 
 }
 
-func OpenExpect(in interface{}, out interface{}, op *ExpectOptions) {
-	call := mockFvmInstance.EXPECT().Open(in).Return(out)
+func OpenExpect(in cid.Cid, out interface{}, op *ExpectOptions) {
+	call := MockFvmInstance.EXPECT().Open(in).Return(out, nil)
 	initcall(call, op)
 }

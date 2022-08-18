@@ -16,19 +16,24 @@ func (f *FakeReporter) Fatalf(format string, args ...interface{}) {
 
 }
 
+// 执行 go  generate生成文件
+
+//go:generate mockgen -destination ./mock_scheme.go -package=fvm -source ./index.go
 type Fvm interface {
 	Open(id cid.Cid) (*types.IpldOpen, error)
 }
 
-var mockFvmInstance *MockFvm
+var MockFvmInstance *MockFvm
 var mockFvmInstanceCtl *gomock.Controller
 
 func EpochFinish() {
 	mockFvmInstanceCtl.Finish()
 }
-func InitMockFvm(t gomock.TestReporter) {
-	mockFvmInstanceCtl = gomock.NewController(t)
+func init() {
+
+	t := FakeReporter{}
+	mockFvmInstanceCtl = gomock.NewController(&t)
 	// defer ctl.Finish()
-	mockFvmInstance = NewMockFvm(mockFvmInstanceCtl)
+	MockFvmInstance = NewMockFvm(mockFvmInstanceCtl)
 
 }
