@@ -344,16 +344,17 @@ import (
 	{{end}}
 )
 
-//not support non-main wasm in tinygo at present
+// not support non-main wasm in tinygo at present
 func main() {}
 
-/// The actor's WASM entrypoint. It takes the ID of the parameters block,
-/// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
-/// return value.
-///
-/// Should probably have macros similar to the ones on fvm.filecoin.io snippets.
-/// Put all methods inside an impl struct and annotate it with a derive macro
-/// that handles state serde and dispatch.
+// Invoke The actor's WASM entrypoint. It takes the ID of the parameters block,
+// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
+// return value.
+//
+// Should probably have macros similar to the ones on fvm.filecoin.io snippets.
+// Put all methods inside an impl struct and annotate it with a derive macro
+// that handles state serde and dispatch.
+//
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
 	method, err := sdk.MethodNumber()
@@ -365,7 +366,7 @@ func Invoke(blockId uint32) uint32 {
 {{if .HasParam}}var raw *sdkTypes.ParamsRaw{{end}}
 	switch method {
 {{range .Methods}}case {{.MethodNum}}:
-{{if eq .MethodNum 1}}  //Constuctor
+{{if eq .MethodNum 1}}  // Constuctor
 		{{if .HasParam}}raw, err = sdk.ParamsRaw(blockId)
 						if err != nil {
 							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
@@ -391,11 +392,11 @@ func Invoke(blockId uint32) uint32 {
 									sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 								}
        		 {{if .HasError}}
-					 {{if .HasReturn}} //have params/return/error
+					 {{if .HasReturn}} // have params/return/error
 								state := new({{.StateName}})
 								sdk.LoadState(state)
 								callResult, err = state.{{.FuncName}}(&req)
-				     {{else}} 	//have params/error but no return val
+				     {{else}} 	// have params/error but no return val
 								state := new({{.StateName}})
 								sdk.LoadState(state)
 								if err = state.{{.FuncName}}(&req); err == nil {
@@ -403,7 +404,7 @@ func Invoke(blockId uint32) uint32 {
 								}
 					{{end}}
 			{{else}}
-					{{if .HasReturn}}//have params/return but no error
+					{{if .HasReturn}}// have params/return but no error
 							state := new({{.StateName}})
 							sdk.LoadState(state)
 							callResult = state.{{.FuncName}}(&req)
@@ -416,11 +417,11 @@ func Invoke(blockId uint32) uint32 {
 			{{end}}
     {{else}}
 			{{if .HasError}}
-					 {{if .HasReturn}} //no params but return value/error
+					 {{if .HasReturn}} // no params but return value/error
 							state := new({{.StateName}})
 							sdk.LoadState(state)
 							callResult, err = state.{{.FuncName}}()
-					{{else}}	//no params/return value but return error
+					{{else}}	// no params/return value but return error
 							state := new({{.StateName}})
 							sdk.LoadState(state)
 							if err = state.{{.FuncName}}(); err == nil {
@@ -428,11 +429,11 @@ func Invoke(blockId uint32) uint32 {
 								}
 					{{end}}
 			{{else}}
-					{{if .HasReturn}}	//no params no error but have return value
+					{{if .HasReturn}}	// no params no error but have return value
 						state := new({{.StateName}})
 						sdk.LoadState(state)
 						callResult = state.{{.FuncName}}()
-					{{else}}		//no params/return value/error
+					{{else}}		// no params/return value/error
 						state := new({{.StateName}})
 						sdk.LoadState(state)
 						state.{{.FuncName}}()
@@ -502,8 +503,8 @@ func defaultValue(t reflect.Type) string {
 	}
 }
 
-//hellocontract/contract.Constructor
-//hellocontract/contract.(*State).SayHello
+// hellocontract/contract.Constructor
+// hellocontract/contract.(*State).SayHello
 func getFunctionName(temp reflect.Value) (string, string) {
 	fullName := runtime.FuncForPC(temp.Pointer()).Name()
 	fullName = strings.TrimSuffix(fullName, "-fm")
