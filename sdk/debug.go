@@ -9,7 +9,7 @@ import (
 // Logger is a debug-only logger that uses the FVM syscalls.
 type Logger interface {
 	Enabled() bool
-	Log(string) error
+	Log(...interface{}) error
 	Logf(format string, a ...interface{}) error
 }
 
@@ -34,9 +34,9 @@ func (l *logger) Enabled() bool {
 	return l.enable
 }
 
-func (l *logger) Log(msg string) error {
+func (l *logger) Log(a ...interface{}) error {
 	if l.enable {
-		return sys.Log(msg)
+		return sys.Log(fmt.Sprint(a...))
 	}
 	return nil
 }
