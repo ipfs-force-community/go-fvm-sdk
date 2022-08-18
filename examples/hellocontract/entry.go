@@ -21,13 +21,13 @@ import (
 // not support non-main wasm in tinygo at present
 func main() {}
 
-// / The actor's WASM entrypoint. It takes the ID of the parameters block,
-// / and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
-// / return value.
-// /
-// / Should probably have macros similar to the ones on fvm.filecoin.io snippets.
-// / Put all methods inside an impl struct and annotate it with a derive macro
-// / that handles state serde and dispatch.
+// Invoke The actor's WASM entrypoint. It takes the ID of the parameters block,
+// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
+// return value.
+//
+// Should probably have macros similar to the ones on fvm.filecoin.io snippets.
+// Put all methods inside an impl struct and annotate it with a derive macro
+// that handles state serde and dispatch.
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
@@ -40,13 +40,13 @@ func Invoke(blockId uint32) uint32 {
 
 	switch method {
 	case 1:
-		//Constuctor
+		// Constuctor
 		err = contract.Constructor()
 		callResult = typegen.CborBool(true)
 
 	case 2:
 
-		//no params no error but have return value
+		// no params no error but have return value
 		state := new(contract.State)
 		sdk.LoadState(state)
 		callResult = state.SayHello()
