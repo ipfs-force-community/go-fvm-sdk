@@ -20,16 +20,17 @@ import (
 	typegen "github.com/whyrusleeping/cbor-gen"
 )
 
-//not support non-main wasm in tinygo at present
+// not support non-main wasm in tinygo at present
 func main() {}
 
-/// The actor's WASM entrypoint. It takes the ID of the parameters block,
-/// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
-/// return value.
-///
-/// Should probably have macros similar to the ones on fvm.filecoin.io snippets.
-/// Put all methods inside an impl struct and annotate it with a derive macro
-/// that handles state serde and dispatch.
+// Invoke The actor's WASM entrypoint. It takes the ID of the parameters block,
+// and returns the ID of the return value block, or NO_DATA_BLOCK_ID if no
+// return value.
+//
+// Should probably have macros similar to the ones on fvm.filecoin.io snippets.
+// Put all methods inside an impl struct and annotate it with a derive macro
+// that handles state serde and dispatch.
+//
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
 	method, err := sdk.MethodNumber()
@@ -41,7 +42,7 @@ func Invoke(blockId uint32) uint32 {
 	var raw *sdkTypes.ParamsRaw
 	switch method {
 	case 1:
-		//Constuctor
+		// Constuctor
 		raw, err = sdk.ParamsRaw(blockId)
 		if err != nil {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
@@ -56,28 +57,28 @@ func Invoke(blockId uint32) uint32 {
 
 	case 2:
 
-		//no params no error but have return value
+		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult = state.GetName()
 
 	case 3:
 
-		//no params no error but have return value
+		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult = state.GetSymbol()
 
 	case 4:
 
-		//no params no error but have return value
+		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult = state.GetDecimal()
 
 	case 5:
 
-		//no params no error but have return value
+		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult = state.GetTotalSupply()
@@ -94,7 +95,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/return/error
+		// have params/return/error
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult, err = state.GetBalanceOf(&req)
@@ -111,7 +112,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/error but no return val
+		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		if err = state.Transfer(&req); err == nil {
@@ -130,7 +131,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/error but no return val
+		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		if err = state.TransferFrom(&req); err == nil {
@@ -149,7 +150,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/error but no return val
+		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		if err = state.Approval(&req); err == nil {
@@ -168,7 +169,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/return/error
+		// have params/return/error
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		callResult, err = state.Allowance(&req)
@@ -185,7 +186,7 @@ func Invoke(blockId uint32) uint32 {
 			sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
-		//have params/error but no return val
+		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(state)
 		if err = state.FakeSetBalance(&req); err == nil {

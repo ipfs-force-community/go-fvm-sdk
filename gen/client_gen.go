@@ -168,31 +168,31 @@ type {{trimPackage .StateName}}Client struct {
 }
 
 
-//Option option func
+// Option option func
 type Option func(opt ClientOption)
 
-//ClientOption option for set client config
+// ClientOption option for set client config
 type ClientOption struct {
 	fromAddress address.Address
 	actor       address.Address
 	codeCid     cid.Cid
 }
 
-//SetFromAddressOpt used to set from address who send actor messages
+// SetFromAddressOpt used to set from address who send actor messages
 func SetFromAddressOpt(fromAddress address.Address) Option {
 	return func(opt ClientOption) {
 		opt.fromAddress = fromAddress
 	}
 }
 
-//SetActorOpt used to set exit actoraddress
+// SetActorOpt used to set exit actoraddress
 func SetActorOpt(actor address.Address) Option {
 	return func(opt ClientOption) {
 		opt.actor = actor
 	}
 }
 
-//SetCodeCid used to set actor code cid
+// SetCodeCid used to set actor code cid
 func SetCodeCid(codeCid cid.Cid) Option {
 	return func(opt ClientOption) {
 		opt.codeCid = codeCid

@@ -2,11 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/filecoin-project/go-state-types/big"
-
-	"reflect"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
@@ -17,27 +13,6 @@ import (
 )
 
 func main() {} //nolint
-
-//
-// If the values are not of like type, the returned strings will be prefixed
-// with the type name, and the value will be enclosed in parenthesis similar
-// to a type conversion in the Go grammar.
-func formatUnequalValues(expected, actual interface{}) (e string, a string) {
-	if reflect.TypeOf(expected) != reflect.TypeOf(actual) {
-		return fmt.Sprintf("%T(%s)", expected, truncatingFormat(expected)),
-			fmt.Sprintf("%T(%s)", actual, truncatingFormat(actual))
-	}
-	return truncatingFormat(expected), truncatingFormat(actual)
-}
-
-// truncatingFormat formats the data and truncates it if it's too long.
-//
-// This helps keep formatted error messages lines from exceeding the
-// bufio.MaxScanTokenSize max line length that the go testing framework imposes.
-func truncatingFormat(data interface{}) string {
-	value := fmt.Sprintf("%#v", data)
-	return value
-}
 
 //go:export invoke
 func Invoke(_ uint32) uint32 { //nolint
