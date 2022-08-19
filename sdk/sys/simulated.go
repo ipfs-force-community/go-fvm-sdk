@@ -64,20 +64,22 @@ func initcall(call *gomock.Call, op *ExpectOptions) {
 
 }
 
-func SetOpenExpect(id cid.Cid, out interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Open(in).Return(out, nil)
+var MockFvmInstance = simulated.MockFvmInstance
+
+func SetOpenExpect(id cid.Cid, out []interface{}, op *ExpectOptions) {
+	call := simulated.MockFvmInstance.EXPECT().Open(in).Return(out...)
 	initcall(call, op)
 }
-func SetSelfRootExpect(cidBuf []byte, out interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfRoot(in).Return(out, nil)
+func SetSelfRootExpect(cidBuf []byte, out []interface{}, op *ExpectOptions) {
+	call := simulated.MockFvmInstance.EXPECT().SelfRoot(in).Return(out...)
 	initcall(call, op)
 }
-func SetSelfSetRootExpect(id cid.Cid, out interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfSetRoot(in).Return(out, gomock.Nil())
+func SetSelfSetRootExpect(id cid.Cid, out []interface{}, op *ExpectOptions) {
+	call := simulated.MockFvmInstance.EXPECT().SelfSetRoot(in).Return(out...)
 	initcall(call, op)
 }
-func SetSelfCurrentBalanceExpect(out interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfCurrentBalance().Return(out, nil)
+func SetSelfCurrentBalanceExpect(out []interface{}, op *ExpectOptions) {
+	call := simulated.MockFvmInstance.EXPECT().SelfCurrentBalance().Return(out...)
 	initcall(call, op)
 }
 func SetSelfDestructExpect(addr addr.Address, out []interface{}, op *ExpectOptions) {
