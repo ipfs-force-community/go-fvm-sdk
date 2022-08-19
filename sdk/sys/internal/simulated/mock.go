@@ -1,4 +1,4 @@
-package fvm
+package simulated
 
 import (
 	"github.com/filecoin-project/go-address"

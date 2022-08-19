@@ -1,3 +1,6 @@
+//go:build !simulate
+// +build !simulate
+
 package sys
 
 import (

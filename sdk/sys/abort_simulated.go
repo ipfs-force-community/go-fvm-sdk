@@ -3,9 +3,9 @@
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/fvm"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 )
 
 func Abort(code uint32, msg string) {
-	fvm.MockFvmInstance.Abort(code, msg)
+	simulated.MockFvmInstance.Abort(code, msg)
 }

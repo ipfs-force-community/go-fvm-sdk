@@ -1,3 +1,5 @@
+//go:build !simulate
+//+build !tinygo.wasm
 package sys
 
 import (

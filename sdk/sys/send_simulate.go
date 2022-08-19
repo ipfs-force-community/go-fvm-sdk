@@ -3,9 +3,13 @@
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/fvm"
+	"github.com/filecoin-project/go-address"
+
+
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 )
 
 func Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
-	return fvm.MockFvmInstance.send(to, method, params, value)
+	return simulated.MockFvmInstance.Send(to, method, params, value)
 }

@@ -1,3 +1,5 @@
+//go:build !simulate
+//+build !tinygo.wasm
 // Package sys : a go-fvm-sdk system calls
 package sys
 

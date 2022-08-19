@@ -3,13 +3,13 @@
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/fvm"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 )
 
 func Enabled() (bool, error) {
-	return fvm.MockFvmInstance.Enabled()
+	return simulated.MockFvmInstance.Enabled()
 }
 
 func Log(msg string) error {
-	return fvm.MockFvmInstance.Log(msg)
+	return simulated.MockFvmInstance.Log(msg)
 }

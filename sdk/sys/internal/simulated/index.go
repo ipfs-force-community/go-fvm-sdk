@@ -1,6 +1,8 @@
-package fvm
+package simulated
 
 import (
+	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	addr "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -16,15 +18,15 @@ type FakeReporter struct {
 }
 
 func (f *FakeReporter) Errorf(format string, args ...interface{}) {
-
+	fmt.Printf(format, args...)
 }
 func (f *FakeReporter) Fatalf(format string, args ...interface{}) {
-
+	fmt.Printf(format, args...)
 }
 
 // 执行 go  generate生成文件
 
-//go:generate mockgen -destination ./mock_scheme.go -package=fvm -source ./index.go
+//go:generate mockgen -destination ./mock_scheme.go -package=simulated -source ./index.go
 type Fvm interface {
 	Open(id cid.Cid) (*types.IpldOpen, error)
 	SelfRoot(cidBuf []byte) (uint32, error)
@@ -74,15 +76,15 @@ type Fvm interface {
 }
 
 var MockFvmInstance *MockFvm
-var mockFvmInstanceCtl *gomock.Controller
+var MockFvmInstanceCtl *gomock.Controller
 
 func EpochFinish() {
-	mockFvmInstanceCtl.Finish()
+	MockFvmInstanceCtl.Finish()
 }
 func init() {
 	t := FakeReporter{}
-	mockFvmInstanceCtl = gomock.NewController(&t)
+	MockFvmInstanceCtl = gomock.NewController(&t)
 	// defer ctl.Finish()
-	MockFvmInstance = NewMockFvm(mockFvmInstanceCtl)
+	MockFvmInstance = NewMockFvm(MockFvmInstanceCtl)
 
 }

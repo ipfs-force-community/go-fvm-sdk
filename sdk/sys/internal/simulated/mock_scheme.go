@@ -2,7 +2,7 @@
 // Source: ./index.go
 
 // Package fvm is a generated GoMock package.
-package fvm
+package simulated
 
 import (
 	reflect "reflect"
@@ -10,7 +10,7 @@ import (
 	address "github.com/filecoin-project/go-address"
 	abi "github.com/filecoin-project/go-state-types/abi"
 	crypto "github.com/filecoin-project/go-state-types/crypto"
-	proof "github.com/filecoin-project/go-state-types/proof"
+	proof 	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
 	runtime "github.com/filecoin-project/specs-actors/actors/runtime"
 	gomock "github.com/golang/mock/gomock"
 	types "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
