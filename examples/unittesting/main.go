@@ -34,7 +34,7 @@ func main() {
 	fvm.OpenExpect(in, &result, nil)
 
 
-	h1, _ := mh.Sum([]byte("TES1T"), mh.SHA3, 4)
+	h1, _ := mh.Sum([]byte("TEST"), mh.SHA3, 4)
 	in1 := cid.NewCidV1(7, h1)
 	println(h1.String())
 	out, _ := fvm.MockFvmInstance.Open(in1)

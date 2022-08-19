@@ -7,6 +7,11 @@ package fvm
 import (
 	reflect "reflect"
 
+	address "github.com/filecoin-project/go-address"
+	abi "github.com/filecoin-project/go-state-types/abi"
+	crypto "github.com/filecoin-project/go-state-types/crypto"
+	proof "github.com/filecoin-project/go-state-types/proof"
+	runtime "github.com/filecoin-project/specs-actors/actors/runtime"
 	gomock "github.com/golang/mock/gomock"
 	types "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	cid "github.com/ipfs/go-cid"
@@ -35,6 +40,240 @@ func (m *MockFvm) EXPECT() *MockFvmMockRecorder {
 	return m.recorder
 }
 
+// Abort mocks base method.
+func (m *MockFvm) Abort(code uint32, msg string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Abort", code, msg)
+}
+
+// Abort indicates an expected call of Abort.
+func (mr *MockFvmMockRecorder) Abort(code, msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Abort", reflect.TypeOf((*MockFvm)(nil).Abort), code, msg)
+}
+
+// BaseFee mocks base method.
+func (m *MockFvm) BaseFee() (*types.TokenAmount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BaseFee")
+	ret0, _ := ret[0].(*types.TokenAmount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BaseFee indicates an expected call of BaseFee.
+func (mr *MockFvmMockRecorder) BaseFee() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BaseFee", reflect.TypeOf((*MockFvm)(nil).BaseFee))
+}
+
+// BatchVerifySeals mocks base method.
+func (m *MockFvm) BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BatchVerifySeals", sealVerifyInfos)
+	ret0, _ := ret[0].([]bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BatchVerifySeals indicates an expected call of BatchVerifySeals.
+func (mr *MockFvmMockRecorder) BatchVerifySeals(sealVerifyInfos interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchVerifySeals", reflect.TypeOf((*MockFvm)(nil).BatchVerifySeals), sealVerifyInfos)
+}
+
+// BlockLink mocks base method.
+func (m *MockFvm) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BlockLink", id, hashFun, hashLen, cidBuf)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BlockLink indicates an expected call of BlockLink.
+func (mr *MockFvmMockRecorder) BlockLink(id, hashFun, hashLen, cidBuf interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockLink", reflect.TypeOf((*MockFvm)(nil).BlockLink), id, hashFun, hashLen, cidBuf)
+}
+
+// Charge mocks base method.
+func (m *MockFvm) Charge(name string, compute uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Charge", name, compute)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Charge indicates an expected call of Charge.
+func (mr *MockFvmMockRecorder) Charge(name, compute interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Charge", reflect.TypeOf((*MockFvm)(nil).Charge), name, compute)
+}
+
+// ComputeUnsealedSectorCid mocks base method.
+func (m *MockFvm) ComputeUnsealedSectorCid(proofType abi.RegisteredSealProof, pieces []abi.PieceInfo) (cid.Cid, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ComputeUnsealedSectorCid", proofType, pieces)
+	ret0, _ := ret[0].(cid.Cid)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ComputeUnsealedSectorCid indicates an expected call of ComputeUnsealedSectorCid.
+func (mr *MockFvmMockRecorder) ComputeUnsealedSectorCid(proofType, pieces interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ComputeUnsealedSectorCid", reflect.TypeOf((*MockFvm)(nil).ComputeUnsealedSectorCid), proofType, pieces)
+}
+
+// Create mocks base method.
+func (m *MockFvm) Create(codec uint64, data []byte) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", codec, data)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockFvmMockRecorder) Create(codec, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockFvm)(nil).Create), codec, data)
+}
+
+// CreateActor mocks base method.
+func (m *MockFvm) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateActor", actorID, codeCid)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateActor indicates an expected call of CreateActor.
+func (mr *MockFvmMockRecorder) CreateActor(actorID, codeCid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateActor", reflect.TypeOf((*MockFvm)(nil).CreateActor), actorID, codeCid)
+}
+
+// Enabled mocks base method.
+func (m *MockFvm) Enabled() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Enabled")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Enabled indicates an expected call of Enabled.
+func (mr *MockFvmMockRecorder) Enabled() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Enabled", reflect.TypeOf((*MockFvm)(nil).Enabled))
+}
+
+// GetActorCodeCid mocks base method.
+func (m *MockFvm) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetActorCodeCid", addr)
+	ret0, _ := ret[0].(*cid.Cid)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetActorCodeCid indicates an expected call of GetActorCodeCid.
+func (mr *MockFvmMockRecorder) GetActorCodeCid(addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActorCodeCid", reflect.TypeOf((*MockFvm)(nil).GetActorCodeCid), addr)
+}
+
+// GetBeaconRandomness mocks base method.
+func (m *MockFvm) GetBeaconRandomness(dst, round int64, entropy []byte) (abi.Randomness, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBeaconRandomness", dst, round, entropy)
+	ret0, _ := ret[0].(abi.Randomness)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBeaconRandomness indicates an expected call of GetBeaconRandomness.
+func (mr *MockFvmMockRecorder) GetBeaconRandomness(dst, round, entropy interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBeaconRandomness", reflect.TypeOf((*MockFvm)(nil).GetBeaconRandomness), dst, round, entropy)
+}
+
+// GetChainRandomness mocks base method.
+func (m *MockFvm) GetChainRandomness(dst, round int64, entropy []byte) (abi.Randomness, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChainRandomness", dst, round, entropy)
+	ret0, _ := ret[0].(abi.Randomness)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChainRandomness indicates an expected call of GetChainRandomness.
+func (mr *MockFvmMockRecorder) GetChainRandomness(dst, round, entropy interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChainRandomness", reflect.TypeOf((*MockFvm)(nil).GetChainRandomness), dst, round, entropy)
+}
+
+// GetCodeCidForType mocks base method.
+func (m *MockFvm) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCodeCidForType", actorT)
+	ret0, _ := ret[0].(cid.Cid)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCodeCidForType indicates an expected call of GetCodeCidForType.
+func (mr *MockFvmMockRecorder) GetCodeCidForType(actorT interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCodeCidForType", reflect.TypeOf((*MockFvm)(nil).GetCodeCidForType), actorT)
+}
+
+// HashBlake2b mocks base method.
+func (m *MockFvm) HashBlake2b(data []byte) ([32]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HashBlake2b", data)
+	ret0, _ := ret[0].([32]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HashBlake2b indicates an expected call of HashBlake2b.
+func (mr *MockFvmMockRecorder) HashBlake2b(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HashBlake2b", reflect.TypeOf((*MockFvm)(nil).HashBlake2b), data)
+}
+
+// Log mocks base method.
+func (m *MockFvm) Log(msg string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Log", msg)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Log indicates an expected call of Log.
+func (mr *MockFvmMockRecorder) Log(msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Log", reflect.TypeOf((*MockFvm)(nil).Log), msg)
+}
+
+// NewActorAddress mocks base method.
+func (m *MockFvm) NewActorAddress() (address.Address, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewActorAddress")
+	ret0, _ := ret[0].(address.Address)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NewActorAddress indicates an expected call of NewActorAddress.
+func (mr *MockFvmMockRecorder) NewActorAddress() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewActorAddress", reflect.TypeOf((*MockFvm)(nil).NewActorAddress))
+}
+
 // Open mocks base method.
 func (m *MockFvm) Open(id cid.Cid) (*types.IpldOpen, error) {
 	m.ctrl.T.Helper()
@@ -48,4 +287,257 @@ func (m *MockFvm) Open(id cid.Cid) (*types.IpldOpen, error) {
 func (mr *MockFvmMockRecorder) Open(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Open", reflect.TypeOf((*MockFvm)(nil).Open), id)
+}
+
+// Read mocks base method.
+func (m *MockFvm) Read(id, offset uint32, buf []byte) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Read", id, offset, buf)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Read indicates an expected call of Read.
+func (mr *MockFvmMockRecorder) Read(id, offset, buf interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockFvm)(nil).Read), id, offset, buf)
+}
+
+// ResolveAddress mocks base method.
+func (m *MockFvm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResolveAddress", addr)
+	ret0, _ := ret[0].(abi.ActorID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResolveAddress indicates an expected call of ResolveAddress.
+func (mr *MockFvmMockRecorder) ResolveAddress(addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResolveAddress", reflect.TypeOf((*MockFvm)(nil).ResolveAddress), addr)
+}
+
+// ResolveBuiltinActorType mocks base method.
+func (m *MockFvm) ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResolveBuiltinActorType", codeCid)
+	ret0, _ := ret[0].(types.ActorType)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResolveBuiltinActorType indicates an expected call of ResolveBuiltinActorType.
+func (mr *MockFvmMockRecorder) ResolveBuiltinActorType(codeCid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResolveBuiltinActorType", reflect.TypeOf((*MockFvm)(nil).ResolveBuiltinActorType), codeCid)
+}
+
+// SelfCurrentBalance mocks base method.
+func (m *MockFvm) SelfCurrentBalance() (*types.TokenAmount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelfCurrentBalance")
+	ret0, _ := ret[0].(*types.TokenAmount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelfCurrentBalance indicates an expected call of SelfCurrentBalance.
+func (mr *MockFvmMockRecorder) SelfCurrentBalance() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelfCurrentBalance", reflect.TypeOf((*MockFvm)(nil).SelfCurrentBalance))
+}
+
+// SelfDestruct mocks base method.
+func (m *MockFvm) SelfDestruct(addr address.Address) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelfDestruct", addr)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SelfDestruct indicates an expected call of SelfDestruct.
+func (mr *MockFvmMockRecorder) SelfDestruct(addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelfDestruct", reflect.TypeOf((*MockFvm)(nil).SelfDestruct), addr)
+}
+
+// SelfRoot mocks base method.
+func (m *MockFvm) SelfRoot(cidBuf []byte) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelfRoot", cidBuf)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelfRoot indicates an expected call of SelfRoot.
+func (mr *MockFvmMockRecorder) SelfRoot(cidBuf interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelfRoot", reflect.TypeOf((*MockFvm)(nil).SelfRoot), cidBuf)
+}
+
+// SelfSetRoot mocks base method.
+func (m *MockFvm) SelfSetRoot(id cid.Cid) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelfSetRoot", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SelfSetRoot indicates an expected call of SelfSetRoot.
+func (mr *MockFvmMockRecorder) SelfSetRoot(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelfSetRoot", reflect.TypeOf((*MockFvm)(nil).SelfSetRoot), id)
+}
+
+// Send mocks base method.
+func (m *MockFvm) Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Send", to, method, params, value)
+	ret0, _ := ret[0].(*types.Send)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Send indicates an expected call of Send.
+func (mr *MockFvmMockRecorder) Send(to, method, params, value interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockFvm)(nil).Send), to, method, params, value)
+}
+
+// Stat mocks base method.
+func (m *MockFvm) Stat(id uint32) (*types.IpldStat, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stat", id)
+	ret0, _ := ret[0].(*types.IpldStat)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Stat indicates an expected call of Stat.
+func (mr *MockFvmMockRecorder) Stat(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stat", reflect.TypeOf((*MockFvm)(nil).Stat), id)
+}
+
+// TotalFilCircSupply mocks base method.
+func (m *MockFvm) TotalFilCircSupply() (*types.TokenAmount, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TotalFilCircSupply")
+	ret0, _ := ret[0].(*types.TokenAmount)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TotalFilCircSupply indicates an expected call of TotalFilCircSupply.
+func (mr *MockFvmMockRecorder) TotalFilCircSupply() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TotalFilCircSupply", reflect.TypeOf((*MockFvm)(nil).TotalFilCircSupply))
+}
+
+// VMContext mocks base method.
+func (m *MockFvm) VMContext() (*types.InvocationContext, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VMContext")
+	ret0, _ := ret[0].(*types.InvocationContext)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VMContext indicates an expected call of VMContext.
+func (mr *MockFvmMockRecorder) VMContext() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VMContext", reflect.TypeOf((*MockFvm)(nil).VMContext))
+}
+
+// VerifyAggregateSeals mocks base method.
+func (m *MockFvm) VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyAggregateSeals", info)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyAggregateSeals indicates an expected call of VerifyAggregateSeals.
+func (mr *MockFvmMockRecorder) VerifyAggregateSeals(info interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAggregateSeals", reflect.TypeOf((*MockFvm)(nil).VerifyAggregateSeals), info)
+}
+
+// VerifyConsensusFault mocks base method.
+func (m *MockFvm) VerifyConsensusFault(h1, h2, extra []byte) (*runtime.ConsensusFault, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyConsensusFault", h1, h2, extra)
+	ret0, _ := ret[0].(*runtime.ConsensusFault)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyConsensusFault indicates an expected call of VerifyConsensusFault.
+func (mr *MockFvmMockRecorder) VerifyConsensusFault(h1, h2, extra interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyConsensusFault", reflect.TypeOf((*MockFvm)(nil).VerifyConsensusFault), h1, h2, extra)
+}
+
+// VerifyPost mocks base method.
+func (m *MockFvm) VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyPost", info)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyPost indicates an expected call of VerifyPost.
+func (mr *MockFvmMockRecorder) VerifyPost(info interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyPost", reflect.TypeOf((*MockFvm)(nil).VerifyPost), info)
+}
+
+// VerifyReplicaUpdate mocks base method.
+func (m *MockFvm) VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyReplicaUpdate", info)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyReplicaUpdate indicates an expected call of VerifyReplicaUpdate.
+func (mr *MockFvmMockRecorder) VerifyReplicaUpdate(info interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyReplicaUpdate", reflect.TypeOf((*MockFvm)(nil).VerifyReplicaUpdate), info)
+}
+
+// VerifySeal mocks base method.
+func (m *MockFvm) VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifySeal", info)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifySeal indicates an expected call of VerifySeal.
+func (mr *MockFvmMockRecorder) VerifySeal(info interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySeal", reflect.TypeOf((*MockFvm)(nil).VerifySeal), info)
+}
+
+// VerifySignature mocks base method.
+func (m *MockFvm) VerifySignature(signature *crypto.Signature, signer *address.Address, plaintext []byte) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifySignature", signature, signer, plaintext)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifySignature indicates an expected call of VerifySignature.
+func (mr *MockFvmMockRecorder) VerifySignature(signature, signer, plaintext interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySignature", reflect.TypeOf((*MockFvm)(nil).VerifySignature), signature, signer, plaintext)
 }
