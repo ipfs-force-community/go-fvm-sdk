@@ -12,12 +12,12 @@ import (
 )
 
 type ExpectOptions struct {
-	Do          func(f interface{})
-	DoAndReturn func(f interface{})
-	MaxTimes    *int
-	MinTimes    *int
-	AnyTimes    *int
-	Times       *int
+	// Do          func(f interface{})
+	// DoAndReturn func(f interface{})
+	MaxTimes *int
+	MinTimes *int
+	AnyTimes *int
+	Times    *int
 }
 
 var (
@@ -34,12 +34,12 @@ func initcall(call *gomock.Call, op *ExpectOptions) {
 	if op == nil {
 		return
 	}
-	if op.Do != nil {
-		call = call.Do(op.Do)
-	}
-	if op.DoAndReturn != nil {
-		call = call.DoAndReturn(op.DoAndReturn)
-	}
+	// if op.Do != nil {
+	// 	call = call.Do(op.Do)
+	// }
+	// if op.DoAndReturn != nil {
+	// 	call = call.DoAndReturn(op.DoAndReturn)
+	// }
 
 	if op.MaxTimes != nil {
 		call = call.MaxTimes(*op.MaxTimes)
