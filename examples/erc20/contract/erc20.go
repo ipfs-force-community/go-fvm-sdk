@@ -10,6 +10,7 @@ import (
 	"github.com/ipfs/go-cid"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	typegen "github.com/whyrusleeping/cbor-gen"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -41,7 +42,7 @@ function allowance(address _owner, address _spender) public view returns (uint25
 
 var logger sdk.Logger
 
-func init() {
+func LoggerInit() {
 	logger, _ = sdk.NewLogger()
 }
 
@@ -433,6 +434,10 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 	_ = sdk.SaveState(t)
 	logger.Logf("approval %s for %s", getAllowKey(callerID, spenderID), req.NewAllowance.String())
 	return nil
+}
+
+func (t *Erc20Token) SelfRoot() (cid.Cid, error) {
+	return sys.SelfRoot()
 }
 
 /*checkBalance checks if sender's balance is >= 0*/

@@ -12,7 +12,7 @@ func TestOpenExpect(t *testing.T) {
 	ctl := gomock.NewController(t)
 	defer ctl.Finish()
 
-	mockMale := NewMockFvm(ctl)
+	mockMale := NewMockSimulated(ctl)
 	result := types.IpldOpen{1, 2, 3}
 	in, _ := cid.Cast([]byte("bafy2bzacecdjkk2tzogitpcybu3eszr4uptrjogstqmyt6u4q2p3hh4chmf3i"))
 	gomock.InOrder(

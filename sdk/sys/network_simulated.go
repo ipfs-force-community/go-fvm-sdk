@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -13,9 +14,9 @@ import (
 )
 
 func BaseFee() (*types.TokenAmount, error) {
-	return simulated.MockFvmInstance.BaseFee()
+	return simulated.SimulatedInstance.BaseFee()
 }
 
 func TotalFilCircSupply() (*types.TokenAmount, error) {
-	return simulated.MockFvmInstance.TotalFilCircSupply()
+	return simulated.SimulatedInstance.TotalFilCircSupply()
 }

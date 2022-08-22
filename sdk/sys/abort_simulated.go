@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -7,5 +8,5 @@ import (
 )
 
 func Abort(code uint32, msg string) {
-	simulated.MockFvmInstance.Abort(code, msg)
+	simulated.SimulatedInstance.Abort(code, msg)
 }

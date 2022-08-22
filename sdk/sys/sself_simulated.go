@@ -1,27 +1,28 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
 import (
-	"github.com/ipfs/go-cid"
 	addr "github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	"github.com/ipfs/go-cid"
 )
 
 func SelfRoot() (cid.Cid, error) {
-	return simulated.MockFvmInstance.SelfRoot()
+	return simulated.SimulatedInstance.SelfRoot()
 }
 
 func SelfSetRoot(id cid.Cid) error {
-	return simulated.MockFvmInstance.SelfSetRoot(id)
+	return simulated.SimulatedInstance.SelfSetRoot(id)
 
 }
 
 func SelfCurrentBalance() (*types.TokenAmount, error) {
-	return simulated.MockFvmInstance.SelfCurrentBalance()
+	return simulated.SimulatedInstance.SelfCurrentBalance()
 }
 
 func SelfDestruct(addr addr.Address) error {
-	return simulated.MockFvmInstance.SelfDestruct(addr)
+	return simulated.SimulatedInstance.SelfDestruct(addr)
 }

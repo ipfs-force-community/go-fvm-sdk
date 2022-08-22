@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -10,21 +11,21 @@ import (
 
 func Open(id cid.Cid) (*types.IpldOpen, error) {
 
-	return simulated.MockFvmInstance.Open(id)
+	return simulated.SimulatedInstance.Open(id)
 }
 
 func Create(codec uint64, data []byte) (uint32, error) {
-	return simulated.MockFvmInstance.Create(codec, data)
+	return simulated.SimulatedInstance.Create(codec, data)
 }
 
 func Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
-	return simulated.MockFvmInstance.Read(id, offset, size)
+	return simulated.SimulatedInstance.Read(id, offset, size)
 }
 
 func Stat(id uint32) (*types.IpldStat, error) {
-	return simulated.MockFvmInstance.Stat(id)
+	return simulated.SimulatedInstance.Stat(id)
 }
 
 func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (uint32, error) {
-	return simulated.MockFvmInstance.BlockLink(id, hashFun, hashLen, cidBuf)
+	return simulated.SimulatedInstance.BlockLink(id, hashFun, hashLen, cidBuf)
 }

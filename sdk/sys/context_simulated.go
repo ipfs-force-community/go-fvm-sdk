@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -8,5 +9,5 @@ import (
 )
 
 func VMContext() (*types.InvocationContext, error) {
-	return simulated.MockFvmInstance.VMContext()
+	return simulated.SimulatedInstance.VMContext()
 }

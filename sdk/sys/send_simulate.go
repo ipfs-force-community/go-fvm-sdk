@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -11,5 +12,5 @@ import (
 )
 
 func Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
-	return simulated.MockFvmInstance.Send(to, method, params, value)
+	return simulated.SimulatedInstance.Send(to, method, params, value)
 }

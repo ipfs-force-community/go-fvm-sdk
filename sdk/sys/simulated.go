@@ -64,81 +64,81 @@ func initcall(call *gomock.Call, op *ExpectOptions) {
 
 }
 
-var MockFvmInstance = simulated.MockFvmInstance
+var SimulatedInstance = simulated.SimulatedInstance
 
 func SetOpenExpect(id cid.Cid, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Open(id).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Open(id).Return(out...)
 	initcall(call, op)
 }
 func SetSelfRootExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfRoot().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().SelfRoot().Return(out...)
 	initcall(call, op)
 }
 func SetSelfSetRootExpect(id cid.Cid, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfSetRoot(id).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().SelfSetRoot(id).Return(out...)
 	initcall(call, op)
 }
 func SetSelfCurrentBalanceExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfCurrentBalance().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().SelfCurrentBalance().Return(out...)
 	initcall(call, op)
 }
 func SetSelfDestructExpect(addr addr.Address, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().SelfDestruct(addr).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().SelfDestruct(addr).Return(out...)
 	initcall(call, op)
 }
 
 func SetSendExpect(to address.Address, method uint64, params uint32, value types.TokenAmount, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Send(to, method, params, value).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Send(to, method, params, value).Return(out...)
 	initcall(call, op)
 }
 
 func SetGetChainRandomnessExpect(dst int64, round int64, entropy []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().GetChainRandomness(dst, round, entropy).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().GetChainRandomness(dst, round, entropy).Return(out...)
 	initcall(call, op)
 }
 
 func SetGetBeaconRandomnessExpect(dst int64, round int64, entropy []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().GetBeaconRandomness(dst, round, entropy).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().GetBeaconRandomness(dst, round, entropy).Return(out...)
 	initcall(call, op)
 }
 func SetBaseFeeExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().BaseFee().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().BaseFee().Return(out...)
 	initcall(call, op)
 }
 func SetTotalFilCircSupplyExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().TotalFilCircSupply().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().TotalFilCircSupply().Return(out...)
 	initcall(call, op)
 }
 
 func SetCreateExpect(codec uint64, data []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Create(codec, data).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Create(codec, data).Return(out...)
 	initcall(call, op)
 }
 func SetReadExpect(id uint32, offset uint32, buf []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Read(id, offset, buf).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Read(id, offset, buf).Return(out...)
 	initcall(call, op)
 }
 
 func SetStatExpect(id uint32, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Stat(id).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Stat(id).Return(out...)
 	initcall(call, op)
 }
 func SetBlockLinkExpect(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().BlockLink(id, hashFun, hashLen, cidBuf).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().BlockLink(id, hashFun, hashLen, cidBuf).Return(out...)
 	initcall(call, op)
 }
 
 func SetChargeExpect(name string, compute uint64, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Charge(name, compute).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Charge(name, compute).Return(out...)
 	initcall(call, op)
 }
 
 func SetEnabledExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Enabled().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Enabled().Return(out...)
 	initcall(call, op)
 }
 func SetLogExpect(msg string, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Log(msg).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().Log(msg).Return(out...)
 	initcall(call, op)
 }
 
@@ -146,95 +146,95 @@ func SetVerifySignatureExpect(
 	signature *crypto.Signature,
 	signer *address.Address,
 	plaintext []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifySignature(signature, signer, plaintext).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifySignature(signature, signer, plaintext).Return(out...)
 	initcall(call, op)
 }
 
 func SetHashBlake2bExpect(data []byte, out []interface{}, op *ExpectOptions) {
 
-	call := simulated.MockFvmInstance.EXPECT().HashBlake2b(data).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().HashBlake2b(data).Return(out...)
 	initcall(call, op)
 }
 func SetComputeUnsealedSectorCidExpect(
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().ComputeUnsealedSectorCid(proofType, pieces).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().ComputeUnsealedSectorCid(proofType, pieces).Return(out...)
 	initcall(call, op)
 }
 
 func SetVerifySealExpect(info *proof.SealVerifyInfo, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifySeal(info).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifySeal(info).Return(out...)
 	initcall(call, op)
 }
 
 func SetVerifyPostExpect(info *proof.WindowPoStVerifyInfo, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifyPost(info).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifyPost(info).Return(out...)
 	initcall(call, op)
 }
 func SetVerifyConsensusFaultExpect(
 	h1 []byte,
 	h2 []byte,
 	extra []byte, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifyConsensusFault(h1, h2, extra).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifyConsensusFault(h1, h2, extra).Return(out...)
 	initcall(call, op)
 }
 
 func SetVerifyAggregateSealsExpect(info *types.AggregateSealVerifyProofAndInfos, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifyAggregateSeals(info).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifyAggregateSeals(info).Return(out...)
 	initcall(call, op)
 }
 
 func SetVerifyReplicaUpdateExpect(info *types.ReplicaUpdateInfo, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().VerifyReplicaUpdate(info).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VerifyReplicaUpdate(info).Return(out...)
 	initcall(call, op)
 }
 
 func SetBatchVerifySealsExpect(sealVerifyInfos []proof.SealVerifyInfo, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().BatchVerifySeals(sealVerifyInfos).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().BatchVerifySeals(sealVerifyInfos).Return(out...)
 	initcall(call, op)
 }
 
 func SetVMContextExpect(out []interface{}, op *ExpectOptions) {
 
-	call := simulated.MockFvmInstance.EXPECT().VMContext().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().VMContext().Return(out...)
 	initcall(call, op)
 }
 
 func SetResolveAddressExpect(addr address.Address, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().ResolveAddress(addr).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().ResolveAddress(addr).Return(out...)
 	initcall(call, op)
 }
 
 func SetGetActorCodeCidExpect(addr address.Address, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().GetActorCodeCid(addr).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().GetActorCodeCid(addr).Return(out...)
 	initcall(call, op)
 }
 
 func SetResolveBuiltinActorTypeExpect(codeCid cid.Cid, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().ResolveBuiltinActorType(codeCid).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().ResolveBuiltinActorType(codeCid).Return(out...)
 	initcall(call, op)
 }
 
 func SetGetCodeCidForTypeExpect(actorT types.ActorType, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().GetCodeCidForType(actorT).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().GetCodeCidForType(actorT).Return(out...)
 	initcall(call, op)
 }
 
 func SetNewActorAddressExpect(out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().NewActorAddress().Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().NewActorAddress().Return(out...)
 	initcall(call, op)
 }
 
 func SetCreateActorExpect(actorID abi.ActorID, codeCid cid.Cid, out []interface{}, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().CreateActor(actorID, codeCid).Return(out...)
+	call := simulated.SimulatedInstance.EXPECT().CreateActor(actorID, codeCid).Return(out...)
 	initcall(call, op)
 }
 
 func SetAbortExpect(code uint32, msg string, op *ExpectOptions) {
-	call := simulated.MockFvmInstance.EXPECT().Abort(code, msg)
+	call := simulated.SimulatedInstance.EXPECT().Abort(code, msg)
 	initcall(call, op)
 }
 
-func SetEpochFinish() {
-	simulated.MockFvmInstanceCtl.Finish()
+func Finish() {
+	simulated.SimulatedInstanceCtl.Finish()
 }

@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -18,11 +19,11 @@ func VerifySignature(
 	signer *address.Address,
 	plaintext []byte,
 ) (bool, error) {
-	return simulated.MockFvmInstance.VerifySignature(signature, signer, plaintext)
+	return simulated.SimulatedInstance.VerifySignature(signature, signer, plaintext)
 }
 
 func HashBlake2b(data []byte) ([32]byte, error) {
-	return simulated.MockFvmInstance.HashBlake2b(data)
+	return simulated.SimulatedInstance.HashBlake2b(data)
 }
 
 func ComputeUnsealedSectorCid(
@@ -30,17 +31,17 @@ func ComputeUnsealedSectorCid(
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
 
-	return simulated.MockFvmInstance.ComputeUnsealedSectorCid(proofType, pieces)
+	return simulated.SimulatedInstance.ComputeUnsealedSectorCid(proofType, pieces)
 }
 
 // VerifySeal Verifies a sector seal proof.
 func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
-	return simulated.MockFvmInstance.VerifySeal(info)
+	return simulated.SimulatedInstance.VerifySeal(info)
 }
 
 // VerifyPost Verifies a sector seal proof.
 func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
-	return simulated.MockFvmInstance.VerifyPost(info)
+	return simulated.SimulatedInstance.VerifyPost(info)
 }
 
 func VerifyConsensusFault(
@@ -49,17 +50,17 @@ func VerifyConsensusFault(
 	extra []byte,
 ) (*runtime.ConsensusFault, error) {
 
-	return simulated.MockFvmInstance.VerifyConsensusFault(h1, h2, extra)
+	return simulated.SimulatedInstance.VerifyConsensusFault(h1, h2, extra)
 }
 
 func VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
-	return simulated.MockFvmInstance.VerifyAggregateSeals(info)
+	return simulated.SimulatedInstance.VerifyAggregateSeals(info)
 }
 
 func VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
-	return simulated.MockFvmInstance.VerifyReplicaUpdate(info)
+	return simulated.SimulatedInstance.VerifyReplicaUpdate(info)
 }
 
 func BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
-	return simulated.MockFvmInstance.BatchVerifySeals(sealVerifyInfos)
+	return simulated.SimulatedInstance.BatchVerifySeals(sealVerifyInfos)
 }

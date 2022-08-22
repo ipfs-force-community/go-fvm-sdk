@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -11,25 +12,25 @@ import (
 )
 
 func ResolveAddress(addr address.Address) (abi.ActorID, error) {
-	return simulated.MockFvmInstance.ResolveAddress(addr)
+	return simulated.SimulatedInstance.ResolveAddress(addr)
 }
 
 func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
-	return simulated.MockFvmInstance.GetActorCodeCid(addr)
+	return simulated.SimulatedInstance.GetActorCodeCid(addr)
 }
 
 func ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
-	return simulated.MockFvmInstance.ResolveBuiltinActorType(codeCid)
+	return simulated.SimulatedInstance.ResolveBuiltinActorType(codeCid)
 }
 
 func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
-	return simulated.MockFvmInstance.GetCodeCidForType(actorT)
+	return simulated.SimulatedInstance.GetCodeCidForType(actorT)
 }
 
 func NewActorAddress() (address.Address, error) {
-	return simulated.MockFvmInstance.NewActorAddress()
+	return simulated.SimulatedInstance.NewActorAddress()
 }
 
 func CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	return simulated.MockFvmInstance.CreateActor(actorID, codeCid)
+	return simulated.SimulatedInstance.CreateActor(actorID, codeCid)
 }

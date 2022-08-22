@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -8,5 +9,5 @@ import (
 
 // Charge charge gas for the operation identified by name.
 func Charge(name string, compute uint64) error {
-	return simulated.MockFvmInstance.Charge(name, compute)
+	return simulated.SimulatedInstance.Charge(name, compute)
 }

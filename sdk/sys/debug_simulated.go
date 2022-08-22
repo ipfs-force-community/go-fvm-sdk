@@ -1,4 +1,5 @@
 //go:build simulate
+// +build simulate
 
 package sys
 
@@ -7,9 +8,9 @@ import (
 )
 
 func Enabled() (bool, error) {
-	return simulated.MockFvmInstance.Enabled()
+	return simulated.SimulatedInstance.Enabled()
 }
 
 func Log(msg string) error {
-	return simulated.MockFvmInstance.Log(msg)
+	return simulated.SimulatedInstance.Log(msg)
 }
