@@ -65,8 +65,8 @@ func OpenExpect(in interface{}, out interface{}, op *ExpectOptions) {
 	call := MockFvmInstance.EXPECT().Open(in).Return(out, nil)
 	initcall(call, op)
 }
-func SelfRootExpect(in interface{}, out interface{}, op *ExpectOptions) {
-	call := MockFvmInstance.EXPECT().SelfRoot(in).Return(out, nil)
+func SelfRootExpect(out interface{}, op *ExpectOptions) {
+	call := MockFvmInstance.EXPECT().SelfRoot().Return(out, nil)
 	initcall(call, op)
 }
 func SelfSetRootExpect(in interface{}, out interface{}, op *ExpectOptions) {

@@ -3,6 +3,10 @@
 
 package sys
 
+import (
+	_ "github.com/golang/mock/gomock"
+)
+
 func vmAbort(code uint32, msgOff uintptr, msgLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }

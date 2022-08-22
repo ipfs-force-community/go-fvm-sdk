@@ -64,15 +64,15 @@ func GetBlock(id types.BlockID, size *uint32) ([]byte, error) {
 		size1 = 1024
 	}
 
-	block := make([]byte, size1)
-	remaining, err := sys.Read(id, 0, block) //only set len and slice
+	// block := make([]byte, size1)
+	block, remaining, err := sys.Read(id, 0, size1) //only set len and slice
+
 	if err != nil {
 		return nil, err
 	}
 
 	if remaining > 0 { //more than 1KiB
-		sencondPart := make([]byte, remaining)                          //anyway to extend slice without copy
-		remaining, err := sys.Read(id, uint32(len(block)), sencondPart) //only set len and slice
+		sencondPart, remaining, err := sys.Read(id, uint32(len(block)), remaining) //only set len and slice
 		if err != nil {
 			return nil, err
 		}

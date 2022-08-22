@@ -3,14 +3,13 @@
 package sys
 
 import (
-
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
 func Open(id cid.Cid) (*types.IpldOpen, error) {
-	
+
 	return simulated.MockFvmInstance.Open(id)
 }
 
@@ -18,8 +17,8 @@ func Create(codec uint64, data []byte) (uint32, error) {
 	return simulated.MockFvmInstance.Create(codec, data)
 }
 
-func Read(id uint32, offset uint32, buf []byte) (uint32, error) {
-	return simulated.MockFvmInstance.Read(id, offset, buf)
+func Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
+	return simulated.MockFvmInstance.Read(id, offset, size)
 }
 
 func Stat(id uint32) (*types.IpldStat, error) {

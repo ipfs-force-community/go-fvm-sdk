@@ -9,8 +9,8 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 )
 
-func SelfRoot(cidBuf []byte) (uint32, error) {
-	return simulated.MockFvmInstance.SelfRoot(cidBuf)
+func SelfRoot() (cid.Cid, error) {
+	return simulated.MockFvmInstance.SelfRoot()
 }
 
 func SelfSetRoot(id cid.Cid) error {

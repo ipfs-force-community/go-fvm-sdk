@@ -1,5 +1,6 @@
 //go:build !simulate
-//+build !tinygo.wasm
+// +build !simulate
+
 package sys
 
 import (
@@ -34,14 +35,25 @@ func Create(codec uint64, data []byte) (uint32, error) {
 	return result, nil
 }
 
-func Read(id uint32, offset uint32, buf []byte) (uint32, error) {
+// func Read(id uint32, offset uint32, buf []byte) (uint32, error) {
+// 	result := uint32(0)
+// 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
+// 	code := ipldRead(uintptr(unsafe.Pointer(&result)), id, offset, bufPtr, bufLen)
+// 	if code != 0 {
+// 		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to read ipld ")
+// 	}
+// 	return result, nil
+// }
+
+func Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
 	result := uint32(0)
+	buf := make([]byte, size)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	code := ipldRead(uintptr(unsafe.Pointer(&result)), id, offset, bufPtr, bufLen)
 	if code != 0 {
-		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to read ipld ")
+		return nil, 0, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to read ipld ")
 	}
-	return result, nil
+	return buf, result, nil
 }
 
 func Stat(id uint32) (*types.IpldStat, error) {

@@ -31,5 +31,7 @@ require (
 	github.com/filecoin-project/go-state-types v0.1.9
 	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220412224951-92abd0e6e7ae
 	github.com/filecoin-project/venus v1.2.4
+	github.com/golang/mock v1.6.0
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
+	github.com/multiformats/go-multihash v0.1.0
 )

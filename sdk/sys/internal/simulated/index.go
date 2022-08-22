@@ -29,7 +29,7 @@ func (f *FakeReporter) Fatalf(format string, args ...interface{}) {
 //go:generate mockgen -destination ./mock_scheme.go -package=simulated -source ./index.go
 type Fvm interface {
 	Open(id cid.Cid) (*types.IpldOpen, error)
-	SelfRoot(cidBuf []byte) (uint32, error)
+	SelfRoot() (cid.Cid, error)
 	SelfSetRoot(id cid.Cid) error
 	SelfCurrentBalance() (*types.TokenAmount, error)
 	SelfDestruct(addr addr.Address) error
@@ -39,7 +39,7 @@ type Fvm interface {
 	BaseFee() (*types.TokenAmount, error)
 	TotalFilCircSupply() (*types.TokenAmount, error)
 	Create(codec uint64, data []byte) (uint32, error)
-	Read(id uint32, offset uint32, buf []byte) (uint32, error)
+	Read(id uint32, offset, size uint32) ([]byte, uint32, error)
 	Stat(id uint32) (*types.IpldStat, error)
 	BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (uint32, error)
 	Charge(name string, compute uint64) error
