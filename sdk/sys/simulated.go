@@ -64,7 +64,9 @@ func initcall(call *gomock.Call, op *ExpectOptions) {
 
 }
 
-var SimulatedInstance = simulated.SimulatedInstance
+// func CreateSimulated() (*simulated.MockSimulated, *gomock.Controller) {
+// 	return simulated.CreateSimulated()
+// }
 
 func SetOpenExpect(id cid.Cid, out []interface{}, op *ExpectOptions) {
 	call := simulated.SimulatedInstance.EXPECT().Open(id).Return(out...)
@@ -235,6 +237,14 @@ func SetAbortExpect(code uint32, msg string, op *ExpectOptions) {
 	initcall(call, op)
 }
 
-func Finish() {
-	simulated.SimulatedInstanceCtl.Finish()
+func Begin() {
+	simulated.Begin()
+}
+
+func End() {
+	simulated.End()
+}
+
+func GetSimulated() *simulated.MockSimulated {
+	return simulated.SimulatedInstance
 }

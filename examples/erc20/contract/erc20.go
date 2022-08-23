@@ -42,7 +42,7 @@ function allowance(address _owner, address _spender) public view returns (uint25
 
 var logger sdk.Logger
 
-func LoggerInit() {
+func init() {
 	logger, _ = sdk.NewLogger()
 }
 
