@@ -47,6 +47,13 @@ go list -json -deps > deps.json
 * Invoke actor
   * lotus chain invoke <address> <method_num>
 
+### unit test
+
+* It is recommended that unit tests set concurrency to 1
+    ```
+        go test -parallel 1 -p 1 xxxxxx
+    ```
+
 ## Suggestion
 
 1. Do not use asm code
