@@ -12,35 +12,11 @@ import (
 )
 
 func TestErc20Token_Approval(t *testing.T) {
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		fmt.Printf("%v\n", err)
-	// 	}
-	// }()
 	sys.Begin()
 	_ = Erc20Token{}
 	sys.End()
 
 }
-
-// func TestErc20Token_SelfRoot(t *testing.T) {
-
-// 	defer func() {
-// 		if err := recover(); err != nil {
-// 			fmt.Printf("%v\n", err)
-// 		}
-// 	}()
-
-// 	sys.Begin()
-// 	cidout, _ := cid.Decode("bafy2bzacecdjkk2tzogitpcybu3eszr4uptrjogstqmyt6u4q2p3hh4chmf3i")
-// 	sys.GetSimulated().EXPECT().SelfRoot().Return(cidout, nil)
-// 	token := Erc20Token{}
-
-// 	got, err := token.SelfRoot()
-// 	fmt.Printf("%v-%v\n", got, err)
-// 	sys.End()
-
-// }
 
 func TestErc20Token_SelfRoot(t *testing.T) {
 

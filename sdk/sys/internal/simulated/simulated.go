@@ -91,7 +91,6 @@ func Begin() {
 func createSimulated() {
 	t := FakeReporter{}
 	SimulatedInstanceCtl = gomock.NewController(&t)
-	// defer ctl.Finish()
 	SimulatedInstance = NewMockSimulated(SimulatedInstanceCtl)
 	SimulatedInstance.EXPECT().Enabled().Return(true, nil)
 }
