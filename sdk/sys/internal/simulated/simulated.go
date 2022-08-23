@@ -1,6 +1,8 @@
 package simulated
 
 import (
+	"fmt"
+
 	"github.com/filecoin-project/go-address"
 	addr "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -16,10 +18,10 @@ type FakeReporter struct {
 }
 
 func (f *FakeReporter) Errorf(format string, args ...interface{}) {
-	//fmt.Printf(format, args)
+	fmt.Printf(format, args...)
 }
 func (f *FakeReporter) Fatalf(format string, args ...interface{}) {
-	//fmt.Printf(format, args)
+	fmt.Printf(format, args...)
 }
 
 // 执行 go  generate生成文件
@@ -92,5 +94,5 @@ func createSimulated() {
 	t := FakeReporter{}
 	SimulatedInstanceCtl = gomock.NewController(&t)
 	SimulatedInstance = NewMockSimulated(SimulatedInstanceCtl)
-	SimulatedInstance.EXPECT().Enabled().Return(true, nil)
+	SimulatedInstance.EXPECT().Enabled().Return(true, nil).AnyTimes()
 }

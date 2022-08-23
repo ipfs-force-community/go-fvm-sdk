@@ -18,6 +18,7 @@ func TestErc20Token_Approval(t *testing.T) {
 
 }
 
+
 func TestErc20Token_SelfRoot(t *testing.T) {
 
 	sys.Begin()
