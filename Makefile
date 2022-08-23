@@ -25,3 +25,6 @@ test: build code-gen
 	cd ./sdk/cases && go-fvm-sdk-tools test
 	cd ./examples/hellocontract && go-fvm-sdk-tools test
 	cd ./examples/erc20 && go-fvm-sdk-tools test
+
+genmock: 
+	cd ./sdk/sys/internal/simulated && go generate
