@@ -24,4 +24,5 @@ func TestSayHello(t *testing.T) {
 	sys.SimulatedInstance.EXPECT().Abort(gomock.Any(), gomock.Any())
 	sys.SimulatedInstance.EXPECT().Open(cidin).Return(opresult, nil)
 	sys.SimulatedInstance.EXPECT().Read(types.BlockID(1), uint32(0), uint32(1)).Return([]byte{}, uint32(0), nil)
+	
 }

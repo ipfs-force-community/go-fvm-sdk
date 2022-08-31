@@ -1,8 +1,6 @@
 package sdk
 
 import (
-	"fmt"
-
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
@@ -18,19 +16,7 @@ func Put(mhCode uint64, mhSize uint32, codec uint64, data []byte) (cid.Cid, erro
 
 	// I really hate this CID interface. Why can't I just have bytes?
 	buf := [types.MaxCidLen]byte{}
-	cidLen, err := sys.BlockLink(id, mhCode, mhSize, buf[:])
-	if err != nil {
-		return cid.Undef, err
-	}
-	if int(cidLen) > len(buf) {
-		// TODO: re-try with a larger buffer?
-		panic(fmt.Sprintf("CID too big: %d > %d", cidLen, len(buf)))
-	}
-	_, result, err := cid.CidFromBytes(buf[:cidLen])
-	if err != nil {
-		return cid.Undef, err
-	}
-	return result, err
+	return sys.BlockLink(id, mhCode, mhSize, buf[:])
 }
 
 // Get get a block. It's valid to call this on:

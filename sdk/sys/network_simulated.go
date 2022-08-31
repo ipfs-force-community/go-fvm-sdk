@@ -4,19 +4,14 @@
 package sys
 
 import (
-
-
-
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
-
-
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
 )
 
 func BaseFee() (*types.TokenAmount, error) {
-	return simulated.SimulatedInstance.BaseFee()
+	return simulated.DefaultFsm.BaseFee()
 }
 
 func TotalFilCircSupply() (*types.TokenAmount, error) {
-	return simulated.SimulatedInstance.TotalFilCircSupply()
+	return simulated.DefaultFsm.TotalFilCircSupply()
 }

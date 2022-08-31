@@ -10,7 +10,6 @@ import (
 	"github.com/ipfs/go-cid"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	typegen "github.com/whyrusleeping/cbor-gen"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -82,6 +81,7 @@ type ConstructorReq struct {
 }
 
 func Constructor(req *ConstructorReq) error {
+
 	emptyMap, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
@@ -168,9 +168,11 @@ func (t *Erc20Token) GetTotalSupply() *big.Int {
 	return t.TotalSupply
 }
 
-/*GetBalanceOf sender by ID.
+/*
+GetBalanceOf sender by ID.
 
-* `args[0]` - the ID of user.*/
+* `args[0]` - the ID of user.
+*/
 func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
 	senderId, err := sdk.ResolveAddress(*addr)
 	if err != nil {
@@ -197,12 +199,13 @@ type TransferReq struct {
 	TransferAmount *big.Int
 }
 
-/*Transfer token from current caller to a specified address.
+/*
+Transfer token from current caller to a specified address.
 
 * `receiverAddr` - the ID of receiver.
 
 * `transferAmount` - the transfer amount.
- */
+*/
 func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 	senderID, err := sdk.Caller()
 	if err != nil {
@@ -260,11 +263,13 @@ type AllowanceReq struct {
 	SpenderAddr address.Address
 }
 
-/*GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
+/*
+GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
 
 * `ownerAddr` - the ID of owner.
 
-* `spenderAddr` - the ID of spender*/
+* `spenderAddr` - the ID of spender
+*/
 func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
 	ownerID, err := sdk.ResolveAddress(req.OwnerAddr)
 	if err != nil {
@@ -299,14 +304,15 @@ type TransferFromReq struct {
 	TransferAmount *big.Int
 }
 
-/*TransferFrom transfer tokens from token owner to receiver.
+/*
+TransferFrom transfer tokens from token owner to receiver.
 
 * `ownerAddr` - the ID of token owner.
 
 * `receiverAddr` - the ID of receiver.
 
 * `transferAmount` - the transfer amount.
- */
+*/
 func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 	tokenOwnerID, err := sdk.ResolveAddress(req.OwnerAddr)
 	if err != nil {
@@ -434,10 +440,6 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 	_ = sdk.SaveState(t)
 	logger.Logf("approval %s for %s", getAllowKey(callerID, spenderID), req.NewAllowance.String())
 	return nil
-}
-
-func (t *Erc20Token) SelfRoot() (cid.Cid, error) {
-	return sys.SelfRoot()
 }
 
 /*checkBalance checks if sender's balance is >= 0*/

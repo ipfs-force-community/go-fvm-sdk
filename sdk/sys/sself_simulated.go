@@ -5,24 +5,23 @@ package sys
 
 import (
 	addr "github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/internal/simulated"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
 func SelfRoot() (cid.Cid, error) {
-	return simulated.SimulatedInstance.SelfRoot()
+	return simulated.DefaultFsm.SelfRoot()
 }
 
 func SelfSetRoot(id cid.Cid) error {
-	return simulated.SimulatedInstance.SelfSetRoot(id)
-
+	return simulated.DefaultFsm.SelfSetRoot(id)
 }
 
 func SelfCurrentBalance() (*types.TokenAmount, error) {
-	return simulated.SimulatedInstance.SelfCurrentBalance()
+	return simulated.DefaultFsm.SelfCurrentBalance()
 }
 
 func SelfDestruct(addr addr.Address) error {
-	return simulated.SimulatedInstance.SelfDestruct(addr)
+	return simulated.DefaultFsm.SelfDestruct(addr)
 }
