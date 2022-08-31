@@ -53,6 +53,7 @@ jobs:
       - name: Build
         run: |
           make build
+          make build-example
           make install
 
       - name: patch

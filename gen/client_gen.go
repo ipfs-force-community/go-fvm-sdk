@@ -169,7 +169,7 @@ type {{trimPackage .StateName}}Client struct {
 
 
 // Option option func
-type Option func(opt ClientOption)
+type Option func(opt *ClientOption)
 
 // ClientOption option for set client config
 type ClientOption struct {
@@ -180,21 +180,21 @@ type ClientOption struct {
 
 // SetFromAddressOpt used to set from address who send actor messages
 func SetFromAddressOpt(fromAddress address.Address) Option {
-	return func(opt ClientOption) {
+	return func(opt *ClientOption) {
 		opt.fromAddress = fromAddress
 	}
 }
 
 // SetActorOpt used to set exit actoraddress
 func SetActorOpt(actor address.Address) Option {
-	return func(opt ClientOption) {
+	return func(opt *ClientOption) {
 		opt.actor = actor
 	}
 }
 
 // SetCodeCid used to set actor code cid
 func SetCodeCid(codeCid cid.Cid) Option {
-	return func(opt ClientOption) {
+	return func(opt *ClientOption) {
 		opt.codeCid = codeCid
 	}
 }
@@ -202,7 +202,7 @@ func SetCodeCid(codeCid cid.Cid) Option {
 func New{{trimPackage .StateName}}Client(fullNode v0.FullNode, opts ...Option) *{{trimPackage .StateName}}Client {
 	cfg := ClientOption{}
 	for _, opt := range opts {
-		opt(cfg)
+		opt(&cfg)
 	}
 	return &{{trimPackage .StateName}}Client{
 		node: fullNode,
@@ -252,8 +252,8 @@ func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, code
 	return &result, nil
 }
 
-func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []byte) (*init8.InstallReturn, error) {
-	params, aerr := actors.SerializeParams(&init8.InstallParams{
+func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
+	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
 	})
 	if aerr != nil {
@@ -283,7 +283,7 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 		return nil, fmt.Errorf("actor installation failed")
 	}
 
-	var result init8.InstallReturn
+	var result sdkTypes.InstallReturn
 	r := bytes.NewReader(wait.Receipt.Return)
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
@@ -304,7 +304,7 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 func genClientInterface(w io.Writer, entry entryMeta) error {
 	tpl := `
 type I{{trimPackage .StateName}}Client interface {
-	Install( context.Context,  []byte) (*init8.InstallReturn, error)
+	Install( context.Context,  []byte) (*sdkTypes.InstallReturn, error)
 	CreateActor( context.Context,  cid.Cid,  []byte) (*init8.ExecReturn, error)
 	{{range .Methods}}
     {{if ne .FuncName "Constructor"}}

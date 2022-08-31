@@ -17,7 +17,9 @@ import (
 func main() {
 	if err := gen.GenCborType("../types", "", types.AggregateSealVerifyInfo{},
 		types.AggregateSealVerifyProofAndInfos{},
-		types.ReplicaUpdateInfo{}); err != nil {
+		types.ReplicaUpdateInfo{},
+		types.InstallParams{},
+		types.InstallReturn{}); err != nil {
 		log.Fatalf("gen for ../types: %s", err)
 	}
 }

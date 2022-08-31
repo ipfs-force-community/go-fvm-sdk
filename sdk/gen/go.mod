@@ -3,11 +3,14 @@ module go-fvm-sdk/sdk/gen
 go 1.17
 
 require (
+	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
 	github.com/ipfs-force-community/go-fvm-sdk/gen v0.0.0-00010101000000-000000000000
-	github.com/ipfs-force-community/go-fvm-sdk/sdk v0.0.0-20220606034649-bec9711dee21
 )
 
-replace github.com/ipfs-force-community/go-fvm-sdk/gen => ../../gen
+replace (
+	github.com/ipfs-force-community/go-fvm-sdk => ../../
+	github.com/ipfs-force-community/go-fvm-sdk/gen => ../../gen
+)
 
 require (
 	github.com/filecoin-project/go-address v0.0.6 // indirect
