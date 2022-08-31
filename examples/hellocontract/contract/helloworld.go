@@ -39,10 +39,10 @@ func NewState() *State {
 	return st
 }
 
-/// The constructor populates the initial state.
-///
-/// Method num 1. This is part of the Filecoin calling convention.
-/// InitActor#Exec will call the constructor on method_num = 1.
+// / The constructor populates the initial state.
+// /
+// / Method num 1. This is part of the Filecoin calling convention.
+// / InitActor#Exec will call the constructor on method_num = 1.
 func Constructor() error {
 	// This constant should be part of the SDK.
 	// var  ActorID = 1;
@@ -50,7 +50,7 @@ func Constructor() error {
 	return nil
 }
 
-/// Method num 2.
+// / Method num 2.
 func (st *State) SayHello() types.CBORBytes {
 	state := NewState()
 	state.Count += 1

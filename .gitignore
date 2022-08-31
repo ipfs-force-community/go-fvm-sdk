@@ -1,3 +1,5 @@
+examples/*/client_example/client_example
+
 *.wasm
 *.wat
 target
