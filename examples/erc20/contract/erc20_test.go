@@ -4,16 +4,18 @@
 package contract
 
 import (
+	"context"
+	"github.com/filecoin-project/go-address"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
+	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"reflect"
 	"testing"
-
-	"github.com/filecoin-project/go-address"
 	//"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
-	"github.com/ipfs/go-cid"
 )
 
 func TestErc20Token_Approval(t *testing.T) {
@@ -24,8 +26,13 @@ func TestErc20Token_Approval(t *testing.T) {
 }
 
 func makeErc20Token() Erc20Token {
-	cidtest, _ := cid.Decode("bafy2bzacecdjkk2tzogitpcybu3eszr4uptrjogstqmyt6u4q2p3hh4chmf3i")
-	TotalSupplytest := big.NewInt(88)
+	map_, _ := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
+	cidtest, err := map_.Root()
+	if err != nil {
+		panic(err)
+	}
+	TotalSupplytest := big.NewInt(0)
+
 	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
@@ -96,14 +103,32 @@ func TestErc20Token_GetName(t *testing.T) {
 	simulated.End()
 }
 
-func TestErc20Token_GetBalanceOf(t *testing.T) {
+func TestErc20Token_savestate(t *testing.T) {
 	simulated.Begin()
+
+	erc20 := makeErc20Token()
+	sdk.SaveState(&erc20)
+
+	newSt := new(Erc20Token)
+	sdk.LoadState(newSt)
+	assert.Equal(t, *newSt, erc20)
+	simulated.End()
+}
+
+func TestErc20Token_GetBalanceOf(t1 *testing.T) {
+	simulated.Begin()
+	erc20 := makeErc20Token()
+	balanceMap, _ := adt.AsMap(adt.AdtStore(context.Background()), erc20.Balances, adt.BalanceTableBitwidth)
 	addr, _ := address.NewIDAddress(uint64(rand.Int()))
+	simulated.SetAccount(8899, addr)
+	balance := big.NewInt(100)
+	if err := balanceMap.Put(types.ActorKey(8899), &balance); err != nil {
+		panic(err)
+	}
+	newRoot, _ := balanceMap.Root()
+	erc20.Balances = newRoot
+	sdk.SaveState(&erc20)
 
-	simulated.SetActorAndAddress( 33, simulated.ActorState{}, addr)
-
-	//(actorId uint32, ActorState ActorState, addr address.Address)
-	wantbig := big.NewInt(99)
 	type args struct {
 		addr *address.Address
 	}
@@ -114,11 +139,11 @@ func TestErc20Token_GetBalanceOf(t *testing.T) {
 		want    *big.Int
 		wantErr bool
 	}{
-		{name: "test1", fields: makeErc20Token(), args: args{addr: &addr}, want: &wantbig, wantErr: false},
+		{name: "test1", fields: erc20, args: args{addr: &addr}, want: &balance, wantErr: false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tr := &Erc20Token{
+		t1.Run(tt.name, func(t1 *testing.T) {
+			t := &Erc20Token{
 				Name:        tt.fields.Name,
 				Symbol:      tt.fields.Symbol,
 				Decimals:    tt.fields.Decimals,
@@ -126,13 +151,13 @@ func TestErc20Token_GetBalanceOf(t *testing.T) {
 				Balances:    tt.fields.Balances,
 				Allowed:     tt.fields.Allowed,
 			}
-			got, err := tr.GetBalanceOf(tt.args.addr)
+			got, err := t.GetBalanceOf(tt.args.addr)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Erc20Token.GetBalanceOf() error = %v, wantErr %v", err, tt.wantErr)
+				t1.Errorf("GetBalanceOf() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Erc20Token.GetBalanceOf() = %v, want %v", got, tt.want)
+				t1.Errorf("GetBalanceOf() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

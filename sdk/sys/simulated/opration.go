@@ -13,6 +13,7 @@ import (
 )
 
 func (s *Fsm) Open(id cid.Cid) (*types.IpldOpen, error) {
+
 	result := new(types.IpldOpen)
 	blockid, blockstat := s.blockOpen(id)
 	result.ID = blockid
@@ -45,14 +46,18 @@ func (s *Fsm) SelfDestruct(addr address.Address) error {
 	return nil
 
 }
+
 func (s *Fsm) Create(codec uint64, data []byte) (uint32, error) {
 	index := s.blockCreate(codec, data)
 	return uint32(index), nil
 }
+
 func (s *Fsm) Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
+
 	data, err := s.blockRead(id, offset)
-	return data, uint32(len(data)), err
+	return data, 0, err
 }
+
 func (s *Fsm) Stat(id uint32) (*types.IpldStat, error) {
 	return s.blockStat(id)
 }
@@ -60,6 +65,7 @@ func (s *Fsm) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte
 	return s.blockLink(id, hashFun, hashLen)
 }
 func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
+
 	id, ok := s.address.Load(addr)
 	if !ok {
 		return 0, ErrorNotFound
@@ -76,7 +82,7 @@ func (s *Fsm) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &acstat.code, nil
+	return &acstat.Code, nil
 }
 func (s *Fsm) ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
 	for k, v := range EmbeddedBuiltinActors {
@@ -98,7 +104,8 @@ func (s *Fsm) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 }
 
 func (s *Fsm) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	SetActorAndAddress(uint32(actorID), ActorState{code: codeCid}, address.Address{})
+
+	SetActorAndAddress(uint32(actorID), ActorState{Code: codeCid}, address.Address{})
 	return nil
 }
 

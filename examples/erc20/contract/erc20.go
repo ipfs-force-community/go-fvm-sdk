@@ -178,6 +178,7 @@ func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return t.getBalanceOf(senderId)
 }
 

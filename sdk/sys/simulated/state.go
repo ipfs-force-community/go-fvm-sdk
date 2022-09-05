@@ -37,15 +37,15 @@ type Actor struct {
 }
 
 type ActorState struct {
-	code     cid.Cid
-	state    cid.Cid
-	sequence uint64
-	balance  big.Int
+	Code     cid.Cid
+	State    cid.Cid
+	Sequence uint64
+	Balance  big.Int
 }
 
-func newActorState(code_id cid.Cid) ActorState {
+func NewActorState(code_id cid.Cid) ActorState {
 	Mult, _ := mh.Sum([]byte{}, mh.BLAKE2B_MAX, 32)
-	return ActorState{code: code_id, sequence: 0, balance: big.NewInt(0), state: cid.NewCidV1(cid.DagCBOR, Mult)}
+	return ActorState{Code: code_id, Sequence: 0, Balance: big.NewInt(0), State: cid.NewCidV1(cid.DagCBOR, Mult)}
 }
 
 var DefaultFsm *Fsm
@@ -128,6 +128,7 @@ func (s *Fsm) blockStat(blockId uint32) (*types.IpldStat, error) {
 }
 
 func (s *Fsm) putData(key cid.Cid, value []byte) {
+
 	s.Ipld.Store(key, value)
 }
 
