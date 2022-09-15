@@ -5,5 +5,5 @@ import (
 )
 
 func TestBeaconRandomness(t *testing.T) {
-	BeaconRandomness(343, 438, []byte{})
+	makeRandomness(343, 438, []byte{})
 }

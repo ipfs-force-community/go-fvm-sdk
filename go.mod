@@ -21,6 +21,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/filecoin-project/specs-actors/v5 v5.0.4 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-ipld-cbor v0.0.6-0.20211211231443-5d9b9e1f6fa8 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.6 // indirect

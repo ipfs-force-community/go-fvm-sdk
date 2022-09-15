@@ -243,6 +243,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             hex::decode(wasm_case.return_data.clone())?,
         );
     }
+    //  ret.msg_receipt.gas_used
 
     Ok(())
 }
@@ -338,6 +339,7 @@ struct State {
 pub fn new_tester(
     accounts_cfg: &[InitAccount],
 ) -> Result<(Tester<MemoryBlockstore, DummyExterns>, Vec<Account>)> {
+    print!("{:?}",accounts_cfg);
     let mut tester = Tester::new(
         NetworkVersion::V15,
         StateTreeVersion::V4,

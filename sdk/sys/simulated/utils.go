@@ -38,7 +38,7 @@ func GetStringPointerAndLen(str string) (uintptr, uint32) {
 }
 
 // Generate a hash of length 32 bytes
-func BeaconRandomness(dst int64, round int64, entropy []byte) []byte {
+func makeRandomness(dst int64, round int64, entropy []byte) []byte {
 	dst_byte := [8]byte{}
 	binary.BigEndian.PutUint64(dst_byte[0:8], abs(dst))
 	round_byte := [8]byte{}

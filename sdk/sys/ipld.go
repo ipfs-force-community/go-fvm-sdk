@@ -55,7 +55,7 @@ func Stat(id uint32) (*types.IpldStat, error) {
 	return result, nil
 }
 
-func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cided cid.Cid, err error) {
+func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (retcid cid.Cid, err error) {
 	result := uint32(0)
 	cidBufPtr, cidBufLen := GetSlicePointerAndLen(cidBuf)
 	code := ipldLink(uintptr(unsafe.Pointer(&result)), id, hashFun, hashLen, cidBufPtr, cidBufLen)

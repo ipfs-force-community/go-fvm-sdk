@@ -154,5 +154,3 @@ func (a *Array) Pop(k uint64, out cbor.Unmarshaler) (bool, error) {
 	}
 	return true, nil
 }
-
-

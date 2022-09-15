@@ -52,11 +52,10 @@ func GetBlock(id types.BlockID, size *uint32) ([]byte, error) {
 
 	// block := make([]byte, size1)
 	block, remaining, err := sys.Read(id, 0, size1) //only set len and slice
-
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if remaining > 0 { //more than 1KiB
 		sencondPart, remaining, err := sys.Read(id, uint32(len(block)), remaining) //only set len and slice
 		if err != nil {

@@ -22,7 +22,6 @@ func TestErc20Token_Approval(t *testing.T) {
 	simulated.Begin()
 	_ = Erc20Token{}
 	simulated.End()
-
 }
 
 func makeErc20Token() Erc20Token {
@@ -33,7 +32,7 @@ func makeErc20Token() Erc20Token {
 	}
 	TotalSupplytest := big.NewInt(0)
 
-	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
+	return Erc20Token{Name: "case1", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
 func makeFakeSetBalance() *FakeSetBalance {
@@ -55,7 +54,7 @@ func TestErc20Token_FakeSetBalance(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{name: "test1", fields: makeErc20Token(), args: args{req: makeFakeSetBalance()}, wantErr: true},
+		{name: "case1", fields: makeErc20Token(), args: args{req: makeFakeSetBalance()}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,7 +72,6 @@ func TestErc20Token_FakeSetBalance(t *testing.T) {
 		})
 	}
 	simulated.End()
-
 }
 
 func TestErc20Token_GetName(t *testing.T) {
@@ -103,7 +101,7 @@ func TestErc20Token_GetName(t *testing.T) {
 	simulated.End()
 }
 
-func TestErc20Token_savestate(t *testing.T) {
+func TestErc20TokenSaveState(t *testing.T) {
 	simulated.Begin()
 
 	erc20 := makeErc20Token()
@@ -115,7 +113,7 @@ func TestErc20Token_savestate(t *testing.T) {
 	simulated.End()
 }
 
-func TestErc20Token_GetBalanceOf(t1 *testing.T) {
+func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 	simulated.Begin()
 	erc20 := makeErc20Token()
 	balanceMap, _ := adt.AsMap(adt.AdtStore(context.Background()), erc20.Balances, adt.BalanceTableBitwidth)
@@ -139,7 +137,7 @@ func TestErc20Token_GetBalanceOf(t1 *testing.T) {
 		want    *big.Int
 		wantErr bool
 	}{
-		{name: "test1", fields: erc20, args: args{addr: &addr}, want: &balance, wantErr: false},
+		{name: "case1", fields: erc20, args: args{addr: &addr}, want: &balance, wantErr: false},
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {

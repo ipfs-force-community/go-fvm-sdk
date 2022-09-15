@@ -43,11 +43,6 @@ type ActorState struct {
 	Balance  big.Int
 }
 
-func NewActorState(code_id cid.Cid) ActorState {
-	Mult, _ := mh.Sum([]byte{}, mh.BLAKE2B_MAX, 32)
-	return ActorState{Code: code_id, Sequence: 0, Balance: big.NewInt(0), State: cid.NewCidV1(cid.DagCBOR, Mult)}
-}
-
 var DefaultFsm *Fsm
 
 func init() {
@@ -67,13 +62,39 @@ type Fsm struct {
 	blockid    uint32
 	Ipld       sync.Map
 	actorMutex sync.Mutex
-	actors     sync.Map
-	address    sync.Map
+	// actorid->ActorState
+	actorsMap sync.Map
+	// address->actorid
+	addressMap sync.Map
 
 	rootCid            cid.Cid
 	baseFee            *types.TokenAmount
 	totalFilCircSupply *types.TokenAmount
 	currentBalance     *types.TokenAmount
+	SendList           []SendMock
+}
+
+func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
+	for _, v := range a.SendList {
+		if to != v.to {
+			println("aa")
+			continue
+		}
+		if method != v.method {
+			println("bb")
+			continue
+		}
+		if params != v.params {
+			println("cc")
+			continue
+		}
+		if !value.Equals(v.value) {
+			println("dd")
+			continue
+		}
+		return &v.out, true
+	}
+	return nil, false
 }
 
 func newSate() *Fsm {
@@ -168,7 +189,7 @@ func (s *Fsm) putActor(actorID uint64, actor ActorState) error {
 }
 
 func (s *Fsm) getActorWithActorid(actorID uint32) (ActorState, error) {
-	actor, ok := s.actors.Load(actorID)
+	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
 		return actor.(ActorState), nil
 	}
@@ -179,11 +200,11 @@ func (s *Fsm) getActorWithAddress(addr address.Address) (ActorState, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 
-	actorid, ok := s.address.Load(addr)
+	actorid, ok := s.addressMap.Load(addr)
 	if ok {
 		return ActorState{}, ErrorNotFound
 	}
-	as, ok := s.actors.Load(actorid)
+	as, ok := s.actorsMap.Load(actorid)
 	if !ok {
 		return ActorState{}, ErrorNotFound
 	}

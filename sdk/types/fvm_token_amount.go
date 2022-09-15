@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"math/big"
 	"math/bits"
+
+	"github.com/filecoin-project/go-state-types/big"
 )
 
 // Zero is a zero-valued uint128.
@@ -384,7 +385,8 @@ func (u TokenAmount) Big() *big.Int {
 	i := new(big.Int).SetUint64(u.Hi)
 	i = i.Lsh(i, 64)
 	i = i.Xor(i, new(big.Int).SetUint64(u.Lo))
-	return i
+	big := big.NewFromGo(i)
+	return &big
 }
 
 // Scan implements fmt.Scanner.
@@ -398,7 +400,7 @@ func (u *TokenAmount) Scan(s fmt.ScanState, ch rune) error {
 		return errors.New("value overflows TokenAmount")
 	}
 	u.Lo = i.Uint64()
-	u.Hi = i.Rsh(i, 64).Uint64()
+	u.Hi = i.Rsh(i.Int, 64).Uint64()
 	return nil
 }
 
@@ -429,7 +431,7 @@ func FromBig(i *big.Int) (u TokenAmount) {
 		panic("value overflows TokenAmount")
 	}
 	u.Lo = i.Uint64()
-	u.Hi = i.Rsh(i, 64).Uint64()
+	u.Hi = i.Rsh(i.Int, 64).Uint64()
 	return u
 }
 
