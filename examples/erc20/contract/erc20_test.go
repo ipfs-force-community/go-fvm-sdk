@@ -6,19 +6,18 @@ package contract
 import (
 	"context"
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"reflect"
 	"testing"
-	//"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/big"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func TestErc20Token_Approval(t *testing.T) {
+func TestErc20TokenApproval(t *testing.T) {
 	simulated.Begin()
 	_ = Erc20Token{}
 	simulated.End()
@@ -32,7 +31,7 @@ func makeErc20Token() Erc20Token {
 	}
 	TotalSupplytest := big.NewInt(0)
 
-	return Erc20Token{Name: "case1", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
+	return Erc20Token{Name: "pass", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
 func makeFakeSetBalance() *FakeSetBalance {
@@ -74,14 +73,14 @@ func TestErc20Token_FakeSetBalance(t *testing.T) {
 	simulated.End()
 }
 
-func TestErc20Token_GetName(t *testing.T) {
+func TestErc20TokenGetName(t *testing.T) {
 	simulated.Begin()
 	tests := []struct {
 		name   string
 		fields Erc20Token
 		want   types.CborString
 	}{
-		{name: "test1", fields: makeErc20Token(), want: types.CborString("name")},
+		{name: "pass", fields: makeErc20Token(), want: types.CborString("name")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -137,7 +136,7 @@ func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 		want    *big.Int
 		wantErr bool
 	}{
-		{name: "case1", fields: erc20, args: args{addr: &addr}, want: &balance, wantErr: false},
+		{name: "pass", fields: erc20, args: args{addr: &addr}, want: &balance, wantErr: false},
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {

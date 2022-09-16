@@ -5,6 +5,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
+	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 	mh "github.com/multiformats/go-multihash"
@@ -30,18 +31,6 @@ func (s *block) stat() BlockStat {
 }
 
 type blocks []block
-
-type Actor struct {
-	ActorID    uint64
-	ActorState ActorState
-}
-
-type ActorState struct {
-	Code     cid.Cid
-	State    cid.Cid
-	Sequence uint64
-	Balance  big.Int
-}
 
 var DefaultFsm *Fsm
 
@@ -77,19 +66,15 @@ type Fsm struct {
 func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
 	for _, v := range a.SendList {
 		if to != v.to {
-			println("aa")
 			continue
 		}
 		if method != v.method {
-			println("bb")
 			continue
 		}
 		if params != v.params {
-			println("cc")
 			continue
 		}
 		if !value.Equals(v.value) {
-			println("dd")
 			continue
 		}
 		return &v.out, true
@@ -179,7 +164,7 @@ func (s *Fsm) getBlock(blockId uint32) (block, error) {
 	return s.blocks[blockId], nil
 }
 
-func (s *Fsm) putActor(actorID uint64, actor ActorState) error {
+func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 	_, err := s.getActorWithActorid(uint32(actorID))
 	if err == nil {
 		return ErrorKeyExists
@@ -188,25 +173,25 @@ func (s *Fsm) putActor(actorID uint64, actor ActorState) error {
 	return nil
 }
 
-func (s *Fsm) getActorWithActorid(actorID uint32) (ActorState, error) {
+func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
-		return actor.(ActorState), nil
+		return actor.(migration.Actor), nil
 	}
-	return ActorState{}, ErrorNotFound
+	return migration.Actor{}, ErrorNotFound
 }
 
-func (s *Fsm) getActorWithAddress(addr address.Address) (ActorState, error) {
+func (s *Fsm) getActorWithAddress(addr address.Address) (migration.Actor, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 
 	actorid, ok := s.addressMap.Load(addr)
 	if ok {
-		return ActorState{}, ErrorNotFound
+		return migration.Actor{}, ErrorNotFound
 	}
 	as, ok := s.actorsMap.Load(actorid)
 	if !ok {
-		return ActorState{}, ErrorNotFound
+		return migration.Actor{}, ErrorNotFound
 	}
-	return as.(ActorState), nil
+	return as.(migration.Actor), nil
 }

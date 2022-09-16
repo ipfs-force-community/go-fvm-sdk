@@ -8,4 +8,5 @@ var (
 	ErrorKeyExists     = errors.New("key already exists")
 	ErrorKeyMatchSucess = errors.New("key match is ok")
 	ErrorKeyMatchFail = errors.New("key match is fail")
+	ErrorKeyTypeException = errors.New("key type is except")
 )

@@ -7,6 +7,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
@@ -15,12 +16,8 @@ import (
 )
 
 func (s *Fsm) Open(id cid.Cid) (*types.IpldOpen, error) {
-	result := new(types.IpldOpen)
 	blockid, blockstat := s.blockOpen(id)
-	result.ID = blockid
-	result.Size = blockstat.size
-	result.Codec = blockstat.codec
-	return result, nil
+	return &types.IpldOpen{ID: blockid, Size: blockstat.size, Codec: blockstat.codec}, nil
 }
 
 func (s *Fsm) SelfRoot() (cid.Cid, error) {
@@ -39,13 +36,13 @@ func (s *Fsm) SelfCurrentBalance() (*types.TokenAmount, error) {
 func (s *Fsm) SelfDestruct(addr address.Address) error {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
+
 	actorid, ok := s.addressMap.Load(addr)
 	if !ok {
 		return ErrorNotFound
 	}
 	s.actorsMap.Delete(actorid)
 	return nil
-
 }
 
 func (s *Fsm) Create(codec uint64, data []byte) (uint32, error) {
@@ -67,13 +64,15 @@ func (s *Fsm) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte
 }
 
 func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
-
 	id, ok := s.addressMap.Load(addr)
 	if !ok {
 		return 0, ErrorNotFound
 	}
-	idu32 := id.(uint32)
-	return abi.ActorID(uint32(idu32)), nil
+	idu32, ok := id.(uint32)
+	if !ok {
+		return abi.ActorID(0), ErrorKeyTypeException
+	}
+	return abi.ActorID(idu32), nil
 }
 
 func (s *Fsm) NewActorAddress() (address.Address, error) {
@@ -109,8 +108,7 @@ func (s *Fsm) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 }
 
 func (s *Fsm) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-
-	SetActorAndAddress(uint32(actorID), ActorState{Code: codeCid}, address.Address{})
+	SetActorAndAddress(uint32(actorID), migration.Actor{Code: codeCid}, address.Address{})
 	return nil
 }
 
@@ -129,7 +127,6 @@ func (s *Fsm) VerifySignature(
 func (s *Fsm) HashBlake2b(data []byte) ([32]byte, error) {
 	result := blakehash(data)
 	var temp [32]byte
-
 	copy(temp[:], result[:32])
 	return temp, nil
 }
@@ -182,7 +179,11 @@ func (s *Fsm) Log(msg string) error {
 }
 
 func (s *Fsm) Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
-	panic("This is not implement")
+	send, ok := s.sendMatch(to, method, params, *value.Big())
+	if ok {
+		return send, nil
+	}
+	return nil, ErrorKeyMatchFail
 }
 
 func (s *Fsm) GetChainRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {

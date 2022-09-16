@@ -3,14 +3,15 @@ package simulated
 import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
+	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func SetActorAndAddress(actorId uint32, ActorState ActorState, addr address.Address) {
+func SetActorAndAddress(actorId uint32, actorState migration.Actor, addr address.Address) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
-	DefaultFsm.actorsMap.Store(actorId, ActorState)
+	DefaultFsm.actorsMap.Store(actorId, actorState)
 	DefaultFsm.addressMap.Store(addr, actorId)
 }
 
@@ -22,7 +23,7 @@ type SendMock struct {
 	out    types.Send
 }
 
-func SetSend(mock ...SendMock) bool {
+func SetSend(mock ...SendMock) {
 	temp := make([]SendMock, 0)
 	for _, v := range mock {
 		_, ok := DefaultFsm.sendMatch(v.to, v.method, v.params, v.value)
@@ -31,17 +32,17 @@ func SetSend(mock ...SendMock) bool {
 		}
 	}
 	DefaultFsm.SendList = append(DefaultFsm.SendList, temp...)
-	return true
 
 }
 
 func SetAccount(actorId uint32, addr address.Address) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
-	DefaultFsm.actorsMap.Store(actorId, ActorState{
-		Code:     cid.Undef,
-		State:    cid.Undef,
-		Sequence: 0,
+	
+	DefaultFsm.actorsMap.Store(actorId, migration.Actor{
+		Code:       cid.Undef,
+		Head:       cid.Undef,
+		CallSeqNum: 0,
 	})
 	DefaultFsm.addressMap.Store(addr, actorId)
 }
