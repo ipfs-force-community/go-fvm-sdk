@@ -40,8 +40,8 @@ func Send(to address.Address, method abi.MethodNum, params types.RawBytes, value
 		}
 
 		// Now read the return data.
-		readBuf := make([]byte, ipldStat.Size)
-		read, err := sys.Read(send.ReturnID, 0, readBuf)
+
+		readBuf, read, err := sys.Read(send.ReturnID, 0, ipldStat.Size)
 		if err != nil {
 			return nil, fmt.Errorf("read return_data: %w", err)
 		}

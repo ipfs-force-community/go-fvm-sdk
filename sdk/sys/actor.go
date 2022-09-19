@@ -1,3 +1,6 @@
+//go:build !simulated
+// +build !simulated
+
 // Package sys : a go-fvm-sdk system calls
 package sys
 

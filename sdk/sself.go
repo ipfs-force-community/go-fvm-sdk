@@ -1,7 +1,7 @@
 package sdk
 
 import (
-	"fmt"
+
 
 	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
@@ -12,18 +12,7 @@ import (
 // Root Get the IPLD root CID. Fails if the actor doesn't have state (before the first call to
 // `set_root` and after actor deletion).
 func Root() (cid.Cid, error) {
-	// I really hate this CID interface. Why can't I just have bytes?
-	cidBuf := make([]byte, types.MaxCidLen)
-	cidBufLen, err := sys.SelfRoot(cidBuf)
-	if err != nil {
-		return cid.Undef, err
-	}
-	if int(cidBufLen) > len(cidBuf) {
-		// TODO: re-try with a larger buffer?
-		panic(fmt.Sprintf("CID too big: %d > %d", cidBufLen, len(cidBuf)))
-	}
-	_, cid, err := cid.CidFromBytes(cidBuf)
-	return cid, err
+	return sys.SelfRoot()
 }
 
 // SetRoot set the actor's state-tree root.

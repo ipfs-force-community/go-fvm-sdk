@@ -43,7 +43,7 @@ func ipldOpen(ret uintptr, cid uintptr) uint32
 /// | [`IllegalArgument`] | the block isn't in memory, etc.                         |
 //go:wasm-module ipld
 //export block_create
-func ipldCreate(ret uintptr, codec uint64, data uintptr, len uint32) uint32
+func ipldCreate(ret uintptr, codec uint64, dataOff uintptr, len uint32) uint32
 
 /// Reads the block identified by `id` into `obuf`, starting at `offset`, reading _at most_
 /// `max_len` bytes.
