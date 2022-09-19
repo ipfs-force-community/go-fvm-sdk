@@ -4,14 +4,14 @@
 package sys
 
 import (
+	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func BaseFee() (*types.TokenAmount, error) {
+func BaseFee() (*big.Int, error) {
 	return simulated.DefaultFsm.BaseFee()
 }
 
-func TotalFilCircSupply() (*types.TokenAmount, error) {
+func TotalFilCircSupply() (*big.Int, error) {
 	return simulated.DefaultFsm.TotalFilCircSupply()
 }

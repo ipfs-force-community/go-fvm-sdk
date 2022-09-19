@@ -2,6 +2,7 @@ package simulated
 
 import (
 	"fmt"
+	"github.com/filecoin-project/go-state-types/big"
 
 	"github.com/google/uuid"
 
@@ -196,12 +197,12 @@ func (s *Fsm) GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.R
 	return abi.Randomness(h), nil
 }
 
-func (s *Fsm) BaseFee() (*types.TokenAmount, error) {
-	return s.baseFee, nil
+func (s *Fsm) BaseFee() (*big.Int, error) {
+	return s.baseFee.Big(), nil
 }
 
-func (s *Fsm) TotalFilCircSupply() (*types.TokenAmount, error) {
-	return s.totalFilCircSupply, nil
+func (s *Fsm) TotalFilCircSupply() (*big.Int, error) {
+	return s.totalFilCircSupply.Big(), nil
 }
 
 func (s *Fsm) Charge(name string, compute uint64) error {

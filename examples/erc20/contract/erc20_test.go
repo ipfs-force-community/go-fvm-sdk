@@ -31,7 +31,7 @@ func makeErc20Token() Erc20Token {
 	}
 	TotalSupplytest := big.NewInt(0)
 
-	return Erc20Token{Name: "pass", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
+	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
 func makeFakeSetBalance() *FakeSetBalance {
