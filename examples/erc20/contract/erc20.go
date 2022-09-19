@@ -207,6 +207,7 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 	if err != nil {
 		return err
 	}
+
 	receiverID, err := sdk.ResolveAddress(transferReq.ReceiverAddr)
 	if err != nil {
 		return err

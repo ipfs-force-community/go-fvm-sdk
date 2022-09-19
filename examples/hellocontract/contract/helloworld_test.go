@@ -1,24 +1,20 @@
-//go:build simulated
-// +build simulated
-
 package contract
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
+	"fmt"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+func inienv() {
+
+}
+
 func TestSayHello(t *testing.T) {
 	simulated.Begin()
-
 	testState := State{}
-	sdk.SaveState(&testState)
-
-	newSt := new(State)
-	sdk.LoadState(newSt)
-	assert.Equal(t, *newSt, testState)
+	result := testState.SayHello()
+	fmt.Printf("%s\n", result)
 	simulated.End()
 
 }

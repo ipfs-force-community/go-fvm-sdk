@@ -2,10 +2,10 @@ package simulated
 
 import (
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
-	"github.com/ipfs/go-cid"
 )
 
 func SetActorAndAddress(actorId uint32, actorState migration.Actor, addr address.Address) {
@@ -35,26 +35,26 @@ func SetSend(mock ...SendMock) {
 
 }
 
-func SetAccount(actorId uint32, addr address.Address) {
+func SetAccount(actorId uint32, addr address.Address, actor migration.Actor) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
-	
-	DefaultFsm.actorsMap.Store(actorId, migration.Actor{
-		Code:       cid.Undef,
-		Head:       cid.Undef,
-		CallSeqNum: 0,
-	})
+
+	DefaultFsm.actorsMap.Store(actorId, actor)
 	DefaultFsm.addressMap.Store(addr, actorId)
 }
 
-func SetBaseFee(ta types.TokenAmount) {
+func SetBaseFee(ta abi.TokenAmount) {
 	DefaultFsm.baseFee = &ta
 }
 
-func SetTotalFilCircSupply(ta types.TokenAmount) {
+func SetTotalFilCircSupply(ta abi.TokenAmount) {
 	DefaultFsm.totalFilCircSupply = &ta
 }
 
-func SetCurrentBalance(ta types.TokenAmount) {
+func SetCurrentBalance(ta abi.TokenAmount) {
 	DefaultFsm.totalFilCircSupply = &ta
+}
+
+func SetCallContext(callcontext *types.InvocationContext) {
+	DefaultFsm.callContext = callcontext
 }

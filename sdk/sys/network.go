@@ -6,30 +6,29 @@ package sys
 import (
 	"unsafe"
 
-	"github.com/filecoin-project/go-state-types/big"
+	"github.com/filecoin-project/go-state-types/abi"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
 // BaseFee gets the base fee for the current epoch.
-func BaseFee() (*big.Int, error) {
-	result := new(types.TokenAmount)
+func BaseFee() (*abi.TokenAmount, error) {
+	result := new(abi.TokenAmount)
 	code := networkBaseFee(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get base fee")
 	}
 
-	return result.Big(), nil
+	return result, nil
 }
 
 // TotalFilCircSupply gets the circulating supply.
-func TotalFilCircSupply() (*big.Int, error) {
-	result := new(types.TokenAmount)
+func TotalFilCircSupply() (*abi.TokenAmount, error) {
+	result := new(abi.TokenAmount)
 	code := networkTotalFilCircSupply(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get circulating supply")
 	}
 
-	return result.Big(), nil
+	return result, nil
 }

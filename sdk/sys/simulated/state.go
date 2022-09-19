@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -56,9 +57,10 @@ type Fsm struct {
 	// address->actorid
 	addressMap sync.Map
 
+	callContext        *types.InvocationContext
 	rootCid            cid.Cid
-	baseFee            *types.TokenAmount
-	totalFilCircSupply *types.TokenAmount
+	baseFee            *abi.TokenAmount
+	totalFilCircSupply *abi.TokenAmount
 	currentBalance     *types.TokenAmount
 	SendList           []SendMock
 }

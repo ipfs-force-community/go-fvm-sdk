@@ -1,10 +1,14 @@
-//go:build simulated
-// +build simulated
-
 package contract
 
 import (
 	"context"
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
+	"github.com/ipfs/go-cid"
+	"math/rand"
+	"reflect"
+	"testing"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
@@ -12,16 +16,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/stretchr/testify/assert"
-	"math/rand"
-	"reflect"
-	"testing"
 )
-
-func TestErc20TokenApproval(t *testing.T) {
-	simulated.Begin()
-	_ = Erc20Token{}
-	simulated.End()
-}
 
 func makeErc20Token() Erc20Token {
 	map_, _ := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
@@ -41,7 +36,7 @@ func makeFakeSetBalance() *FakeSetBalance {
 	return &FakeSetBalance
 }
 
-func TestErc20Token_FakeSetBalance(t *testing.T) {
+func TestErc20TokenFakeSetBalance(t *testing.T) {
 	simulated.Begin()
 
 	type args struct {
@@ -113,11 +108,12 @@ func TestErc20TokenSaveState(t *testing.T) {
 }
 
 func TestErc20TokenGetBalanceOf(t1 *testing.T) {
+
 	simulated.Begin()
 	erc20 := makeErc20Token()
 	balanceMap, _ := adt.AsMap(adt.AdtStore(context.Background()), erc20.Balances, adt.BalanceTableBitwidth)
 	addr, _ := address.NewIDAddress(uint64(rand.Int()))
-	simulated.SetAccount(8899, addr)
+	simulated.SetAccount(8899, addr, migration.Actor{})
 	balance := big.NewInt(100)
 	if err := balanceMap.Put(types.ActorKey(8899), &balance); err != nil {
 		panic(err)
@@ -129,6 +125,7 @@ func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 	type args struct {
 		addr *address.Address
 	}
+
 	tests := []struct {
 		name    string
 		fields  Erc20Token
@@ -155,6 +152,66 @@ func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t1.Errorf("GetBalanceOf() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+	simulated.End()
+}
+
+func TestErc20TokenTransfer(t *testing.T) {
+	simulated.Begin()
+
+	erc20 := makeErc20Token()
+	// set info of caller
+	callactorid := uint32(8899)
+	calladdr, _ := address.NewIDAddress(uint64(rand.Int()))
+	simulated.SetAccount(callactorid, calladdr, migration.Actor{Code: cid.Undef, Head: cid.Undef, CallSeqNum: 0, Balance: big.NewInt(99)})
+
+	//  push  balance of caller
+	balanceMap, _ := adt.AsMap(adt.AdtStore(context.Background()), erc20.Balances, adt.BalanceTableBitwidth)
+	balance := big.NewInt(100000)
+	if err := balanceMap.Put(types.ActorKey(callactorid), &balance); err != nil {
+		panic(err)
+	}
+
+	newRoot, _ := balanceMap.Root()
+	erc20.Balances = newRoot
+	sdk.SaveState(&erc20)
+
+	// set info of receiver
+	receiactorid := uint32(7788)
+	receiveaddr, _ := address.NewIDAddress(uint64(rand.Int()))
+	simulated.SetAccount(receiactorid, receiveaddr, migration.Actor{Code: cid.Undef, Head: cid.Undef, CallSeqNum: 0, Balance: big.NewInt(99)})
+
+	// set info of context
+	callcontext := types.InvocationContext{Caller: abi.ActorID(callactorid)}
+	simulated.SetCallContext(&callcontext)
+
+	toamount := big.NewInt(99)
+	type args struct {
+		transferReq *TransferReq
+	}
+	tests := []struct {
+		name    string
+		fields  Erc20Token
+		args    args
+		wantErr bool
+	}{
+		{name: "pass", fields: makeErc20Token(), args: args{transferReq: &TransferReq{ReceiverAddr: receiveaddr, TransferAmount: &toamount}}, wantErr: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tr := &Erc20Token{
+				Name:        tt.fields.Name,
+				Symbol:      tt.fields.Symbol,
+				Decimals:    tt.fields.Decimals,
+				TotalSupply: tt.fields.TotalSupply,
+				Balances:    tt.fields.Balances,
+				Allowed:     tt.fields.Allowed,
+			}
+
+			if err := tr.Transfer(tt.args.transferReq); (err != nil) != tt.wantErr {
+				t.Errorf("Erc20Token.Transfer() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

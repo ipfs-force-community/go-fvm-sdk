@@ -2,7 +2,6 @@ package simulated
 
 import (
 	"fmt"
-	"github.com/filecoin-project/go-state-types/big"
 
 	"github.com/google/uuid"
 
@@ -65,6 +64,7 @@ func (s *Fsm) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte
 }
 
 func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
+
 	id, ok := s.addressMap.Load(addr)
 	if !ok {
 		return 0, ErrorNotFound
@@ -167,7 +167,7 @@ func (s *Fsm) BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, 
 }
 
 func (s *Fsm) VMContext() (*types.InvocationContext, error) {
-	return &types.InvocationContext{}, nil
+	return s.callContext, nil
 }
 
 func (s *Fsm) Enabled() (bool, error) {
@@ -197,12 +197,12 @@ func (s *Fsm) GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.R
 	return abi.Randomness(h), nil
 }
 
-func (s *Fsm) BaseFee() (*big.Int, error) {
-	return s.baseFee.Big(), nil
+func (s *Fsm) BaseFee() (*abi.TokenAmount, error) {
+	return s.baseFee, nil
 }
 
-func (s *Fsm) TotalFilCircSupply() (*big.Int, error) {
-	return s.totalFilCircSupply.Big(), nil
+func (s *Fsm) TotalFilCircSupply() (*abi.TokenAmount, error) {
+	return s.totalFilCircSupply, nil
 }
 
 func (s *Fsm) Charge(name string, compute uint64) error {
