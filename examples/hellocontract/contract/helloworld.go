@@ -33,7 +33,7 @@ func Constructor() error {
 // / Method num 2.
 func (st *State) SayHello() types.CBORBytes {
 	st.Count += 1
-	ret := fmt.Sprintf("Hello world %d!", st.Count)
+	ret := fmt.Sprintf("%d", st.Count)
 	_ = sdk.SaveState(&State{})
 	return []byte(ret)
 }

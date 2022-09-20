@@ -19,20 +19,26 @@ import (
 )
 
 func makeErc20Token() Erc20Token {
-	map_, _ := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
+	map_, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
+	if err != nil {
+		panic(err)
+	}
 	cidtest, err := map_.Root()
 	if err != nil {
 		panic(err)
 	}
-	TotalSupplytest := big.NewInt(0)
+	totalsupplytest := big.NewInt(888888)
 
-	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &TotalSupplytest, Balances: cidtest, Allowed: cidtest}
+	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &totalsupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
 func makeFakeSetBalance() *FakeSetBalance {
-	Balance := big.NewInt(0)
-	addr, _ := address.NewIDAddress(uint64(rand.Int()))
-	FakeSetBalance := FakeSetBalance{Addr: addr, Balance: &Balance}
+	balance := big.NewInt(0)
+	addr, err := address.NewIDAddress(uint64(rand.Int()))
+	if err != nil {
+		panic(err)
+	}
+	FakeSetBalance := FakeSetBalance{Addr: addr, Balance: &balance}
 	return &FakeSetBalance
 }
 
@@ -162,6 +168,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 	simulated.Begin()
 
 	erc20 := makeErc20Token()
+
 	// set info of caller
 	callactorid := uint32(8899)
 	calladdr, _ := address.NewIDAddress(uint64(rand.Int()))
@@ -187,7 +194,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 	callcontext := types.InvocationContext{Caller: abi.ActorID(callactorid)}
 	simulated.SetCallContext(&callcontext)
 
-	toamount := big.NewInt(99)
+	toamount := big.NewInt(9)
 	type args struct {
 		transferReq *TransferReq
 	}
@@ -201,16 +208,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := &Erc20Token{
-				Name:        tt.fields.Name,
-				Symbol:      tt.fields.Symbol,
-				Decimals:    tt.fields.Decimals,
-				TotalSupply: tt.fields.TotalSupply,
-				Balances:    tt.fields.Balances,
-				Allowed:     tt.fields.Allowed,
-			}
-
-			if err := tr.Transfer(tt.args.transferReq); (err != nil) != tt.wantErr {
+			if err := erc20.Transfer(tt.args.transferReq); (err != nil) != tt.wantErr {
 				t.Errorf("Erc20Token.Transfer() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

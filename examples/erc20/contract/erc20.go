@@ -204,6 +204,7 @@ type TransferReq struct {
  */
 func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 	senderID, err := sdk.Caller()
+
 	if err != nil {
 		return err
 	}

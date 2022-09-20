@@ -66,7 +66,7 @@ type Fsm struct {
 }
 
 func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
-	for _, v := range a.SendList {
+	for i, v := range a.SendList {
 		if to != v.to {
 			continue
 		}
@@ -79,6 +79,12 @@ func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value 
 		if !value.Equals(v.value) {
 			continue
 		}
+		if i == len(a.SendList)-1 {
+			a.SendList = a.SendList[0 : i-1]
+		} else {
+			a.SendList = append(a.SendList[:i], a.SendList[i+1:]...)
+		}
+
 		return &v.out, true
 	}
 	return nil, false
