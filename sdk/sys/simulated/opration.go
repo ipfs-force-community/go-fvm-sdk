@@ -45,6 +45,7 @@ func (s *Fsm) SelfDestruct(addr address.Address) error {
 	return nil
 }
 
+// nolint
 func (s *Fsm) Create(codec uint64, data []byte) (uint32, error) {
 	index := s.blockCreate(codec, data)
 	return uint32(index), nil
@@ -112,6 +113,7 @@ func (s *Fsm) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
 	return nil
 }
 
+// nolint
 func (s *Fsm) Abort(code uint32, msg string) {
 	panic(fmt.Sprintf("%d:%s", code, msg))
 }

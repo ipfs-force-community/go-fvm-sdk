@@ -1,3 +1,4 @@
+//nolint:unparam
 package simulated
 
 import (
@@ -12,6 +13,7 @@ import (
 	mh "github.com/multiformats/go-multihash"
 )
 
+//nolint
 type IpldOpen struct {
 	codec uint64
 	id    uint32
@@ -94,12 +96,12 @@ func newSate() *Fsm {
 	return &Fsm{blockid: 1, Ipld: sync.Map{}}
 }
 
-func (s *Fsm) blockLink(blockid uint32, hash_fun uint64, hash_len uint32) (cided cid.Cid, err error) {
-	block, err := s.getBlock((blockid))
+func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cided cid.Cid, err error) {
+	block, err := s.getBlock(blockid)
 	if err != nil {
 		return cid.Undef, err
 	}
-	Mult, _ := mh.Sum(block.data, hash_fun, int(hash_len))
+	Mult, _ := mh.Sum(block.data, hashfun, int(hashlen))
 	cided = cid.NewCidV1(block.codec, Mult)
 	s.putData(cided, block.data)
 	return
@@ -110,7 +112,7 @@ func (s *Fsm) blockCreate(codec uint64, data []byte) uint32 {
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) blockOpen(id cid.Cid) (BlockId uint32, BlockStat BlockStat) {
+func (s *Fsm) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
 	data, _ := s.getData(id)
 	block := block{data: data, codec: id.Prefix().GetCodec()}
 
@@ -128,13 +130,13 @@ func (s *Fsm) blockRead(id uint32, offset uint32) ([]byte, error) {
 	data := block.data
 
 	if offset >= uint32(len(data)) {
-		return nil, ErrorIdValid
+		return nil, ErrorIDValid
 	}
 	return data[offset:], nil
 }
 
-func (s *Fsm) blockStat(blockId uint32) (*types.IpldStat, error) {
-	b, err := s.getBlock(blockId)
+func (s *Fsm) blockStat(blockID uint32) (*types.IpldStat, error) {
+	b, err := s.getBlock(blockID)
 	if err != nil {
 		return nil, ErrorNotFound
 	}
@@ -162,16 +164,17 @@ func (s *Fsm) putBlock(block block) uint32 {
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) getBlock(blockId uint32) (block, error) {
+func (s *Fsm) getBlock(blockID uint32) (block, error) {
 	s.blocksMutex.Lock()
 	defer s.blocksMutex.Unlock()
 
-	if blockId >= uint32(len(s.blocks)) {
+	if blockID >= uint32(len(s.blocks)) {
 		return block{}, ErrorNotFound
 	}
-	return s.blocks[blockId], nil
+	return s.blocks[blockID], nil
 }
 
+//nolint
 func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 	_, err := s.getActorWithActorid(uint32(actorID))
 	if err == nil {
@@ -181,6 +184,7 @@ func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 	return nil
 }
 
+//nolint
 func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
@@ -189,6 +193,7 @@ func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	return migration.Actor{}, ErrorNotFound
 }
 
+//nolint
 func (s *Fsm) getActorWithAddress(addr address.Address) (migration.Actor, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()

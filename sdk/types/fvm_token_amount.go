@@ -1,3 +1,4 @@
+//nolint:param
 package types
 
 import (
@@ -43,10 +44,9 @@ func (u TokenAmount) Equals64(v uint64) bool {
 
 // Cmp compares u and v and returns:
 //
-//   -1 if u <  v
-//    0 if u == v
-//   +1 if u >  v
-//
+//	-1 if u <  v
+//	 0 if u == v
+//	+1 if u >  v
 func (u TokenAmount) Cmp(v TokenAmount) int {
 	if u == v {
 		return 0
@@ -59,10 +59,9 @@ func (u TokenAmount) Cmp(v TokenAmount) int {
 
 // Cmp64 compares u and v and returns:
 //
-//   -1 if u <  v
-//    0 if u == v
-//   +1 if u >  v
-//
+//	-1 if u <  v
+//	 0 if u == v
+//	+1 if u >  v
 func (u TokenAmount) Cmp64(v uint64) int {
 	if u.Hi == 0 && u.Lo == v {
 		return 0

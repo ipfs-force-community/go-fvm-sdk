@@ -8,12 +8,12 @@ import (
 // ExitCode define error in fvm and custom actor
 type ExitCode uint32
 
-//Error return error message of exitcode
+// Error return error message of exitcode
 func (e ExitCode) Error() string {
 	return fmt.Sprintf("%d", e)
 }
 
-//Is check whether error is exitcode
+// Is check whether error is exitcode
 func (e ExitCode) Is(code error) bool {
 	return e == code
 }
@@ -23,7 +23,7 @@ func (e ExitCode) IsSystemError() bool {
 	return uint32(e) < FIRST_USER_EXIT_CODE
 }
 
-//nolint
+// nolint
 const (
 	// Exit codes which originate inside the VM.
 	// These values may not be used by actors when aborting.
@@ -90,23 +90,23 @@ const (
 	// RESERVED_31 ExitCode = 31
 )
 
-//FvmError fvm error include error code and error message
+// FvmError fvm error include error code and error message
 type FvmError struct {
 	code    ExitCode
 	message string
 }
 
-//NewFvmError new fvm error from error code and message
+// NewFvmError new fvm error from error code and message
 func NewFvmError(code ExitCode, msg string) FvmError {
 	return FvmError{code, msg}
 }
 
-//Error return error message for fvm error
+// Error return error message for fvm error
 func (fvmError FvmError) Error() string {
 	return fmt.Sprintf("%s %d", fvmError.message, fvmError.code)
 }
 
-//Unwrap return inner error code
+// Unwrap return inner error code
 func (fvmError FvmError) Unwrap() error {
 	return fvmError.code
 }

@@ -1,3 +1,4 @@
+//nolint:unparam
 package simulated
 
 import (
@@ -14,10 +15,6 @@ import (
 func blakehash(data []byte) []byte {
 	blake := blake2b.New256()
 	return blake.Sum(data)
-}
-
-func makeHashSum(hash_fun uint64, data []byte) []byte {
-	return blakehash(data)
 }
 
 type emptyInterface struct {
@@ -38,12 +35,12 @@ func GetStringPointerAndLen(str string) (uintptr, uint32) {
 
 // Generate a hash of length 32 bytes
 func makeRandomness(dst int64, round int64, entropy []byte) []byte {
-	dst_byte := [8]byte{}
-	binary.BigEndian.PutUint64(dst_byte[0:8], abs(dst))
-	round_byte := [8]byte{}
-	binary.BigEndian.PutUint64(round_byte[0:8], abs(round))
-	entropy = append(entropy, dst_byte[:]...)
-	entropy = append(entropy, round_byte[:]...)
+	dstbyte := [8]byte{}
+	binary.BigEndian.PutUint64(dstbyte[0:8], abs(dst))
+	roundbyte := [8]byte{}
+	binary.BigEndian.PutUint64(roundbyte[0:8], abs(round))
+	entropy = append(entropy, dstbyte[:]...)
+	entropy = append(entropy, roundbyte[:]...)
 	h := sha256.New()
 	h.Write(entropy)
 	result := h.Sum(nil)

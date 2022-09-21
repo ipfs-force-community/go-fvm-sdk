@@ -1,3 +1,4 @@
+//nolint:unparam
 package simulated
 
 import (
@@ -8,11 +9,11 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func SetActorAndAddress(actorId uint32, actorState migration.Actor, addr address.Address) {
+func SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
-	DefaultFsm.actorsMap.Store(actorId, actorState)
-	DefaultFsm.addressMap.Store(addr, actorId)
+	DefaultFsm.actorsMap.Store(actorID, actorState)
+	DefaultFsm.addressMap.Store(addr, actorID)
 }
 
 type SendMock struct {
@@ -35,12 +36,12 @@ func SetSend(mock ...SendMock) {
 
 }
 
-func SetAccount(actorId uint32, addr address.Address, actor migration.Actor) {
+func SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
 
-	DefaultFsm.actorsMap.Store(actorId, actor)
-	DefaultFsm.addressMap.Store(addr, actorId)
+	DefaultFsm.actorsMap.Store(actorID, actor)
+	DefaultFsm.addressMap.Store(addr, actorID)
 }
 
 func SetBaseFee(ta abi.TokenAmount) {
