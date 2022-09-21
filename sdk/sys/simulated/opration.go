@@ -78,8 +78,7 @@ func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
 
 func (s *Fsm) NewActorAddress() (address.Address, error) {
 	uuid := uuid.New()
-	key := uuid.String()
-	return address.NewActorAddress([]byte(key))
+	return address.NewActorAddress(uuid[:])
 }
 
 func (s *Fsm) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
