@@ -14,14 +14,14 @@ replace (
 
 require (
 	github.com/filecoin-project/go-address v0.0.6 // indirect
-	github.com/filecoin-project/go-state-types v0.1.9 // indirect
+	github.com/filecoin-project/go-state-types v0.1.12-alpha // indirect
 	github.com/filecoin-project/specs-actors v0.9.13 // indirect
 	github.com/filecoin-project/specs-actors/v5 v5.0.4 // indirect
 	github.com/filecoin-project/specs-actors/v7 v7.0.0 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
-	github.com/ipfs/go-cid v0.1.0 // indirect
+	github.com/ipfs/go-cid v0.2.0 // indirect
 	github.com/ipfs/go-ipfs-util v0.0.2 // indirect
-	github.com/ipfs/go-ipld-cbor v0.0.6-0.20211211231443-5d9b9e1f6fa8 // indirect
+	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.0.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.6 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
