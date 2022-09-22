@@ -8,6 +8,8 @@ import (
 	"math"
 	"math/bits"
 
+	stdBig "math/big"
+
 	"github.com/filecoin-project/go-state-types/big"
 )
 
@@ -381,9 +383,9 @@ func (u TokenAmount) PutBytes(b []byte) {
 
 // Big returns u as a *big.Int.
 func (u TokenAmount) Big() *big.Int {
-	i := new(big.Int).SetUint64(u.Hi)
+	i := new(stdBig.Int).SetUint64(u.Hi)
 	i = i.Lsh(i, 64)
-	i = i.Xor(i, new(big.Int).SetUint64(u.Lo))
+	i = i.Xor(i, new(stdBig.Int).SetUint64(u.Lo))
 	big := big.NewFromGo(i)
 	return &big
 }

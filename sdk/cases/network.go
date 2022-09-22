@@ -24,10 +24,10 @@ func Invoke(_ uint32) uint32 { //nolint
 
 	fee, err := sdk.BaseFee()
 	assert.Nil(t, err)
-	assert.Equal(t, "100", fee.String())
+	assert.Equal(t, "100", fee.Big().String())
 
 	value, err := sdk.TotalFilCircSupply()
 	assert.Nil(t, err)
-	assert.Equal(t, "2000000000000000000000000000", value.String())
+	assert.Equal(t, "2000000000000000000000000000", value.Big().String())
 	return 0
 }

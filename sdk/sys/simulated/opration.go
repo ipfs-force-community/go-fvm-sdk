@@ -30,7 +30,7 @@ func (s *Fsm) SelfSetRoot(id cid.Cid) error {
 }
 
 func (s *Fsm) SelfCurrentBalance() (*types.TokenAmount, error) {
-	return s.currentBalance, nil
+	return s.baseFee, nil
 }
 
 func (s *Fsm) SelfDestruct(addr address.Address) error {
@@ -198,11 +198,11 @@ func (s *Fsm) GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.R
 	return abi.Randomness(h), nil
 }
 
-func (s *Fsm) BaseFee() (*abi.TokenAmount, error) {
+func (s *Fsm) BaseFee() (*types.TokenAmount, error) {
 	return s.baseFee, nil
 }
 
-func (s *Fsm) TotalFilCircSupply() (*abi.TokenAmount, error) {
+func (s *Fsm) TotalFilCircSupply() (*types.TokenAmount, error) {
 	return s.totalFilCircSupply, nil
 }
 

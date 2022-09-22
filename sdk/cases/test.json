@@ -17,38 +17,9 @@
     }
   ],
   "cases":[
+
     {
-      "name": "abort_USR_ILLEGAL_ARGUMENT",
-      "binary": "abort.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "method_num": 1,
-      "params":"",
-      "expect_code": 16,
-      "expect_message": "test_abort USR_ILLEGAL_ARGUMENT"
-    },
-    {
-      "name": "abort_SYS_SENDER_STATE_INVALID ",
-      "binary": "abort.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "params":"",
-      "method_num": 2,
-      "expect_code": 2,
-      "expect_message": "test_abort SYS_SENDER_STATE_INVALID"
-    },
-    {
-      "name": "ipld_test ",
-      "binary": "ipld.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "message_test ",
+      "name": "message_test",
       "binary": "message.wasm",
       "actor_balance": 0,
       "send_value": 10,
@@ -56,94 +27,6 @@
       "method_num": 1,
       "expect_code": 0,
       "expect_message": ""
-    },
-    {
-      "name": "sself_test ",
-      "binary": "sself.wasm",
-      "actor_balance": 20,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "network_test",
-      "binary": "network.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "gas_test",
-      "binary": "gas.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "debug_log_test",
-      "binary": "debug.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "send_test_SYS_ILLEGAL_INSTRUCTION(resource not found)",
-      "binary": "send.wasm",
-      "actor_balance": 10,
-      "send_value": 0,
-      "params":"",
-      "method_num": 1,
-      "expect_code": 4,
-      "expect_message": "wasm `unreachable` instruction executed"
-    },
-    {
-      "name": "send_test",
-      "binary": "send.wasm",
-      "actor_balance": 10,
-      "send_value": 0,
-      "params":"",
-      "method_num": 2,
-      "expect_code": 0,
-      "expect_message": ""
-    },
-    {
-      "name": "send_test_SYS_ILLEGAL_INSTRUCTION(insufficient funds)",
-      "binary": "send.wasm",
-      "actor_balance": 10,
-      "send_value": 0,
-      "params":"",
-      "method_num": 3,
-      "expect_code": 4,
-      "expect_message": "wasm `unreachable` instruction executed"
-    },
-    {
-      "name": "adt_test",
-      "binary": "adt.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "method_num": 1,
-      "params":"",
-      "expect_code": 0
-    },
-    {
-      "name": "rand_test",
-      "binary": "rand.wasm",
-      "actor_balance": 0,
-      "send_value": 0,
-      "method_num": 1,
-      "params":"",
-      "expect_code": 0
     }
   ]
 }

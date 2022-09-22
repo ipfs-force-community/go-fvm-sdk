@@ -3,17 +3,16 @@ package simulated
 
 import (
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
+func SetActorAndAddress(actorId uint32, actorState migration.Actor, addr address.Address) {
 	DefaultFsm.actorMutex.Lock()
 	defer DefaultFsm.actorMutex.Unlock()
-	DefaultFsm.actorsMap.Store(actorID, actorState)
-	DefaultFsm.addressMap.Store(addr, actorID)
+	DefaultFsm.actorsMap.Store(actorId, actorState)
+	DefaultFsm.addressMap.Store(addr, actorId)
 }
 
 type SendMock struct {
@@ -44,16 +43,19 @@ func SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
 	DefaultFsm.addressMap.Store(addr, actorID)
 }
 
-func SetBaseFee(ta abi.TokenAmount) {
-	DefaultFsm.baseFee = &ta
+func SetBaseFee(ta big.Int) {
+	amount, _ := types.FromString(ta.String())
+	DefaultFsm.baseFee = &amount
 }
 
-func SetTotalFilCircSupply(ta abi.TokenAmount) {
-	DefaultFsm.totalFilCircSupply = &ta
+func SetTotalFilCircSupply(ta big.Int) {
+	amount, _ := types.FromString(ta.String())
+	DefaultFsm.totalFilCircSupply = &amount
 }
 
-func SetCurrentBalance(ta abi.TokenAmount) {
-	DefaultFsm.totalFilCircSupply = &ta
+func SetCurrentBalance(ta big.Int) {
+	amount, _ := types.FromString(ta.String())
+	DefaultFsm.currentBalance = &amount
 }
 
 func SetCallContext(callcontext *types.InvocationContext) {

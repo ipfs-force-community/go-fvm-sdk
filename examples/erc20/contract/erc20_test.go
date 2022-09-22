@@ -18,7 +18,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func makeErc20Token(t *testing.T) Erc20Token {
+func makeErc20Token() Erc20Token {
+	t:= &testing.T{}
 	map_, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
 	assert.Nil(t, err)
 	cidtest, err := map_.Root()
@@ -36,7 +37,7 @@ func TestErc20TokenFakeSetBalance(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	FakeSetBalance := &FakeSetBalance{Addr: addr, Balance: &balance}
+	fakeSetBalance := &FakeSetBalance{Addr: addr, Balance: &balance}
 	type args struct {
 		req *FakeSetBalance
 	}
@@ -46,7 +47,7 @@ func TestErc20TokenFakeSetBalance(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{name: "case1", fields: makeErc20Token(), args: args{req: FakeSetBalance}, wantErr: true},
+		{name: "case1", fields: makeErc20Token(), args: args{req: fakeSetBalance}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
