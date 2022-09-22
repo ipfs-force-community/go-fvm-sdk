@@ -38,7 +38,7 @@ func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
 	return sys.VerifySeal(info)
 }
 
-//VerifyPost verifies a sector seal proof.
+// VerifyPost verifies a sector seal proof.
 func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
 	return sys.VerifyPost(info)
 }

@@ -1,3 +1,4 @@
+//nolint:param
 package main
 
 import (

@@ -1,10 +1,12 @@
+//nolint:param
 package main
 
 import (
 	"unsafe"
 )
 
-/// Logs a message on the node.
+// Logs a message on the node.
+//
 //go:wasm-module debug
 //export log
 func debugLog(message uintptr, message_len uint32) uint32 //nolint
