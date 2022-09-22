@@ -3,12 +3,12 @@
 
 package sys
 
-// / Abort execution with the given code and message. The code is recorded in the receipt, the
-// / message is for debugging only.
+// Abort execution with the given code and message. The code is recorded in the receipt, the
+// message is for debugging only.
 // /
-// / # Errors
+// # Errors
 // /
-// / None. This function doesn't return.
+// None. This function doesn't return.
 //
 //go:wasm-module vm
 //export abort

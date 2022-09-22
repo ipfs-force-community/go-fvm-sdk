@@ -3,21 +3,21 @@
 
 package sys
 
-// / Gets the base fee for the current epoch.
+// Gets the base fee for the current epoch.
 // /
-// / # Errors
+// # Errors
 // /
-// / None
+// None
 //
 //go:wasm-module network
 //export base_fee
 func networkBaseFee(ret uintptr) uint32
 
-// / Gets the circulating supply.
+// Gets the circulating supply.
 // /
-// / # Errors
+// # Errors
 // /
-// / None
+// None
 //
 //go:wasm-module network
 //export total_fil_circ_supply

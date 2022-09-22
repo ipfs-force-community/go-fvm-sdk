@@ -6,19 +6,19 @@ package sys
 // TODO: name for debugging & tracing?
 // We could also _not_ feed that through to the outside?
 
-// / Charge gas.
+// Charge gas.
 // /
-// / # Arguments
+// # Arguments
 // /
-// / - `name_off` and `name_len` specify the location and length of the "name" of the gas charge,
-// /   for debugging.
-// / - `amount` is the amount of gas to charge.
+// - `name_off` and `name_len` specify the location and length of the "name" of the gas charge,
+//   for debugging.
+// - `amount` is the amount of gas to charge.
 // /
-// / # Errors
+// # Errors
 // /
-// / | Error               | Reason               |
-// / |---------------------|----------------------|
-// / | [`IllegalArgument`] | invalid name buffer. |
+// | Error               | Reason               |
+// |---------------------|----------------------|
+// | [`IllegalArgument`] | invalid name buffer. |
 //
 //go:wasm-module gas
 //export charge

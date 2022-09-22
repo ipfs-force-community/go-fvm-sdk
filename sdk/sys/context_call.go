@@ -3,11 +3,11 @@
 
 package sys
 
-// / Returns the details about this invocation.
+// Returns the details about this invocation.
 // /
-// / # Errors
+// # Errors
 // /
-// / None
+// None
 //
 //go:wasm-module vm
 //export context
