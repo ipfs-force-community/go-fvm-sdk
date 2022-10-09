@@ -357,9 +357,10 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	method, err := sdk.MethodNumber()
+	ctx:=context.Background()
+	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to get method number")
+		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to get method number")
 	}
 
 	var callResult cbor.Marshaler
@@ -367,14 +368,14 @@ func Invoke(blockId uint32) uint32 {
 	switch method {
 {{range .Methods}}case {{.MethodNum}}:
 {{if eq .MethodNum 1}}  // Constuctor
-		{{if .HasParam}}raw, err = sdk.ParamsRaw(blockId)
+		{{if .HasParam}}raw, err = sdk.ParamsRaw(ctx,blockId)
 						if err != nil {
-							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+							sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 						}
 						var req {{trimPrefix .ParamsTypeName "*"}}
 						err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 						if err != nil {
-							sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+							sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 						}
 						err = {{.PkgName}}.{{.FuncName}}(&req)
 						callResult = typegen.CborBool(true)
@@ -382,23 +383,23 @@ func Invoke(blockId uint32) uint32 {
                 callResult = typegen.CborBool(true)
           {{end}}
 {{else}}
-		  {{if .HasParam}}raw, err = sdk.ParamsRaw(blockId)
+		  {{if .HasParam}}raw, err = sdk.ParamsRaw(ctx,blockId)
 								if err != nil {
-									sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+									sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 								}
 								var req {{trimPrefix .ParamsTypeName "*"}}
 								err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 								if err != nil {
-									sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+									sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 								}
        		 {{if .HasError}}
 					 {{if .HasReturn}} // have params/return/error
 								state := new({{.StateName}})
-								sdk.LoadState(state)
+								sdk.LoadState(ctx,state)
 								callResult, err = state.{{.FuncName}}(&req)
 				     {{else}} 	// have params/error but no return val
 								state := new({{.StateName}})
-								sdk.LoadState(state)
+								sdk.LoadState(ctx,state)
 								if err = state.{{.FuncName}}(&req); err == nil {
 									callResult = typegen.CborBool(true)
 								}
@@ -406,11 +407,11 @@ func Invoke(blockId uint32) uint32 {
 			{{else}}
 					{{if .HasReturn}}// have params/return but no error
 							state := new({{.StateName}})
-							sdk.LoadState(state)
+							sdk.LoadState(ctx,state)
 							callResult = state.{{.FuncName}}(&req)
 					{{else}}//have params but no return value and error
 							state := new({{.StateName}})
-							sdk.LoadState(state)
+							sdk.LoadState(ctx,state)
 							state.{{.FuncName}}(&req)
 							callResult = = typegen.CborBool(true)
 					{{end}}
@@ -419,11 +420,11 @@ func Invoke(blockId uint32) uint32 {
 			{{if .HasError}}
 					 {{if .HasReturn}} // no params but return value/error
 							state := new({{.StateName}})
-							sdk.LoadState(state)
+							sdk.LoadState(ctx,state)
 							callResult, err = state.{{.FuncName}}()
 					{{else}}	// no params/return value but return error
 							state := new({{.StateName}})
-							sdk.LoadState(state)
+							sdk.LoadState(ctx,state)
 							if err = state.{{.FuncName}}(); err == nil {
 									callResult = = typegen.CborBool(true)
 								}
@@ -431,11 +432,11 @@ func Invoke(blockId uint32) uint32 {
 			{{else}}
 					{{if .HasReturn}}	// no params no error but have return value
 						state := new({{.StateName}})
-						sdk.LoadState(state)
+						sdk.LoadState(ctx,state)
 						callResult = state.{{.FuncName}}()
 					{{else}}		// no params/return value/error
 						state := new({{.StateName}})
-						sdk.LoadState(state)
+						sdk.LoadState(ctx,state)
 						state.{{.FuncName}}()
 						callResult = = typegen.CborBool(true)
 					{{end}}
@@ -444,22 +445,22 @@ func Invoke(blockId uint32) uint32 {
 {{end}}
 {{end}}
 	default:
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unsupport method")
+		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unsupport method")
 	}
 
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
+		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
 	}
 
 	if !sdk.IsNil(callResult) {
 		buf := bytes.NewBufferString("")
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {
-			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
+			sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(sdkTypes.DAGCbor, buf.Bytes())
+		id, err := sdk.PutBlock(ctx,sdkTypes.DAGCbor, buf.Bytes())
 		if err != nil {
-			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
+			sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {

@@ -8,11 +8,11 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
-	DefaultFsm.actorMutex.Lock()
-	defer DefaultFsm.actorMutex.Unlock()
-	DefaultFsm.actorsMap.Store(actorID, actorState)
-	DefaultFsm.addressMap.Store(addr, actorID)
+func (s *Fsm) SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
+	s.actorMutex.Lock()
+	defer s.actorMutex.Unlock()
+	s.actorsMap.Store(actorID, actorState)
+	s.addressMap.Store(addr, actorID)
 }
 
 type SendMock struct {
@@ -23,41 +23,41 @@ type SendMock struct {
 	out    types.Send
 }
 
-func SetSend(mock ...SendMock) {
+func (s *Fsm) SetSend(mock ...SendMock) {
 	temp := make([]SendMock, 0)
 	for _, v := range mock {
-		_, ok := DefaultFsm.sendMatch(v.to, v.method, v.params, v.value)
+		_, ok := s.sendMatch(v.to, v.method, v.params, v.value)
 		if !ok {
 			temp = append(temp, v)
 		}
 	}
-	DefaultFsm.SendList = append(DefaultFsm.SendList, temp...)
+	s.SendList = append(s.SendList, temp...)
 
 }
 
-func SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
-	DefaultFsm.actorMutex.Lock()
-	defer DefaultFsm.actorMutex.Unlock()
+func (s *Fsm) SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
+	s.actorMutex.Lock()
+	defer s.actorMutex.Unlock()
 
-	DefaultFsm.actorsMap.Store(actorID, actor)
-	DefaultFsm.addressMap.Store(addr, actorID)
+	s.actorsMap.Store(actorID, actor)
+	s.addressMap.Store(addr, actorID)
 }
 
-func SetBaseFee(ta big.Int) {
+func (s *Fsm) SetBaseFee(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	DefaultFsm.baseFee = &amount
+	s.baseFee = &amount
 }
 
-func SetTotalFilCircSupply(ta big.Int) {
+func (s *Fsm) SetTotalFilCircSupply(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	DefaultFsm.totalFilCircSupply = &amount
+	s.totalFilCircSupply = &amount
 }
 
-func SetCurrentBalance(ta big.Int) {
+func (s *Fsm) SetCurrentBalance(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	DefaultFsm.currentBalance = &amount
+	s.currentBalance = &amount
 }
 
-func SetCallContext(callcontext *types.InvocationContext) {
-	DefaultFsm.callContext = callcontext
+func (s *Fsm) SetCallContext(callcontext *types.InvocationContext) {
+	s.callContext = callcontext
 }

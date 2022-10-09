@@ -42,7 +42,7 @@ function allowance(address _owner, address _spender) public view returns (uint25
 var logger sdk.Logger
 
 func init() {
-	logger, _ = sdk.NewLogger()
+	logger, _ = sdk.NewLogger(context.Background())
 }
 
 /*basic Token20*/
@@ -81,6 +81,7 @@ type ConstructorReq struct {
 }
 
 func Constructor(req *ConstructorReq) error {
+	ctx := context.Background()
 	emptyMap, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
@@ -89,7 +90,7 @@ func Constructor(req *ConstructorReq) error {
 	if err != nil {
 		return err
 	}
-	caller, err := sdk.Caller()
+	caller, err := sdk.Caller(ctx)
 	if err != nil {
 		return err
 	}
@@ -114,8 +115,8 @@ func Constructor(req *ConstructorReq) error {
 		Allowed:     emptyRoot,
 	}
 
-	logger.Logf("construct token %s  issue %s token to %s", req.Name, req.TotalSupply.String(), actorToString(caller))
-	_ = sdk.Constructor(state)
+	logger.Logf(ctx, "construct token %s  issue %s token to %s", req.Name, req.TotalSupply.String(), actorToString(caller))
+	_ = sdk.Constructor(ctx, state)
 	return nil
 }
 
@@ -126,7 +127,8 @@ type FakeSetBalance struct {
 
 // FakeSetBalance NOTICE **beacause unable to set init balance in constructor, so just add this function for test contract, and must be remove after fvm support get really caller**
 func (t *Erc20Token) FakeSetBalance(req *FakeSetBalance) error {
-	addrId, err := sdk.ResolveAddress(req.Addr)
+	ctx := context.Background()
+	addrId, err := sdk.ResolveAddress(ctx, req.Addr)
 	if err != nil {
 		return err
 	}
@@ -143,7 +145,7 @@ func (t *Erc20Token) FakeSetBalance(req *FakeSetBalance) error {
 	if err != nil {
 		return err
 	}
-	_ = sdk.SaveState(t)
+	_ = sdk.SaveState(ctx, t)
 	return nil
 }
 
@@ -167,11 +169,13 @@ func (t *Erc20Token) GetTotalSupply() *big.Int {
 	return t.TotalSupply
 }
 
-/*GetBalanceOf sender by ID.
+/*
+GetBalanceOf sender by ID.
 
-* `args[0]` - the ID of user.*/
+* `args[0]` - the ID of user.
+*/
 func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
-	senderId, err := sdk.ResolveAddress(*addr)
+	senderId, err := sdk.ResolveAddress(context.Background(), *addr)
 	if err != nil {
 		return nil, err
 	}
@@ -196,20 +200,22 @@ type TransferReq struct {
 	TransferAmount *big.Int
 }
 
-/*Transfer token from current caller to a specified address.
+/*
+Transfer token from current caller to a specified address.
 
 * `receiverAddr` - the ID of receiver.
 
 * `transferAmount` - the transfer amount.
- */
+*/
 func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
-	senderID, err := sdk.Caller()
+	ctx := context.Background()
+	senderID, err := sdk.Caller(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	receiverID, err := sdk.ResolveAddress(transferReq.ReceiverAddr)
+	receiverID, err := sdk.ResolveAddress(ctx, transferReq.ReceiverAddr)
 	if err != nil {
 		return err
 	}
@@ -251,8 +257,8 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 		return err
 	}
 	t.Balances = newBalanceMapRoot
-	logger.Logf("transfer from %d to %d amount %s", senderID, receiverID, transferReq.TransferAmount.String())
-	_ = sdk.SaveState(t)
+	logger.Logf(ctx, "transfer from %d to %d amount %s", senderID, receiverID, transferReq.TransferAmount.String())
+	_ = sdk.SaveState(ctx, t)
 	return nil
 }
 
@@ -261,18 +267,21 @@ type AllowanceReq struct {
 	SpenderAddr address.Address
 }
 
-/*GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
+/*
+GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
 
 * `ownerAddr` - the ID of owner.
 
-* `spenderAddr` - the ID of spender*/
+* `spenderAddr` - the ID of spender
+*/
 func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
-	ownerID, err := sdk.ResolveAddress(req.OwnerAddr)
+	ctx := context.Background()
+	ownerID, err := sdk.ResolveAddress(ctx, req.OwnerAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	spenderId, err := sdk.ResolveAddress(req.SpenderAddr)
+	spenderId, err := sdk.ResolveAddress(ctx, req.SpenderAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -300,21 +309,23 @@ type TransferFromReq struct {
 	TransferAmount *big.Int
 }
 
-/*TransferFrom transfer tokens from token owner to receiver.
+/*
+TransferFrom transfer tokens from token owner to receiver.
 
 * `ownerAddr` - the ID of token owner.
 
 * `receiverAddr` - the ID of receiver.
 
 * `transferAmount` - the transfer amount.
- */
+*/
 func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
-	tokenOwnerID, err := sdk.ResolveAddress(req.OwnerAddr)
+	ctx := context.Background()
+	tokenOwnerID, err := sdk.ResolveAddress(ctx, req.OwnerAddr)
 	if err != nil {
 		return err
 	}
 
-	receiverID, err := sdk.ResolveAddress(req.ReceiverAddr)
+	receiverID, err := sdk.ResolveAddress(ctx, req.ReceiverAddr)
 	if err != nil {
 		return err
 	}
@@ -323,7 +334,7 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 		return errors.New("send value must bigger than zero")
 	}
 
-	spenderID, err := sdk.Caller()
+	spenderID, err := sdk.Caller(ctx)
 	if err != nil {
 		return err
 	}
@@ -387,7 +398,7 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 	if t.Allowed, err = allowBalanceMap.Root(); err != nil {
 		return err
 	}
-	_ = sdk.SaveState(t)
+	_ = sdk.SaveState(ctx, t)
 	return nil
 }
 
@@ -400,7 +411,8 @@ type ApprovalReq struct {
 * `spenderAddr` - the ID of approved user.
 * `newAllowance` - the maximum approved amount.*/
 func (t *Erc20Token) Approval(req *ApprovalReq) error {
-	spenderID, err := sdk.ResolveAddress(req.SpenderAddr)
+	ctx := context.Background()
+	spenderID, err := sdk.ResolveAddress(ctx, req.SpenderAddr)
 	if err != nil {
 		return err
 	}
@@ -409,7 +421,7 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 		return errors.New("allow value must bigger than zero")
 	}
 
-	callerID, err := sdk.Caller()
+	callerID, err := sdk.Caller(ctx)
 	if err != nil {
 		return err
 	}
@@ -432,8 +444,8 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 	if err != nil {
 		return err
 	}
-	_ = sdk.SaveState(t)
-	logger.Logf("approval %s for %s", getAllowKey(callerID, spenderID), req.NewAllowance.String())
+	_ = sdk.SaveState(ctx, t)
+	logger.Logf(ctx, "approval %s for %s", getAllowKey(callerID, spenderID), req.NewAllowance.String())
 	return nil
 }
 

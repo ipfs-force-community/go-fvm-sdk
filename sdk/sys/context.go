@@ -4,13 +4,17 @@
 package sys
 
 import (
+	"context"
 	"unsafe"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func VMContext() (*types.InvocationContext, error) {
+func VMContext(ctx context.Context) (*types.InvocationContext, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.VMContext()
+	}
 	var result types.InvocationContext
 	code := vmContext(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {

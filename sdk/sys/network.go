@@ -1,9 +1,7 @@
-//go:build !simulated
-// +build !simulated
-
 package sys
 
 import (
+	"context"
 	"unsafe"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
@@ -11,7 +9,11 @@ import (
 )
 
 // BaseFee gets the base fee for the current epoch.
-func BaseFee() (*types.TokenAmount, error) {
+func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.BaseFee()
+	}
+
 	result := new(types.TokenAmount)
 	code := networkBaseFee(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
@@ -22,7 +24,11 @@ func BaseFee() (*types.TokenAmount, error) {
 }
 
 // TotalFilCircSupply gets the circulating supply.
-func TotalFilCircSupply() (*types.TokenAmount, error) {
+func TotalFilCircSupply(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.TotalFilCircSupply()
+	}
+
 	result := new(types.TokenAmount)
 	code := networkTotalFilCircSupply(uintptr(unsafe.Pointer(result)))
 	if code != 0 {

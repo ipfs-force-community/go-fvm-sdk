@@ -4,6 +4,7 @@
 package sys
 
 import (
+	"context"
 	"fmt"
 	"unsafe"
 
@@ -13,7 +14,11 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-func SelfRoot() (cid.Cid, error) {
+func SelfRoot(ctx context.Context) (cid.Cid, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.SelfRoot()
+	}
+
 	// I really hate this CID interface. Why can't I just have bytes?
 	result := uint32(0)
 	cidBuf := make([]byte, types.MaxCidLen)
@@ -30,7 +35,11 @@ func SelfRoot() (cid.Cid, error) {
 	return cid, err
 }
 
-func SelfSetRoot(id cid.Cid) error {
+func SelfSetRoot(ctx context.Context, id cid.Cid) error {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.SelfSetRoot(id)
+	}
+
 	buf := make([]byte, types.MaxCidLen)
 	copy(buf, id.Bytes())
 	cidBufPtr, _ := GetSlicePointerAndLen(buf)
@@ -42,7 +51,11 @@ func SelfSetRoot(id cid.Cid) error {
 
 }
 
-func SelfCurrentBalance() (*types.TokenAmount, error) {
+func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.SelfCurrentBalance()
+	}
+
 	result := new(types.TokenAmount)
 	code := selfCurrentBalance(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
@@ -51,7 +64,11 @@ func SelfCurrentBalance() (*types.TokenAmount, error) {
 	return result, nil
 }
 
-func SelfDestruct(addr addr.Address) error {
+func SelfDestruct(ctx context.Context, addr addr.Address) error {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.SelfDestruct(addr)
+	}
+
 	addrPtr, addrLen := GetSlicePointerAndLen(addr.Bytes())
 	code := selfDestruct(addrPtr, addrLen)
 	if code != 0 {

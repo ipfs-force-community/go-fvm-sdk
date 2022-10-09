@@ -9,10 +9,9 @@ import (
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
-	mh "github.com/multiformats/go-multihash"
 )
 
-//nolint
+// nolint
 type IpldOpen struct {
 	codec uint64
 	id    uint32
@@ -45,6 +44,10 @@ func Begin() {
 }
 func End() {
 	DefaultFsm = newSate()
+}
+
+func NewSimulated() Fsm {
+	return *newSate()
 }
 
 type Fsm struct {
@@ -95,14 +98,14 @@ func newSate() *Fsm {
 	return &Fsm{blockid: 1, Ipld: sync.Map{}}
 }
 
-func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cided cid.Cid, err error) {
+func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cid_ cid.Cid, err error) {
 	block, err := s.getBlock(blockid)
 	if err != nil {
 		return cid.Undef, err
 	}
-	Mult, _ := mh.Sum(block.data, hashfun, int(hashlen))
-	cided = cid.NewCidV1(block.codec, Mult)
-	s.putData(cided, block.data)
+	hashseed, _ := s.HashBlake2b(block.data)
+	cid_ = cid.NewCidV1(block.codec, hashseed[:])
+	s.putData(cid_, block.data)
 	return
 }
 
@@ -173,7 +176,7 @@ func (s *Fsm) getBlock(blockID uint32) (block, error) {
 	return s.blocks[blockID], nil
 }
 
-//nolint
+// nolint
 func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 	_, err := s.getActorWithActorid(uint32(actorID))
 	if err == nil {
@@ -183,7 +186,7 @@ func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 	return nil
 }
 
-//nolint
+// nolint
 func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
@@ -192,7 +195,7 @@ func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	return migration.Actor{}, ErrorNotFound
 }
 
-//nolint
+// nolint
 func (s *Fsm) getActorWithAddress(addr address.Address) (migration.Actor, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()

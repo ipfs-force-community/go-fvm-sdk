@@ -1,9 +1,12 @@
-//go:build !simulated
-// +build !simulated
-
 package sys
 
-func Abort(code uint32, msg string) {
+import "context"
+
+func Abort(ctx context.Context, code uint32, msg string) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		env.Abort(code, msg)
+		return
+	}
 	strPtr, strLen := GetStringPointerAndLen(msg)
 	_ = vmAbort(code, strPtr, strLen)
 }

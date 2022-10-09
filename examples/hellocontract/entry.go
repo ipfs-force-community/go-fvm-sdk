@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 
 	cbor "github.com/filecoin-project/go-state-types/cbor"
@@ -31,9 +32,10 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	method, err := sdk.MethodNumber()
+	ctx := context.Background()
+	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unable to get method number")
+		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get method number")
 	}
 
 	var callResult cbor.Marshaler
@@ -48,26 +50,26 @@ func Invoke(blockId uint32) uint32 {
 
 		// no params no error but have return value
 		state := new(contract.State)
-		sdk.LoadState(state)
+		sdk.LoadState(ctx, state)
 		callResult = state.SayHello()
 
 	default:
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, "unsupport method")
+		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")
 	}
 
 	if err != nil {
-		sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
+		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
 	}
 
 	if !sdk.IsNil(callResult) {
 		buf := bytes.NewBufferString("")
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {
-			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(sdkTypes.DAGCbor, buf.Bytes())
+		id, err := sdk.PutBlock(ctx, sdkTypes.DAGCbor, buf.Bytes())
 		if err != nil {
-			sdk.Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}
 		return id
 	} else {

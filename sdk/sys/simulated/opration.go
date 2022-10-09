@@ -1,9 +1,8 @@
 package simulated
 
 import (
+	"crypto/rand"
 	"fmt"
-
-	"github.com/google/uuid"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -78,8 +77,12 @@ func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
 }
 
 func (s *Fsm) NewActorAddress() (address.Address, error) {
-	uuid := uuid.New()
-	return address.NewActorAddress(uuid[:])
+	seedMsg := make([]byte, 20)
+	_, err := rand.Read(seedMsg)
+	if err != nil {
+		return address.Undef, err
+	}
+	return address.NewActorAddress(seedMsg)
 }
 
 func (s *Fsm) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
@@ -109,7 +112,7 @@ func (s *Fsm) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 }
 
 func (s *Fsm) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	SetActorAndAddress(uint32(actorID), migration.Actor{Code: codeCid}, address.Address{})
+	s.SetActorAndAddress(uint32(actorID), migration.Actor{Code: codeCid}, address.Address{})
 	return nil
 }
 

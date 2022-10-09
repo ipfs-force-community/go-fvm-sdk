@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -26,7 +27,9 @@ func (e *State) Export() map[int]interface{} {
 func Constructor() error {
 	// This constant should be part of the SDK.
 	// var  ActorID = 1;
-	_ = sdk.Constructor(&State{})
+	ctx := context.Background()
+	s := &State{}
+	_ = sdk.Constructor(ctx, s)
 	return nil
 }
 
@@ -34,6 +37,6 @@ func Constructor() error {
 func (st *State) SayHello() types.CBORBytes {
 	st.Count += 1
 	ret := fmt.Sprintf("%d", st.Count)
-	_ = sdk.SaveState(&State{})
+	_ = sdk.SaveState(context.Background(), &State{})
 	return []byte(ret)
 }

@@ -9,11 +9,9 @@ require (
 	github.com/filecoin-project/go-state-types v0.1.12-alpha
 	github.com/filecoin-project/specs-actors/v2 v2.3.5-0.20210114162132-5b58b773f4fb
 	github.com/filecoin-project/specs-actors/v7 v7.0.0
-	github.com/google/uuid v1.3.0
 	github.com/ipfs/go-cid v0.2.0
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/minio/sha256-simd v1.0.0
-	github.com/multiformats/go-multihash v0.0.15
 	github.com/stretchr/testify v1.7.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
@@ -34,6 +32,7 @@ require (
 	github.com/multiformats/go-base32 v0.0.3 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
 	github.com/multiformats/go-multibase v0.0.3 // indirect
+	github.com/multiformats/go-multihash v0.0.15 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a // indirect

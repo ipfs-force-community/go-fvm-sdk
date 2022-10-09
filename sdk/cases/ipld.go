@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 
@@ -17,21 +19,22 @@ func Invoke(_ uint32) uint32 { //nolint
 	t := testing.NewTestingT()
 	defer t.CheckResult()
 
+	ctx := context.Background()
 	data := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	//create
-	stCid, err := sdk.Put(types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, data)
+	stCid, err := sdk.Put(ctx, types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, data)
 	assert.Nil(t, err, "unable to put block %v", err)
 	//cid assert
 	assert.Equal(t, stCid.String(), "bafy2bzacedpfdhph46exiifylwgpd5dwukzg763u5burfjpcesqhblyt4k5wg")
 
 	//open
-	block, err := sdk.Get(stCid)
+	block, err := sdk.Get(ctx, stCid)
 	assert.Nil(t, err, "unable to get block %v", err)
 	//state
-	blockId, err := sdk.PutBlock(types.DAGCbor, data)
+	blockId, err := sdk.PutBlock(ctx, types.DAGCbor, data)
 	assert.Nil(t, err, "unable to putblock %v", err)
 
-	state, err := sys.Stat(blockId)
+	state, err := sys.Stat(ctx, blockId)
 	assert.Nil(t, err, "unable to inspect state for block %d reason %v", blockId, err)
 	assert.Equal(t, state.Size, uint32(len(data)))
 	assert.Equal(t, state.Codec, types.DAGCbor)

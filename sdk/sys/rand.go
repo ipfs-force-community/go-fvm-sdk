@@ -1,14 +1,17 @@
-//go:build !simulated
-// +build !simulated
-
 package sys
 
 import (
+	"context"
+
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
-func GetChainRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+func GetChainRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.GetChainRandomness(dst, round, entropy)
+	}
+
 	result := [abi.RandomnessLength]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
 
@@ -21,7 +24,11 @@ func GetChainRandomness(dst int64, round int64, entropy []byte) (abi.Randomness,
 	return result[:], nil
 }
 
-func GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+func GetBeaconRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+	if env, ok := isSimulatedEnv(ctx); ok {
+		return env.GetBeaconRandomness(dst, round, entropy)
+	}
+
 	result := [abi.RandomnessLength]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
 
