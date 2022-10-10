@@ -357,7 +357,7 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	ctx:=context.Background()
+	ctx := contract.EnvCtx
 	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
 		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to get method number")

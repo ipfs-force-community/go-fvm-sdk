@@ -43,8 +43,8 @@ var logger sdk.Logger
 var EnvCtx context.Context
 
 func init() {
-	EnvCtx = sdk.CreateSimulateEnv()
-	//EnvCtx = sdk.CreateEntityEnv()
+	//EnvCtx = sdk.CreateSimulateEnv()
+	EnvCtx = sdk.CreateEntityEnv()
 	logger, _ = sdk.NewLogger(context.Background())
 }
 
