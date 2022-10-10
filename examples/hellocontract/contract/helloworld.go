@@ -14,7 +14,6 @@ var EnvCtx context.Context
 func init() {
 	//EnvCtx = sdk.CreateSimulateEnv()
 	EnvCtx = sdk.CreateEntityEnv()
-
 }
 
 type State struct {
