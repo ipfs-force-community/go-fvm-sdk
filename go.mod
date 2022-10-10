@@ -12,6 +12,7 @@ require (
 	github.com/ipfs/go-cid v0.2.0
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/minio/sha256-simd v1.0.0
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/stretchr/testify v1.7.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
@@ -36,7 +37,6 @@ require (
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a // indirect
-	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 )

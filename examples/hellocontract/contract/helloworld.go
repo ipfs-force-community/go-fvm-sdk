@@ -9,6 +9,14 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 )
 
+var EnvCtx context.Context
+
+func init() {
+	EnvCtx = sdk.CreateSimulateEnv()
+	//EnvCtx = sdk.CreateEntityEnv()
+
+}
+
 type State struct {
 	Count uint64
 }

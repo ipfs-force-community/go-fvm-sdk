@@ -2,14 +2,15 @@
 package simulated
 
 import (
-	"crypto/sha256"
 	"encoding/binary"
 	"reflect"
+	"strconv"
 	"unsafe"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
+	"github.com/spaolacci/murmur3"
 )
 
 func blakehash(data []byte) []byte {
@@ -41,10 +42,8 @@ func makeRandomness(dst int64, round int64, entropy []byte) []byte {
 	binary.BigEndian.PutUint64(roundbyte[0:8], abs(round))
 	entropy = append(entropy, dstbyte[:]...)
 	entropy = append(entropy, roundbyte[:]...)
-	h := sha256.New()
-	h.Write(entropy)
-	result := h.Sum(nil)
-	return result
+	seed := murmur3.Sum64(entropy)
+	return []byte(strconv.FormatUint(seed, 10))
 }
 
 func abs(i int64) uint64 {

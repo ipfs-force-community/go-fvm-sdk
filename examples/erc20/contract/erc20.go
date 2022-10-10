@@ -40,8 +40,11 @@ function allowance(address _owner, address _spender) public view returns (uint25
 //keep unused for code generation
 
 var logger sdk.Logger
+var EnvCtx context.Context
 
 func init() {
+	EnvCtx = sdk.CreateSimulateEnv()
+	//EnvCtx = sdk.CreateEntityEnv()
 	logger, _ = sdk.NewLogger(context.Background())
 }
 

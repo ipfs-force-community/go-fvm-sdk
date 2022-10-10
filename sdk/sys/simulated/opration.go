@@ -1,8 +1,8 @@
 package simulated
 
 import (
-	"crypto/rand"
 	"fmt"
+	"time"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -64,7 +64,6 @@ func (s *Fsm) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte
 }
 
 func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
-
 	id, ok := s.addressMap.Load(addr)
 	if !ok {
 		return 0, ErrorNotFound
@@ -77,12 +76,8 @@ func (s *Fsm) ResolveAddress(addr address.Address) (abi.ActorID, error) {
 }
 
 func (s *Fsm) NewActorAddress() (address.Address, error) {
-	seedMsg := make([]byte, 20)
-	_, err := rand.Read(seedMsg)
-	if err != nil {
-		return address.Undef, err
-	}
-	return address.NewActorAddress(seedMsg)
+	seedMsg := time.Now().String()
+	return address.NewActorAddress([]byte(seedMsg))
 }
 
 func (s *Fsm) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
