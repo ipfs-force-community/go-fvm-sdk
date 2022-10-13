@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 
 	contract "erc20/contract"
@@ -33,7 +34,7 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	ctx := contract.EnvCtx
+	ctx := context.Background()
 	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get method number")
@@ -53,7 +54,7 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
-		err = contract.Constructor(&req)
+		err = contract.Constructor(ctx, &req)
 		callResult = typegen.CborBool(true)
 
 	case 2:
@@ -99,7 +100,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/return/error
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		callResult, err = state.GetBalanceOf(&req)
+		callResult, err = state.GetBalanceOf(ctx, &req)
 
 	case 7:
 
@@ -116,7 +117,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		if err = state.Transfer(&req); err == nil {
+		if err = state.Transfer(ctx, &req); err == nil {
 			callResult = typegen.CborBool(true)
 		}
 
@@ -135,7 +136,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		if err = state.TransferFrom(&req); err == nil {
+		if err = state.TransferFrom(ctx, &req); err == nil {
 			callResult = typegen.CborBool(true)
 		}
 
@@ -154,7 +155,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		if err = state.Approval(&req); err == nil {
+		if err = state.Approval(ctx, &req); err == nil {
 			callResult = typegen.CborBool(true)
 		}
 
@@ -173,7 +174,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/return/error
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		callResult, err = state.Allowance(&req)
+		callResult, err = state.Allowance(ctx, &req)
 
 	case 11:
 
@@ -190,7 +191,7 @@ func Invoke(blockId uint32) uint32 {
 		// have params/error but no return val
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		if err = state.FakeSetBalance(&req); err == nil {
+		if err = state.FakeSetBalance(ctx, &req); err == nil {
 			callResult = typegen.CborBool(true)
 		}
 

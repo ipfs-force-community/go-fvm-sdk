@@ -40,11 +40,8 @@ function allowance(address _owner, address _spender) public view returns (uint25
 //keep unused for code generation
 
 var logger sdk.Logger
-var EnvCtx context.Context
 
 func init() {
-	//EnvCtx = sdk.CreateSimulateEnv()
-	EnvCtx = sdk.CreateEntityEnv()
 	logger, _ = sdk.NewLogger(context.Background())
 }
 
@@ -83,9 +80,8 @@ type ConstructorReq struct {
 	TotalSupply *big.Int
 }
 
-func Constructor(req *ConstructorReq) error {
-	ctx := context.Background()
-	emptyMap, err := adt.MakeEmptyMap(adt.AdtStore(context.Background()), adt.BalanceTableBitwidth)
+func Constructor(ctx context.Context, req *ConstructorReq) error {
+	emptyMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
 	}
@@ -129,14 +125,13 @@ type FakeSetBalance struct {
 }
 
 // FakeSetBalance NOTICE **beacause unable to set init balance in constructor, so just add this function for test contract, and must be remove after fvm support get really caller**
-func (t *Erc20Token) FakeSetBalance(req *FakeSetBalance) error {
-	ctx := context.Background()
+func (t *Erc20Token) FakeSetBalance(ctx context.Context, req *FakeSetBalance) error {
 	addrId, err := sdk.ResolveAddress(ctx, req.Addr)
 	if err != nil {
 		return err
 	}
 
-	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+	balanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Balances, adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
 	}
@@ -177,16 +172,16 @@ GetBalanceOf sender by ID.
 
 * `args[0]` - the ID of user.
 */
-func (t *Erc20Token) GetBalanceOf(addr *address.Address) (*big.Int, error) {
-	senderId, err := sdk.ResolveAddress(context.Background(), *addr)
+func (t *Erc20Token) GetBalanceOf(ctx context.Context, addr *address.Address) (*big.Int, error) {
+	senderId, err := sdk.ResolveAddress(ctx, *addr)
 	if err != nil {
 		return nil, err
 	}
-	return t.getBalanceOf(senderId)
+	return t.getBalanceOf(ctx, senderId)
 }
 
-func (t *Erc20Token) getBalanceOf(act abi.ActorID) (*big.Int, error) {
-	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+func (t *Erc20Token) getBalanceOf(ctx context.Context, act abi.ActorID) (*big.Int, error) {
+	balanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Balances, adt.BalanceTableBitwidth)
 	if err != nil {
 		return nil, err
 	}
@@ -210,8 +205,7 @@ Transfer token from current caller to a specified address.
 
 * `transferAmount` - the transfer amount.
 */
-func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
-	ctx := context.Background()
+func (t *Erc20Token) Transfer(ctx context.Context, transferReq *TransferReq) error {
 	senderID, err := sdk.Caller(ctx)
 
 	if err != nil {
@@ -227,11 +221,11 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 		return errors.New("trasfer value must bigger than zero")
 	}
 
-	balanceOfSender, err := t.getBalanceOf(senderID)
+	balanceOfSender, err := t.getBalanceOf(ctx, senderID)
 	if err != nil {
 		return err
 	}
-	balanceOfReceiver, err := t.getBalanceOf(receiverID)
+	balanceOfReceiver, err := t.getBalanceOf(ctx, receiverID)
 	if err != nil {
 		return err
 	}
@@ -244,7 +238,7 @@ func (t *Erc20Token) Transfer(transferReq *TransferReq) error {
 		return fmt.Errorf("transfer amount should be less than balance of sender (%v): %v", senderID, err)
 	}
 
-	balanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Balances, adt.BalanceTableBitwidth)
+	balanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Balances, adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
 	}
@@ -277,8 +271,7 @@ GetAllowance checks the amount of tokens that an owner Allowed a spender to tran
 
 * `spenderAddr` - the ID of spender
 */
-func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
-	ctx := context.Background()
+func (t *Erc20Token) Allowance(ctx context.Context, req *AllowanceReq) (*big.Int, error) {
 	ownerID, err := sdk.ResolveAddress(ctx, req.OwnerAddr)
 	if err != nil {
 		return nil, err
@@ -289,11 +282,11 @@ func (t *Erc20Token) Allowance(req *AllowanceReq) (*big.Int, error) {
 		return nil, err
 	}
 
-	return t.getAllowance(ownerID, spenderId)
+	return t.getAllowance(ctx, ownerID, spenderId)
 }
 
-func (t *Erc20Token) getAllowance(ownerID, spenderId abi.ActorID) (*big.Int, error) {
-	allowBalanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Allowed, adt.BalanceTableBitwidth)
+func (t *Erc20Token) getAllowance(ctx context.Context, ownerID, spenderId abi.ActorID) (*big.Int, error) {
+	allowBalanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Allowed, adt.BalanceTableBitwidth)
 	if err != nil {
 		return nil, err
 	}
@@ -321,8 +314,7 @@ TransferFrom transfer tokens from token owner to receiver.
 
 * `transferAmount` - the transfer amount.
 */
-func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
-	ctx := context.Background()
+func (t *Erc20Token) TransferFrom(ctx context.Context, req *TransferFromReq) error {
 	tokenOwnerID, err := sdk.ResolveAddress(ctx, req.OwnerAddr)
 	if err != nil {
 		return err
@@ -341,15 +333,15 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 	if err != nil {
 		return err
 	}
-	balanceOfTokenOwner, err := t.getBalanceOf(tokenOwnerID)
+	balanceOfTokenOwner, err := t.getBalanceOf(ctx,tokenOwnerID)
 	if err != nil {
 		return err
 	}
-	balanceOfReceiver, err := t.getBalanceOf(receiverID)
+	balanceOfReceiver, err := t.getBalanceOf(ctx,receiverID)
 	if err != nil {
 		return err
 	}
-	approvedAmount, err := t.getAllowance(tokenOwnerID, spenderID)
+	approvedAmount, err := t.getAllowance(ctx,tokenOwnerID, spenderID)
 	if err != nil {
 		return err
 	}
@@ -372,7 +364,7 @@ func (t *Erc20Token) TransferFrom(req *TransferFromReq) error {
 		return fmt.Errorf("transfer amount should be less than approved spending amount of %v: %v", spenderID, err)
 	}
 
-	store := adt.AdtStore(context.Background())
+	store := adt.AdtStore(ctx)
 	balanceMap, err := adt.AsMap(store, t.Balances, adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
@@ -413,8 +405,7 @@ type ApprovalReq struct {
 /*Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
 * `spenderAddr` - the ID of approved user.
 * `newAllowance` - the maximum approved amount.*/
-func (t *Erc20Token) Approval(req *ApprovalReq) error {
-	ctx := context.Background()
+func (t *Erc20Token) Approval(ctx context.Context, req *ApprovalReq) error {
 	spenderID, err := sdk.ResolveAddress(ctx, req.SpenderAddr)
 	if err != nil {
 		return err
@@ -429,12 +420,12 @@ func (t *Erc20Token) Approval(req *ApprovalReq) error {
 		return err
 	}
 
-	allowance, err := t.getAllowance(callerID, spenderID)
+	allowance, err := t.getAllowance(ctx,callerID, spenderID)
 	if err != nil {
 		return err
 	}
 
-	allowBalanceMap, err := adt.AsMap(adt.AdtStore(context.Background()), t.Allowed, adt.BalanceTableBitwidth)
+	allowBalanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Allowed, adt.BalanceTableBitwidth)
 	if err != nil {
 		return err
 	}

@@ -14,9 +14,6 @@ import (
 )
 
 func Open(ctx context.Context, id cid.Cid) (*types.IpldOpen, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Open(id)
-	}
 	cidBuf := make([]byte, types.MaxCidLen)
 	copy(cidBuf, id.Bytes())
 	cidBufPtr, _ := GetSlicePointerAndLen(cidBuf)
@@ -30,9 +27,6 @@ func Open(ctx context.Context, id cid.Cid) (*types.IpldOpen, error) {
 }
 
 func Create(ctx context.Context, codec uint64, data []byte) (uint32, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Create(codec, data)
-	}
 	result := uint32(0)
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
 	code := ipldCreate(uintptr(unsafe.Pointer(&result)), codec, dataPtr, dataLen)
@@ -43,9 +37,6 @@ func Create(ctx context.Context, codec uint64, data []byte) (uint32, error) {
 }
 
 func Read(ctx context.Context, id uint32, offset, size uint32) ([]byte, uint32, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Read(id, offset, size)
-	}
 	result := uint32(0)
 	buf := make([]byte, size)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
@@ -57,9 +48,6 @@ func Read(ctx context.Context, id uint32, offset, size uint32) ([]byte, uint32, 
 }
 
 func Stat(ctx context.Context, id uint32) (*types.IpldStat, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Stat(id)
-	}
 	result := new(types.IpldStat)
 	code := ipldStat(uintptr(unsafe.Pointer(result)), id)
 	if code != 0 {
@@ -69,10 +57,6 @@ func Stat(ctx context.Context, id uint32) (*types.IpldStat, error) {
 }
 
 func BlockLink(ctx context.Context, id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.BlockLink(id, hashFun, hashLen, cidBuf)
-	}
-
 	result := uint32(0)
 	cidBufPtr, cidBufLen := GetSlicePointerAndLen(cidBuf)
 	code := ipldLink(uintptr(unsafe.Pointer(&result)), id, hashFun, hashLen, cidBufPtr, cidBufLen)

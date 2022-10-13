@@ -6,10 +6,10 @@ import (
 
 	"github.com/minio/sha256-simd"
 
-	hamt "github.com/filecoin-project/go-hamt-ipld/v3"
+	"github.com/filecoin-project/go-hamt-ipld/v3"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/cbor"
-	cid "github.com/ipfs/go-cid"
+	"github.com/ipfs/go-cid"
 	cbg "github.com/whyrusleeping/cbor-gen"
 )
 
@@ -39,11 +39,12 @@ func AsMap(s Store, root cid.Cid, bitwidth int) (*Map, error) {
 		return nil, fmt.Errorf("failed to load hamt node: %w", err)
 	}
 
-	return &Map{
+	temp := &Map{
 		lastCid: root,
 		root:    nd,
 		store:   s,
-	}, nil
+	}
+	return temp, nil
 }
 
 // MakeEmptyMap creates a new map backed by an empty HAMT.
@@ -96,6 +97,7 @@ func (m *Map) Put(k abi.Keyer, v cbor.Marshaler) error {
 // Returns whether the key was found.
 func (m *Map) Get(k abi.Keyer, out cbor.Unmarshaler) (bool, error) {
 	if found, err := m.root.Find(m.store.Context(), k.Key(), out); err != nil {
+
 		return false, fmt.Errorf("failed to get key %v in node %v: %w", m.lastCid, k.Key(), err)
 	} else { //nolint
 		return found, nil

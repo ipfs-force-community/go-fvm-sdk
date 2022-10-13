@@ -12,9 +12,6 @@ import (
 )
 
 func VMContext(ctx context.Context) (*types.InvocationContext, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VMContext()
-	}
 	var result types.InvocationContext
 	code := vmContext(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {

@@ -7,7 +7,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func isSimulatedEnv(ctx context.Context) (simulated.Fsm, bool) {
-	env, ok := ctx.Value(types.SimulatedEnvkey).(simulated.Fsm) //nolint:govet
+func isSimulatedEnv(ctx context.Context) (*simulated.Fsm, bool) {
+	env, ok := ctx.Value(types.SimulatedEnvkey).(*simulated.Fsm) //nolint:govet
 	return env, ok                                              //nolint:govet
 }

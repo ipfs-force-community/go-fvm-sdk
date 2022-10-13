@@ -18,32 +18,32 @@ var _ Logger = (*logger)(nil)
 
 // NewLogger create a logging if debugging is enabled.
 func NewLogger(ctx context.Context) (Logger, error) {
-	debugEnabled, err := sys.Enabled(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &logger{
-		enable: debugEnabled,
-	}, nil
+	return &logger{}, nil
 }
 
 type logger struct {
-	enable bool
+	enable *bool
 }
 
+// inline
 func (l *logger) Enabled(ctx context.Context) bool {
-	return l.enable
+	if l.enable != nil {
+		return *l.enable
+	}
+	logEnable, _ := sys.Enabled(ctx)
+	l.enable = &logEnable
+	return logEnable
 }
 
 func (l *logger) Log(ctx context.Context, a ...interface{}) error {
-	if l.enable {
+	if l.Enabled(ctx) {
 		return sys.Log(ctx, fmt.Sprint(a...))
 	}
 	return nil
 }
 
 func (l *logger) Logf(ctx context.Context, format string, a ...interface{}) error {
-	if l.enable {
+	if l.Enabled(ctx) {
 		return sys.Log(ctx, fmt.Sprintf(format, a...))
 	}
 	return nil

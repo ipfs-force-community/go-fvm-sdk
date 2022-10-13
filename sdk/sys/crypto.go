@@ -26,10 +26,6 @@ func VerifySignature(
 	signer *address.Address,
 	plaintext []byte,
 ) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VerifySignature(signature, signer, plaintext)
-	}
-
 	sigBuf := bytes.NewBuffer([]byte{})
 	err := signature.MarshalCBOR(sigBuf)
 	if err != nil {
@@ -48,10 +44,6 @@ func VerifySignature(
 }
 
 func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.HashBlake2b(data)
-	}
-
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
 	result := [32]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
@@ -67,10 +59,6 @@ func ComputeUnsealedSectorCid(
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.ComputeUnsealedSectorCid(proofType, pieces)
-	}
-
 	//todo need to be test
 	buf := bytes.NewBuffer([]byte{})
 	cw := cbg.NewCborWriter(buf)
@@ -100,10 +88,6 @@ func ComputeUnsealedSectorCid(
 
 // VerifySeal Verifies a sector seal proof.
 func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VerifySeal(info)
-	}
-
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)
 	if err != nil {
@@ -120,10 +104,6 @@ func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
 
 // VerifyPost Verifies a sector seal proof.
 func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VerifyPost(info)
-	}
-
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)
 	if err != nil {
@@ -144,10 +124,6 @@ func VerifyConsensusFault(
 	h2 []byte,
 	extra []byte,
 ) (*runtime.ConsensusFault, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VerifyConsensusFault(h1, h2, extra)
-	}
-
 	h1Ptr, h1Len := GetSlicePointerAndLen(h1)
 	h2Ptr, h2Len := GetSlicePointerAndLen(h2)
 	extraPtr, extraLen := GetSlicePointerAndLen(extra)
@@ -195,10 +171,6 @@ func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyPr
 }
 
 func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.VerifyReplicaUpdate(info)
-	}
-
 	replicaUpdateInfoBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(replicaUpdateInfoBuf)
 	if err != nil {
@@ -214,10 +186,6 @@ func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bo
 }
 
 func BatchVerifySeals(ctx context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.BatchVerifySeals(sealVerifyInfos)
-	}
-
 	//todo need to be test
 	buf := bytes.NewBuffer([]byte{})
 	cw := cbg.NewCborWriter(buf)

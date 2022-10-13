@@ -84,6 +84,10 @@ func formateAndWriteCode(code []byte, output string) error {
 	return f.Close()
 }
 
+func isContext(r reflect.Type) bool {
+	return r.PkgPath() == "context" && r.Name() == "Context"
+}
+
 func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 	if stateT.Kind() == reflect.Ptr {
 		stateT = stateT.Elem()
@@ -114,17 +118,36 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		method.MethodNum = sortedFunc.method_num
 		//	functionT := function.Type
 
-		if functionT.NumIn() > 1 {
+		if functionT.NumIn() > 0 {
+			isCtx := isContext(functionT.In(0))
+			if isCtx == true {
+				method.HasContext = true
+			}
+		}
+		if (method.HasContext == false && functionT.NumIn() > 1) || (method.HasContext == true && functionT.NumIn() > 2) {
 			return nil, fmt.Errorf("func %s can not have params more than 1", method.FuncName)
 		}
-		if functionT.NumIn() == 1 {
-			if !functionT.In(0).AssignableTo(unMarshallerT) {
-				return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+		if (method.HasContext == false && functionT.NumIn() == 1) || (method.HasContext == true && functionT.NumIn() == 2) {
+			if method.HasContext == true && functionT.NumIn() == 2 {
+				if !functionT.In(1).AssignableTo(unMarshallerT) {
+					return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+				}
+				method.HasParam = true
+				method.ParamsType = functionT.In(1)
+				hasParam = true
+				typesToImport = append(typesToImport, functionT.In(1))
+
+			} else {
+
+				if !functionT.In(0).AssignableTo(unMarshallerT) {
+					return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+				}
+
+				method.HasParam = true
+				method.ParamsType = functionT.In(0)
+				hasParam = true
+				typesToImport = append(typesToImport, functionT.In(0))
 			}
-			method.HasParam = true
-			method.ParamsType = functionT.In(0)
-			hasParam = true
-			typesToImport = append(typesToImport, functionT.In(0))
 		}
 
 		if functionT.NumOut() > 2 {
@@ -316,14 +339,15 @@ type entryMeta struct {
 }
 
 type methodMap struct {
-	StateName string
-	MethodNum int
-	FuncT     reflect.Value
-	PkgName   string
-	FuncName  string
-	HasError  bool
-	HasParam  bool
-	HasReturn bool
+	StateName  string
+	MethodNum  int
+	FuncT      reflect.Value
+	PkgName    string
+	FuncName   string
+	HasError   bool
+	HasParam   bool
+	HasReturn  bool
+	HasContext bool
 
 	ParamsType     reflect.Type
 	ParamsTypeName string
@@ -357,7 +381,7 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	ctx := contract.EnvCtx
+	ctx:=context.Background()
 	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
 		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to get method number")
@@ -377,9 +401,9 @@ func Invoke(blockId uint32) uint32 {
 						if err != nil {
 							sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 						}
-						err = {{.PkgName}}.{{.FuncName}}(&req)
+						err = {{.PkgName}}.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req)
 						callResult = typegen.CborBool(true)
-          {{else}}err = {{.PkgName}}.{{.FuncName}}()
+          {{else}}err = {{.PkgName}}.{{.FuncName}}({{if .HasContext}} ctx {{end}})
                 callResult = typegen.CborBool(true)
           {{end}}
 {{else}}
@@ -396,11 +420,11 @@ func Invoke(blockId uint32) uint32 {
 					 {{if .HasReturn}} // have params/return/error
 								state := new({{.StateName}})
 								sdk.LoadState(ctx,state)
-								callResult, err = state.{{.FuncName}}(&req)
+								callResult, err = state.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req)
 				     {{else}} 	// have params/error but no return val
 								state := new({{.StateName}})
 								sdk.LoadState(ctx,state)
-								if err = state.{{.FuncName}}(&req); err == nil {
+								if err = state.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req); err == nil {
 									callResult = typegen.CborBool(true)
 								}
 					{{end}}
@@ -408,11 +432,11 @@ func Invoke(blockId uint32) uint32 {
 					{{if .HasReturn}}// have params/return but no error
 							state := new({{.StateName}})
 							sdk.LoadState(ctx,state)
-							callResult = state.{{.FuncName}}(&req)
+							callResult = state.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req)
 					{{else}}//have params but no return value and error
 							state := new({{.StateName}})
 							sdk.LoadState(ctx,state)
-							state.{{.FuncName}}(&req)
+							state.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req)
 							callResult = = typegen.CborBool(true)
 					{{end}}
 			{{end}}
@@ -421,11 +445,11 @@ func Invoke(blockId uint32) uint32 {
 					 {{if .HasReturn}} // no params but return value/error
 							state := new({{.StateName}})
 							sdk.LoadState(ctx,state)
-							callResult, err = state.{{.FuncName}}()
+							callResult, err = state.{{.FuncName}}({{if .HasContext}} ctx {{end}})
 					{{else}}	// no params/return value but return error
 							state := new({{.StateName}})
 							sdk.LoadState(ctx,state)
-							if err = state.{{.FuncName}}(); err == nil {
+							if err = state.{{.FuncName}}({{if .HasContext}} ctx {{end}}); err == nil {
 									callResult = = typegen.CborBool(true)
 								}
 					{{end}}
@@ -433,11 +457,11 @@ func Invoke(blockId uint32) uint32 {
 					{{if .HasReturn}}	// no params no error but have return value
 						state := new({{.StateName}})
 						sdk.LoadState(ctx,state)
-						callResult = state.{{.FuncName}}()
+						callResult = state.{{.FuncName}}({{if .HasContext}} ctx {{end}})
 					{{else}}		// no params/return value/error
 						state := new({{.StateName}})
 						sdk.LoadState(ctx,state)
-						state.{{.FuncName}}()
+						state.{{.FuncName}}({{if .HasContext}} ctx {{end}})
 						callResult = = typegen.CborBool(true)
 					{{end}}
 			{{end}}

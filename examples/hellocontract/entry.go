@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 
 	cbor "github.com/filecoin-project/go-state-types/cbor"
@@ -31,7 +32,7 @@ func main() {}
 //
 //go:export invoke
 func Invoke(blockId uint32) uint32 {
-	ctx := contract.EnvCtx
+	ctx := context.Background()
 	method, err := sdk.MethodNumber(ctx)
 	if err != nil {
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get method number")
@@ -42,7 +43,7 @@ func Invoke(blockId uint32) uint32 {
 	switch method {
 	case 1:
 		// Constuctor
-		err = contract.Constructor()
+		err = contract.Constructor(ctx)
 		callResult = typegen.CborBool(true)
 
 	case 2:
@@ -50,7 +51,7 @@ func Invoke(blockId uint32) uint32 {
 		// no params no error but have return value
 		state := new(contract.State)
 		sdk.LoadState(ctx, state)
-		callResult = state.SayHello()
+		callResult = state.SayHello(ctx)
 
 	default:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")

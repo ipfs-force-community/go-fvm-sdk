@@ -11,10 +11,6 @@ import (
 )
 
 func Enabled(ctx context.Context) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Enabled()
-	}
-
 	var result int32
 	code := debugEnabled(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {
@@ -25,9 +21,6 @@ func Enabled(ctx context.Context) (bool, error) {
 }
 
 func Log(ctx context.Context, msg string) error {
-	if env, ok := isSimulatedEnv(ctx); ok {
-		return env.Log(msg)
-	}
 	msgBufPtr, msgBufLen := GetStringPointerAndLen(msg)
 	code := debugLog(msgBufPtr, msgBufLen)
 	if code != 0 {

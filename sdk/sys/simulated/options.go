@@ -31,7 +31,7 @@ func (s *Fsm) SetSend(mock ...SendMock) {
 			temp = append(temp, v)
 		}
 	}
-	s.SendList = append(s.SendList, temp...)
+	s.sendList = append(s.sendList, temp...)
 
 }
 

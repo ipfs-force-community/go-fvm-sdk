@@ -9,7 +9,7 @@ import (
 
 	"github.com/filecoin-project/go-state-types/cbor"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
-	cid "github.com/ipfs/go-cid"
+	"github.com/ipfs/go-cid"
 )
 
 // IpldStore wraps a Blockstore and provides an interface for storing and retrieving CBOR encoded data.
@@ -29,6 +29,7 @@ type Store interface {
 
 // AdtStore Adapts a vanilla IPLD store as an ADT store.
 func AdtStore(ctx context.Context) Store { //nolint
+
 	return &fvmStore{
 		ctx:       ctx,
 		IpldStore: &fvmStore{},
@@ -58,6 +59,7 @@ func (r fvmStore) Get(ctx context.Context, c cid.Cid, out interface{}) error {
 }
 
 func (r fvmStore) Put(ctx context.Context, in interface{}) (cid.Cid, error) {
+
 	marshalableObj, ok := in.(cbor.Marshaler)
 	if !ok {
 		return cid.Undef, fmt.Errorf("ipld store put method must be marshalable")
