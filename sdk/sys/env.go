@@ -9,5 +9,5 @@ import (
 
 func isSimulatedEnv(ctx context.Context) (*simulated.Fsm, bool) {
 	env, ok := ctx.Value(types.SimulatedEnvkey).(*simulated.Fsm) //nolint:govet
-	return env, ok                                              //nolint:govet
+	return env, ok                                               //nolint:govet
 }

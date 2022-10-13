@@ -36,7 +36,7 @@ func (s *block) stat() BlockStat {
 type blocks []block
 
 func newSimulated(callContext *types.InvocationContext, rootCid cid.Cid, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) Fsm {
-	return Fsm{id: getfsmId(), blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: rootCid, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
+	return Fsm{id: getfsmID(), blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: rootCid, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
 }
 
 // CreateSimulateEnv new context of simulated
@@ -53,7 +53,7 @@ func CreateEntityEnv() context.Context {
 var fsmidMutex sync.Mutex
 var fsmid int
 
-func getfsmId() int {
+func getfsmID() int {
 	fsmidMutex.Lock()
 	defer fsmidMutex.Unlock()
 	id := fsmid
