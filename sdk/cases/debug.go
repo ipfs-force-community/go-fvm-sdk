@@ -16,7 +16,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	defer t.CheckResult()
 
 	ctx := context.Background()
-	logger, err := sdk.NewLogger(ctx)
+	logger, err := sdk.NewLogger()
 	assert.Nil(t, err, "create debug logger %v", err)
 
 	enabled := logger.Enabled(ctx)

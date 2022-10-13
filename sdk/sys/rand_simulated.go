@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -10,17 +10,17 @@ import (
 )
 
 func GetChainRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.GetChainRandomness(dst, round, entropy)
 	}
-	return abi.Randomness{}, nil
+	return abi.Randomness{}, ErrorEnvValid
 
 }
 
 func GetBeaconRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.GetBeaconRandomness(dst, round, entropy)
 	}
-	return abi.Randomness{}, nil
+	return abi.Randomness{}, ErrorEnvValid
 
 }

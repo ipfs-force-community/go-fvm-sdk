@@ -1,5 +1,5 @@
-//go:build !simulated
-// +build !simulated
+//go:build !simulate
+// +build !simulate
 
 package sys
 
@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	address "github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
@@ -152,7 +152,7 @@ func VerifyConsensusFault(
 }
 
 func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifyAggregateSeals(info)
 	}
 

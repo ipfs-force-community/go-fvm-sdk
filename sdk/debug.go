@@ -17,7 +17,7 @@ type Logger interface {
 var _ Logger = (*logger)(nil)
 
 // NewLogger create a logging if debugging is enabled.
-func NewLogger(ctx context.Context) (Logger, error) {
+func NewLogger() (Logger, error) {
 	return &logger{}, nil
 }
 

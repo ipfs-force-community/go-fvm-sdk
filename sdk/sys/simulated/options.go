@@ -8,7 +8,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func (s *Fsm) SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
+func (s *FvmSimulator) SetActorAndAddress(actorID uint32, actorState migration.Actor, addr address.Address) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 	s.actorsMap.Store(actorID, actorState)
@@ -23,7 +23,7 @@ type SendMock struct {
 	out    types.Send
 }
 
-func (s *Fsm) SetSend(mock ...SendMock) {
+func (s *FvmSimulator) SetSend(mock ...SendMock) {
 	temp := make([]SendMock, 0)
 	for _, v := range mock {
 		_, ok := s.sendMatch(v.to, v.method, v.params, v.value)
@@ -35,7 +35,7 @@ func (s *Fsm) SetSend(mock ...SendMock) {
 
 }
 
-func (s *Fsm) SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
+func (s *FvmSimulator) SetAccount(actorID uint32, addr address.Address, actor migration.Actor) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 
@@ -43,21 +43,21 @@ func (s *Fsm) SetAccount(actorID uint32, addr address.Address, actor migration.A
 	s.addressMap.Store(addr, actorID)
 }
 
-func (s *Fsm) SetBaseFee(ta big.Int) {
+func (s *FvmSimulator) SetBaseFee(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
 	s.baseFee = &amount
 }
 
-func (s *Fsm) SetTotalFilCircSupply(ta big.Int) {
+func (s *FvmSimulator) SetTotalFilCircSupply(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
 	s.totalFilCircSupply = &amount
 }
 
-func (s *Fsm) SetCurrentBalance(ta big.Int) {
+func (s *FvmSimulator) SetCurrentBalance(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
 	s.currentBalance = &amount
 }
 
-func (s *Fsm) SetCallContext(callcontext *types.InvocationContext) {
+func (s *FvmSimulator) SetCallContext(callcontext *types.InvocationContext) {
 	s.callContext = callcontext
 }

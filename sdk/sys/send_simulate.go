@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -11,8 +11,8 @@ import (
 )
 
 func Send(ctx context.Context, to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Send(to, method, params, value)
 	}
-	return &types.Send{}, nil
+	return &types.Send{}, ErrorEnvValid
 }

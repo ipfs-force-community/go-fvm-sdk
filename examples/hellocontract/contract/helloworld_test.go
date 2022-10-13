@@ -7,7 +7,6 @@ import (
 
 	"testing"
 
-
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -16,7 +15,7 @@ import (
 	mh "github.com/multiformats/go-multihash"
 )
 
-func newSimulated() (*simulated.Fsm, context.Context) {
+func newSimulated() (*simulated.FvmSimulator, context.Context) {
 	callcontext := &types.InvocationContext{}
 	h, _ := mh.Sum([]byte("TEST"), mh.SHA3, 4)
 

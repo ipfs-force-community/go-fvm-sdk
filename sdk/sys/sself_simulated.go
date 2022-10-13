@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -12,32 +12,32 @@ import (
 )
 
 func SelfRoot(ctx context.Context) (cid.Cid, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfRoot()
 	}
-	return cid.Undef, nil
+	return cid.Undef, ErrorEnvValid
 }
 
 func SelfSetRoot(ctx context.Context, id cid.Cid) error {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfSetRoot(id)
 	}
-	return nil
+	return ErrorEnvValid
 
 }
 
 func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfCurrentBalance()
 	}
-	return &types.TokenAmount{}, nil
+	return &types.TokenAmount{}, ErrorEnvValid
 
 }
 
 func SelfDestruct(ctx context.Context, addr addr.Address) error {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfDestruct(addr)
 	}
-	return nil
+	return ErrorEnvValid
 
 }

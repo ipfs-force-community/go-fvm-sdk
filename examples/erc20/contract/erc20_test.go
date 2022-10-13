@@ -1,16 +1,17 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package contract
 
 import (
 	"context"
-	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
-	"github.com/ipfs/go-cid"
 	"math/rand"
 	"reflect"
 	"testing"
+
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
+	"github.com/ipfs/go-cid"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
@@ -23,17 +24,16 @@ import (
 	mh "github.com/multiformats/go-multihash"
 )
 
-func makeErc20Token(ctx context.Context) Erc20Token {
-	t := &testing.T{}
-	map_, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
+func makeErc20Token(t *testing.T, ctx context.Context) Erc20Token {
+	empMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 	assert.Nil(t, err)
-	cidtest, err := map_.Root()
+	cidtest, err := empMap.Root()
 	assert.Nil(t, err)
 	totalsupplytest := big.NewInt(888888)
 	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &totalsupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
-func newSimulated() (*simulated.Fsm, context.Context) {
+func newSimulated() (*simulated.FvmSimulator, context.Context) {
 	callcontext := &types.InvocationContext{}
 	h, _ := mh.Sum([]byte("TEST"), mh.SHA3, 4)
 
@@ -64,7 +64,7 @@ func TestErc20TokenFakeSetBalance(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{name: "pass", fields: makeErc20Token(ctx), args: args{req: fakeSetBalance}, wantErr: true},
+		{name: "pass", fields: makeErc20Token(t, ctx), args: args{req: fakeSetBalance}, wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -91,7 +91,7 @@ func TestErc20TokenGetName(t *testing.T) {
 		fields Erc20Token
 		want   types.CborString
 	}{
-		{name: "pass", fields: makeErc20Token(ctx), want: types.CborString("name")},
+		{name: "pass", fields: makeErc20Token(t, ctx), want: types.CborString("name")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestErc20TokenGetName(t *testing.T) {
 
 func TestErc20TokenSaveState(t *testing.T) {
 	_, ctx := newSimulated()
-	erc20 := makeErc20Token(ctx)
+	erc20 := makeErc20Token(t, ctx)
 	sdk.SaveState(ctx, &erc20)
 
 	newSt := new(Erc20Token)
@@ -125,7 +125,7 @@ func TestErc20TokenSaveState(t *testing.T) {
 func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 
 	instance, ctx := newSimulated()
-	erc20 := makeErc20Token(ctx)
+	erc20 := makeErc20Token(t1, ctx)
 
 	balanceMap, _ := adt.AsMap(adt.AdtStore(ctx), erc20.Balances, adt.BalanceTableBitwidth)
 	addr, _ := address.NewIDAddress(uint64(rand.Int()))
@@ -176,7 +176,7 @@ func TestErc20TokenGetBalanceOf(t1 *testing.T) {
 
 func TestErc20TokenTransfer(t *testing.T) {
 	instance, ctx := newSimulated()
-	erc20 := makeErc20Token(ctx)
+	erc20 := makeErc20Token(t, ctx)
 
 	// set info of caller
 	callactorid := uint32(8899)
@@ -213,7 +213,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{name: "pass", fields: makeErc20Token(ctx), args: args{transferReq: &TransferReq{ReceiverAddr: receiveaddr, TransferAmount: &toamount}}, wantErr: false},
+		{name: "pass", fields: makeErc20Token(t, ctx), args: args{transferReq: &TransferReq{ReceiverAddr: receiveaddr, TransferAmount: &toamount}}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

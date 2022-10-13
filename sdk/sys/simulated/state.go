@@ -35,14 +35,10 @@ func (s *block) stat() BlockStat {
 
 type blocks []block
 
-func newSimulated(callContext *types.InvocationContext, rootCid cid.Cid, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) Fsm {
-	return Fsm{id: getfsmID(), blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: rootCid, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
-}
-
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, rootCid cid.Cid, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) (*Fsm, context.Context) {
-	value := newSimulated(callContext, rootCid, baseFee, totalFilCircSupply, currentBalance)
-	return &value, context.WithValue(context.Background(), types.SimulatedEnvkey, &value)
+func CreateSimulateEnv(callContext *types.InvocationContext, rootCid cid.Cid, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) (*FvmSimulator, context.Context) {
+	fsm := &FvmSimulator{id: getfsmID(), blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: rootCid, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
+	return fsm, context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
 }
 
 // CreateEntityEnv new context of entity
@@ -61,7 +57,7 @@ func getfsmID() int {
 	return id
 }
 
-type Fsm struct {
+type FvmSimulator struct {
 	id          int
 	blocksMutex sync.Mutex
 	blocks      blocks
@@ -81,7 +77,7 @@ type Fsm struct {
 	sendList           []SendMock
 }
 
-func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
+func (a *FvmSimulator) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
 	for i, v := range a.sendList {
 		if to != v.to {
 			continue
@@ -106,7 +102,7 @@ func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value 
 	return nil, false
 }
 
-func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cid_ cid.Cid, err error) {
+func (s *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cid_ cid.Cid, err error) {
 	block, err := s.getBlock(blockid)
 	if err != nil {
 		return cid.Undef, err
@@ -119,12 +115,12 @@ func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cid_ ci
 	return
 }
 
-func (s *Fsm) blockCreate(codec uint64, data []byte) uint32 {
+func (s *FvmSimulator) blockCreate(codec uint64, data []byte) uint32 {
 	s.putBlock(block{codec: codec, data: data})
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
+func (s *FvmSimulator) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
 	data, _ := s.getData(id)
 	block := block{data: data, codec: id.Prefix().GetCodec()}
 
@@ -134,7 +130,7 @@ func (s *Fsm) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
 
 }
 
-func (s *Fsm) blockRead(id uint32, offset uint32) ([]byte, error) {
+func (s *FvmSimulator) blockRead(id uint32, offset uint32) ([]byte, error) {
 	block, err := s.getBlock(id)
 	if err != nil {
 		return nil, err
@@ -147,7 +143,7 @@ func (s *Fsm) blockRead(id uint32, offset uint32) ([]byte, error) {
 	return data[offset:], nil
 }
 
-func (s *Fsm) blockStat(blockID uint32) (*types.IpldStat, error) {
+func (s *FvmSimulator) blockStat(blockID uint32) (*types.IpldStat, error) {
 	b, err := s.getBlock(blockID)
 	if err != nil {
 		return nil, ErrorNotFound
@@ -155,11 +151,11 @@ func (s *Fsm) blockStat(blockID uint32) (*types.IpldStat, error) {
 	return &types.IpldStat{Size: b.stat().size, Codec: b.codec}, ErrorNotFound
 }
 
-func (s *Fsm) putData(key cid.Cid, value []byte) {
+func (s *FvmSimulator) putData(key cid.Cid, value []byte) {
 	s.ipld.Store(key, value)
 }
 
-func (s *Fsm) getData(key cid.Cid) ([]byte, error) {
+func (s *FvmSimulator) getData(key cid.Cid) ([]byte, error) {
 	value, ok := s.ipld.Load(key)
 	if ok {
 		return value.([]byte), nil
@@ -167,7 +163,7 @@ func (s *Fsm) getData(key cid.Cid) ([]byte, error) {
 	return nil, ErrorNotFound
 }
 
-func (s *Fsm) putBlock(block block) uint32 {
+func (s *FvmSimulator) putBlock(block block) uint32 {
 	s.blocksMutex.Lock()
 	defer s.blocksMutex.Unlock()
 
@@ -176,7 +172,7 @@ func (s *Fsm) putBlock(block block) uint32 {
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) getBlock(blockID uint32) (block, error) {
+func (s *FvmSimulator) getBlock(blockID uint32) (block, error) {
 	s.blocksMutex.Lock()
 	defer s.blocksMutex.Unlock()
 
@@ -187,7 +183,7 @@ func (s *Fsm) getBlock(blockID uint32) (block, error) {
 }
 
 // nolint
-func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
+func (s *FvmSimulator) putActor(actorID uint64, actor migration.Actor) error {
 	_, err := s.getActorWithActorid(uint32(actorID))
 	if err == nil {
 		return ErrorKeyExists
@@ -197,7 +193,7 @@ func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
 }
 
 // nolint
-func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
+func (s *FvmSimulator) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
 		return actor.(migration.Actor), nil
@@ -206,7 +202,7 @@ func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 }
 
 // nolint
-func (s *Fsm) getActorWithAddress(addr address.Address) (migration.Actor, error) {
+func (s *FvmSimulator) getActorWithAddress(addr address.Address) (migration.Actor, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 

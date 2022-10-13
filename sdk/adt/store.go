@@ -29,7 +29,6 @@ type Store interface {
 
 // AdtStore Adapts a vanilla IPLD store as an ADT store.
 func AdtStore(ctx context.Context) Store { //nolint
-
 	return &fvmStore{
 		ctx:       ctx,
 		IpldStore: &fvmStore{},
@@ -59,7 +58,6 @@ func (r fvmStore) Get(ctx context.Context, c cid.Cid, out interface{}) error {
 }
 
 func (r fvmStore) Put(ctx context.Context, in interface{}) (cid.Cid, error) {
-
 	marshalableObj, ok := in.(cbor.Marshaler)
 	if !ok {
 		return cid.Undef, fmt.Errorf("ipld store put method must be marshalable")

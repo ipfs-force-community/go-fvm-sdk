@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -11,18 +11,18 @@ import (
 
 // BaseFee gets the base fee for the current epoch.
 func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.BaseFee()
 	}
-	return &types.TokenAmount{}, nil
+	return &types.TokenAmount{}, ErrorEnvValid
 
 }
 
 // TotalFilCircSupply gets the circulating supply.
 func TotalFilCircSupply(ctx context.Context) (*types.TokenAmount, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.TotalFilCircSupply()
 	}
-	return &types.TokenAmount{}, nil
+	return &types.TokenAmount{}, ErrorEnvValid
 
 }

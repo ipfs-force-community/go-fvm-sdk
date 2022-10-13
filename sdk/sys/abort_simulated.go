@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -8,9 +8,9 @@ import (
 )
 
 func Abort(ctx context.Context, code uint32, msg string) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		env.Abort(code, msg)
 		return
 	}
-	
+
 }

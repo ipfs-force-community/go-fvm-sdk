@@ -1,5 +1,5 @@
-//go:build !simulated
-// +build !simulated
+//go:build !simulate
+// +build !simulate
 
 // Package sys ...
 package sys

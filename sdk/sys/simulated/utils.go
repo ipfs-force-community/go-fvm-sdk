@@ -10,7 +10,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
-	"github.com/spaolacci/murmur3"
+	"github.com/twmb/murmur3"
 )
 
 func blakehash(data []byte) []byte {

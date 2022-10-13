@@ -1,5 +1,5 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
@@ -10,8 +10,8 @@ import (
 )
 
 func VMContext(ctx context.Context) (*types.InvocationContext, error) {
-	if env, ok := isSimulatedEnv(ctx); ok {
+	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VMContext()
 	}
-	return &types.InvocationContext{}, nil
+	return &types.InvocationContext{}, ErrorEnvValid
 }

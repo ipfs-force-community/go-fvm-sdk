@@ -39,12 +39,11 @@ func AsMap(s Store, root cid.Cid, bitwidth int) (*Map, error) {
 		return nil, fmt.Errorf("failed to load hamt node: %w", err)
 	}
 
-	temp := &Map{
+	return &Map{
 		lastCid: root,
 		root:    nd,
 		store:   s,
-	}
-	return temp, nil
+	}, nil
 }
 
 // MakeEmptyMap creates a new map backed by an empty HAMT.
@@ -97,7 +96,6 @@ func (m *Map) Put(k abi.Keyer, v cbor.Marshaler) error {
 // Returns whether the key was found.
 func (m *Map) Get(k abi.Keyer, out cbor.Unmarshaler) (bool, error) {
 	if found, err := m.root.Find(m.store.Context(), k.Key(), out); err != nil {
-
 		return false, fmt.Errorf("failed to get key %v in node %v: %w", m.lastCid, k.Key(), err)
 	} else { //nolint
 		return found, nil

@@ -16,7 +16,7 @@ type TestingT struct {
 }
 
 func NewTestingT() *TestingT {
-	logger, _ := sdk.NewLogger(context.Background())
+	logger, _ := sdk.NewLogger()
 	return &TestingT{
 		errBuf: bytes.NewBufferString(""),
 		logger: logger,
