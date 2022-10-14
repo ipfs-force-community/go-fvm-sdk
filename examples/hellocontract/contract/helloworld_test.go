@@ -17,16 +17,7 @@ import (
 
 func newSimulated() (*simulated.FvmSimulator, context.Context) {
 	callcontext := &types.InvocationContext{}
-	h, _ := mh.Sum([]byte("TEST"), mh.SHA3, 4)
-
-	rootcid := cid.NewCidV1(7, h)
-	basefee_ := big.NewInt(1)
-	basefee := types.FromBig(&basefee_)
-	totalFilCircSupply_ := big.NewInt(1)
-	totalFilCircSupply := types.FromBig(&totalFilCircSupply_)
-	currentBalance_ := big.NewInt(999)
-	currentBalance := types.FromBig(&currentBalance_)
-	return simulated.CreateSimulateEnv(callcontext, rootcid, &basefee, &totalFilCircSupply, &currentBalance)
+	return simulated.CreateSimulateEnv(callcontext, big.NewInt(1), big.NewInt(1), big.NewInt(1))
 }
 
 func TestSayHello(t *testing.T) {
