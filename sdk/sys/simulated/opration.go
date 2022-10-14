@@ -29,7 +29,7 @@ func (s *FvmSimulator) SelfSetRoot(id cid.Cid) error {
 }
 
 func (s *FvmSimulator) SelfCurrentBalance() (*types.TokenAmount, error) {
-	return s.baseFee, nil
+	return &s.baseFee, nil
 }
 
 func (s *FvmSimulator) SelfDestruct(addr address.Address) error {
@@ -76,8 +76,8 @@ func (s *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error)
 }
 
 func (s *FvmSimulator) NewActorAddress() (address.Address, error) {
-	seedMsg := time.Now().String()
-	return address.NewActorAddress([]byte(seedMsg))
+	seed := time.Now().String()
+	return address.NewActorAddress([]byte(seed))
 }
 
 func (s *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
@@ -197,11 +197,11 @@ func (s *FvmSimulator) GetBeaconRandomness(dst int64, round int64, entropy []byt
 }
 
 func (s *FvmSimulator) BaseFee() (*types.TokenAmount, error) {
-	return s.baseFee, nil
+	return &s.baseFee, nil
 }
 
 func (s *FvmSimulator) TotalFilCircSupply() (*types.TokenAmount, error) {
-	return s.totalFilCircSupply, nil
+	return &s.totalFilCircSupply, nil
 }
 
 func (s *FvmSimulator) Charge(name string, compute uint64) error {

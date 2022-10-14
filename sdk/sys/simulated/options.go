@@ -45,17 +45,17 @@ func (s *FvmSimulator) SetAccount(actorID uint32, addr address.Address, actor mi
 
 func (s *FvmSimulator) SetBaseFee(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	s.baseFee = &amount
+	s.baseFee = amount
 }
 
 func (s *FvmSimulator) SetTotalFilCircSupply(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	s.totalFilCircSupply = &amount
+	s.totalFilCircSupply = amount
 }
 
 func (s *FvmSimulator) SetCurrentBalance(ta big.Int) {
 	amount, _ := types.FromString(ta.String())
-	s.currentBalance = &amount
+	s.currentBalance = amount
 }
 
 func (s *FvmSimulator) SetCallContext(callcontext *types.InvocationContext) {

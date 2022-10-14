@@ -36,8 +36,9 @@ func (s *block) stat() BlockStat {
 type blocks []block
 
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) (*FvmSimulator, context.Context) {
-	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
+func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int, currentBalance big.Int) (*FvmSimulator, context.Context) {
+
+	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: types.FromBig(&baseFee), totalFilCircSupply: types.FromBig(&totalFilCircSupply), currentBalance: types.FromBig(&currentBalance)}
 	return fsm, context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
 }
 
@@ -59,9 +60,9 @@ type FvmSimulator struct {
 
 	callContext        *types.InvocationContext
 	rootCid            cid.Cid
-	baseFee            *types.TokenAmount
-	totalFilCircSupply *types.TokenAmount
-	currentBalance     *types.TokenAmount
+	baseFee            types.TokenAmount
+	totalFilCircSupply types.TokenAmount
+	currentBalance     types.TokenAmount
 	sendList           []SendMock
 }
 
@@ -90,7 +91,7 @@ func (a *FvmSimulator) sendMatch(to address.Address, method uint64, params uint3
 	return nil, false
 }
 
-func (s *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cid_ cid.Cid, err error) {
+func (s *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (blkCid cid.Cid, err error) {
 	block, err := s.getBlock(blockid)
 	if err != nil {
 		return cid.Undef, err
@@ -98,8 +99,8 @@ func (s *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32)
 
 	Mult, _ := mh.Sum(block.data, hashfun, int(hashlen))
 
-	cid_ = cid.NewCidV1(block.codec, Mult)
-	s.putData(cid_, block.data)
+	blkCid = cid.NewCidV1(block.codec, Mult)
+	s.putData(blkCid, block.data)
 	return
 }
 
