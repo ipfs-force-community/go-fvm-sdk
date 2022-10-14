@@ -11,12 +11,12 @@ func Enabled(ctx context.Context) (bool, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Enabled()
 	}
-	return false, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func Log(ctx context.Context, msg string) error {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Log(msg)
 	}
-	return ErrorEnvValid
+	panic(ErrorEnvValid)
 }

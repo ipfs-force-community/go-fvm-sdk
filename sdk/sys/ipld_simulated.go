@@ -14,7 +14,7 @@ func Open(ctx context.Context, id cid.Cid) (*types.IpldOpen, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Open(id)
 	}
-	return &types.IpldOpen{}, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func Create(ctx context.Context, codec uint64, data []byte) (uint32, error) {
@@ -22,29 +22,26 @@ func Create(ctx context.Context, codec uint64, data []byte) (uint32, error) {
 		a, v := env.Create(codec, data)
 		return a, v
 	}
-	return 0, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func Read(ctx context.Context, id uint32, offset, size uint32) ([]byte, uint32, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Read(id, offset, size)
 	}
-	return []byte{}, 0, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func Stat(ctx context.Context, id uint32) (*types.IpldStat, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Stat(id)
 	}
-	return &types.IpldStat{}, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }
 
 func BlockLink(ctx context.Context, id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.BlockLink(id, hashFun, hashLen, cidBuf)
 	}
-
-	return cid.Undef, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }

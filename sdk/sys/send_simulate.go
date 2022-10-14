@@ -14,5 +14,5 @@ func Send(ctx context.Context, to address.Address, method uint64, params uint32,
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Send(to, method, params, value)
 	}
-	return &types.Send{}, ErrorEnvValid
+	panic(ErrorEnvValid)
 }

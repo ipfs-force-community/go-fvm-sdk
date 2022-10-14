@@ -12,5 +12,5 @@ func Abort(ctx context.Context, code uint32, msg string) {
 		env.Abort(code, msg)
 		return
 	}
-
+	panic(ErrorEnvValid)
 }

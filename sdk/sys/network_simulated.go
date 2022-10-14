@@ -14,8 +14,7 @@ func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.BaseFee()
 	}
-	return &types.TokenAmount{}, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }
 
 // TotalFilCircSupply gets the circulating supply.
@@ -23,6 +22,5 @@ func TotalFilCircSupply(ctx context.Context) (*types.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.TotalFilCircSupply()
 	}
-	return &types.TokenAmount{}, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }

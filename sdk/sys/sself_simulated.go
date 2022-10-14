@@ -15,29 +15,26 @@ func SelfRoot(ctx context.Context) (cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfRoot()
 	}
-	return cid.Undef, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func SelfSetRoot(ctx context.Context, id cid.Cid) error {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfSetRoot(id)
 	}
-	return ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }
 
 func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfCurrentBalance()
 	}
-	return &types.TokenAmount{}, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }
 
 func SelfDestruct(ctx context.Context, addr addr.Address) error {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfDestruct(addr)
 	}
-	return ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }

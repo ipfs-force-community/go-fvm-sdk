@@ -24,14 +24,14 @@ func VerifySignature(
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifySignature(signature, signer, plaintext)
 	}
-	return false, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.HashBlake2b(data)
 	}
-	return [32]byte{}, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func ComputeUnsealedSectorCid(
@@ -42,7 +42,7 @@ func ComputeUnsealedSectorCid(
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.ComputeUnsealedSectorCid(proofType, pieces)
 	}
-	return cid.Undef, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 // VerifySeal Verifies a sector seal proof.
@@ -58,7 +58,7 @@ func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, er
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifyPost(info)
 	}
-	return false, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func VerifyConsensusFault(
@@ -70,27 +70,26 @@ func VerifyConsensusFault(
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifyConsensusFault(h1, h2, extra)
 	}
-	return &runtime.ConsensusFault{}, ErrorEnvValid
+	panic(ErrorEnvValid)
 }
 
 func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifyAggregateSeals(info)
 	}
-	return false, ErrorEnvValid
-
+	panic(ErrorEnvValid)
 }
 
 func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VerifyReplicaUpdate(info)
 	}
-	return false, nil
+	panic(ErrorEnvValid)
 }
 
 func BatchVerifySeals(ctx context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.BatchVerifySeals(sealVerifyInfos)
 	}
-	return []bool{}, nil
+	panic(ErrorEnvValid)
 }

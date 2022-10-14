@@ -36,8 +36,8 @@ func (s *block) stat() BlockStat {
 type blocks []block
 
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, rootCid cid.Cid, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) (*FvmSimulator, context.Context) {
-	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: rootCid, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
+func CreateSimulateEnv(callContext *types.InvocationContext, baseFee *types.TokenAmount, totalFilCircSupply *types.TokenAmount, currentBalance *types.TokenAmount) (*FvmSimulator, context.Context) {
+	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: baseFee, totalFilCircSupply: totalFilCircSupply, currentBalance: currentBalance}
 	return fsm, context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
 }
 

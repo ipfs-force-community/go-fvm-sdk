@@ -13,5 +13,5 @@ func VMContext(ctx context.Context) (*types.InvocationContext, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.VMContext()
 	}
-	return &types.InvocationContext{}, ErrorEnvValid
+	panic(ErrorEnvValid)
 }

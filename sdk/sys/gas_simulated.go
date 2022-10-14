@@ -12,5 +12,5 @@ func Charge(ctx context.Context, name string, compute uint64) error {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Charge(name, compute)
 	}
-	return ErrorEnvValid
+	panic(ErrorEnvValid)
 }

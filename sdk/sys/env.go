@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrorEnvValid = errors.New("id is valid")
+	ErrorEnvValid = errors.New("env is valid")
 )
 
 func tryGetSimulator(ctx context.Context) (*simulated.FvmSimulator, bool) {
