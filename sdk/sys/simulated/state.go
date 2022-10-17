@@ -37,17 +37,13 @@ type blocks []block
 
 // CreateSimulateEnv new context of simulated
 func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int, currentBalance big.Int) (*FvmSimulator, context.Context) {
-
 	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: types.FromBig(&baseFee), totalFilCircSupply: types.FromBig(&totalFilCircSupply), currentBalance: types.FromBig(&currentBalance)}
-	return fsm, context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
-}
-
-// CreateEntityEnv new context of entity
-func CreateEntityEnv() context.Context {
-	return context.WithValue(context.Background(), types.SimulatedEnvkey, "")
+	fsm.Context = context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
+	return fsm, fsm.Context
 }
 
 type FvmSimulator struct {
+	Context     context.Context
 	blocksMutex sync.Mutex
 	blocks      blocks
 	blockid     uint32
