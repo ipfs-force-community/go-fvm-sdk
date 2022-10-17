@@ -10,3 +10,5 @@ target
 *.log
 *.patch
 /bin
+
+.DS_Store
