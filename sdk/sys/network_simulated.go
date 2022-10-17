@@ -1,17 +1,26 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
+	"context"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 )
 
-func BaseFee() (*types.TokenAmount, error) {
-	return simulated.DefaultFsm.BaseFee()
+// BaseFee gets the base fee for the current epoch.
+func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.BaseFee()
+	}
+	panic(ErrorEnvValid)
 }
 
-func TotalFilCircSupply() (*types.TokenAmount, error) {
-	return simulated.DefaultFsm.TotalFilCircSupply()
+// TotalFilCircSupply gets the circulating supply.
+func TotalFilCircSupply(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.TotalFilCircSupply()
+	}
+	panic(ErrorEnvValid)
 }

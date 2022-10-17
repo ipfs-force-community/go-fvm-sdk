@@ -1,13 +1,17 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
+	"context"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func VMContext() (*types.InvocationContext, error) {
-	return simulated.DefaultFsm.VMContext()
+func VMContext(ctx context.Context) (*types.InvocationContext, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VMContext()
+	}
+	panic(ErrorEnvValid)
 }

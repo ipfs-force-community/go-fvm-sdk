@@ -1,6 +1,8 @@
 package sdk
 
 import (
+	"context"
+
 	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -9,8 +11,8 @@ import (
 
 // Root Get the IPLD root CID. Fails if the actor doesn't have state (before the first call to
 // `set_root` and after actor deletion).
-func Root() (cid.Cid, error) {
-	return sys.SelfRoot()
+func Root(ctx context.Context) (cid.Cid, error) {
+	return sys.SelfRoot(ctx)
 }
 
 // SetRoot set the actor's state-tree root.
@@ -19,13 +21,13 @@ func Root() (cid.Cid, error) {
 //
 // - The new root is not in the actor's "reachable" set.
 // - Fails if the actor has been deleted.
-func SetRoot(c cid.Cid) error {
-	return sys.SelfSetRoot(c)
+func SetRoot(ctx context.Context, c cid.Cid) error {
+	return sys.SelfSetRoot(ctx, c)
 }
 
 // CurrentBalance gets the current balance for the calling actor.
-func CurrentBalance() *types.TokenAmount {
-	tok, err := sys.SelfCurrentBalance()
+func CurrentBalance(ctx context.Context) *types.TokenAmount {
+	tok, err := sys.SelfCurrentBalance(ctx)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -36,6 +38,6 @@ func CurrentBalance() *types.TokenAmount {
 // to the supplied address, which cannot be itself.
 //
 // Fails if the beneficiary doesn't exist or is the actor being deleted.
-func SelfDestruct(addr addr.Address) error {
-	return sys.SelfDestruct(addr)
+func SelfDestruct(ctx context.Context, addr addr.Address) error {
+	return sys.SelfDestruct(ctx, addr)
 }

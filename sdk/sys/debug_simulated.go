@@ -1,16 +1,22 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
+	"context"
 )
 
-func Enabled() (bool, error) {
-	return simulated.DefaultFsm.Enabled()
+func Enabled(ctx context.Context) (bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Enabled()
+	}
+	panic(ErrorEnvValid)
 }
 
-func Log(msg string) error {
-	return simulated.DefaultFsm.Log(msg)
+func Log(ctx context.Context, msg string) error {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Log(msg)
+	}
+	panic(ErrorEnvValid)
 }

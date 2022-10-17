@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/testing"
 	"github.com/stretchr/testify/assert"
@@ -12,8 +14,8 @@ func main() {} //nolint
 func Invoke(_ uint32) uint32 { //nolint
 	t := testing.NewTestingT()
 	defer t.CheckResult()
-
-	err := sdk.Charge("OnChainMessage", 38863)
+	ctx := context.Background()
+	err := sdk.Charge(ctx, "OnChainMessage", 38863)
 	assert.Nil(t, err, "charge gas %v", err)
 
 	return 0

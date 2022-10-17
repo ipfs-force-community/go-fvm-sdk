@@ -346,7 +346,7 @@ impl<'a> GoFvmBinProcessor<'a> {
                     Instruction::I32Load(2, 0), //why -1
                     Instruction::GetLocal(1),
                     Instruction::I32Load(2, 4),
-                    Instruction::Call(new_insert_debug_index as u32),
+                    Instruction::Call(new_insert_debug_index),
                 ]),
             );
             codes.push(fd_write_code);

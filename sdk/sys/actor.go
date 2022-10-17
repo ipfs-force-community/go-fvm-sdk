@@ -1,10 +1,10 @@
-//go:build !simulated
-// +build !simulated
+//go:build !simulate
+// +build !simulate
 
-// Package sys : a go-fvm-sdk system calls
 package sys
 
 import (
+	"context"
 	"fmt"
 	"unsafe"
 
@@ -15,7 +15,7 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-func ResolveAddress(addr address.Address) (abi.ActorID, error) {
+func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
 	if addr.Protocol() == address.ID {
 		actid, err := address.IDFromAddress(addr)
 		return abi.ActorID(actid), err
@@ -29,7 +29,7 @@ func ResolveAddress(addr address.Address) (abi.ActorID, error) {
 	return result, nil
 }
 
-func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
+func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
@@ -50,7 +50,7 @@ func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
 	}
 }
 
-func ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
+func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
 	var result types.ActorType
 	code := actorResolveBuiltinActorType(uintptr(unsafe.Pointer(&result)), addrBufPtr)
@@ -60,7 +60,7 @@ func ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
 	return result, nil
 }
 
-func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
+func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, error) {
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
@@ -76,7 +76,7 @@ func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
 	return result, nil
 }
 
-func NewActorAddress() (address.Address, error) {
+func NewActorAddress(ctx context.Context) (address.Address, error) {
 	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
@@ -88,7 +88,7 @@ func NewActorAddress() (address.Address, error) {
 	return address.NewFromBytes(buf[:addrLen])
 }
 
-func CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
+func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
 	code := actorCreateActor(uint64(actorID), addrBufPtr)
 	if code != 0 {

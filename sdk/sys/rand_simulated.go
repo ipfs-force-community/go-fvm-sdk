@@ -1,17 +1,24 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
+	"context"
+
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 )
 
-func GetChainRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	return simulated.DefaultFsm.GetChainRandomness(dst, round, entropy)
+func GetChainRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.GetChainRandomness(dst, round, entropy)
+	}
+	panic(ErrorEnvValid)
 }
 
-func GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	return simulated.DefaultFsm.GetBeaconRandomness(dst, round, entropy)
+func GetBeaconRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.GetBeaconRandomness(dst, round, entropy)
+	}
+	panic(ErrorEnvValid)
 }

@@ -1,66 +1,95 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
+	"context"
+
 	address "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
 func VerifySignature(
+	ctx context.Context,
 	signature *crypto.Signature,
 	signer *address.Address,
 	plaintext []byte,
 ) (bool, error) {
-	return simulated.DefaultFsm.VerifySignature(signature, signer, plaintext)
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifySignature(signature, signer, plaintext)
+	}
+	panic(ErrorEnvValid)
 }
 
-func HashBlake2b(data []byte) ([32]byte, error) {
-	return simulated.DefaultFsm.HashBlake2b(data)
+func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.HashBlake2b(data)
+	}
+	panic(ErrorEnvValid)
 }
 
 func ComputeUnsealedSectorCid(
+	ctx context.Context,
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
-
-	return simulated.DefaultFsm.ComputeUnsealedSectorCid(proofType, pieces)
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.ComputeUnsealedSectorCid(proofType, pieces)
+	}
+	panic(ErrorEnvValid)
 }
 
 // VerifySeal Verifies a sector seal proof.
-func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
-	return simulated.DefaultFsm.VerifySeal(info)
+func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifySeal(info)
+	}
+	return false, nil
 }
 
 // VerifyPost Verifies a sector seal proof.
-func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
-	return simulated.DefaultFsm.VerifyPost(info)
+func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifyPost(info)
+	}
+	panic(ErrorEnvValid)
 }
 
 func VerifyConsensusFault(
+	ctx context.Context,
 	h1 []byte,
 	h2 []byte,
 	extra []byte,
 ) (*runtime.ConsensusFault, error) {
-
-	return simulated.DefaultFsm.VerifyConsensusFault(h1, h2, extra)
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifyConsensusFault(h1, h2, extra)
+	}
+	panic(ErrorEnvValid)
 }
 
-func VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
-	return simulated.DefaultFsm.VerifyAggregateSeals(info)
+func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifyAggregateSeals(info)
+	}
+	panic(ErrorEnvValid)
 }
 
-func VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
-	return simulated.DefaultFsm.VerifyReplicaUpdate(info)
+func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.VerifyReplicaUpdate(info)
+	}
+	panic(ErrorEnvValid)
 }
 
-func BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
-	return simulated.DefaultFsm.BatchVerifySeals(sealVerifyInfos)
+func BatchVerifySeals(ctx context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.BatchVerifySeals(sealVerifyInfos)
+	}
+	panic(ErrorEnvValid)
 }

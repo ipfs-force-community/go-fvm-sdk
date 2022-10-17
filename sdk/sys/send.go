@@ -1,9 +1,10 @@
-//go:build !simulated
-// +build !simulated
+//go:build !simulate
+// +build !simulate
 
 package sys
 
 import (
+	"context"
 	"unsafe"
 
 	"github.com/filecoin-project/go-address"
@@ -12,7 +13,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func Send(to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
+func Send(ctx context.Context, to address.Address, method uint64, params uint32, value types.TokenAmount) (*types.Send, error) {
 	send := new(types.Send)
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(to.Bytes())
 	code := sysSend(uintptr(unsafe.Pointer(send)), addrBufPtr, addrBufLen, method, params, value.Hi, value.Lo)

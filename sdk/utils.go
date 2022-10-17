@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"unsafe"
 
@@ -13,65 +14,65 @@ import (
 )
 
 // SaveState save actor state
-func SaveState(state cbor.Marshaler) cid.Cid {
+func SaveState(ctx context.Context, state cbor.Marshaler) cid.Cid {
 	buf := bytes.NewBuffer([]byte{})
 	err := state.MarshalCBOR(buf)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 	stBytes := buf.Bytes()
-	stCid, err := Put(0xb220, 32, types.DAGCbor, stBytes)
+	stCid, err := Put(ctx, 0xb220, 32, types.DAGCbor, stBytes)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 
-	err = SetRoot(stCid)
+	err = SetRoot(ctx, stCid)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 	return stCid
 }
 
 // Constructor construct a acor with initialize state
-func Constructor(state cbor.Marshaler) error {
-	caller, err := Caller()
+func Constructor(ctx context.Context, state cbor.Marshaler) error {
+	caller, err := Caller(ctx)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, "unable to get caller")
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get caller")
 	}
 
 	if caller != 1 {
-		Abort(ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, "constructor invoked by non-init actor")
 	}
 
-	_ = SaveState(state)
+	_ = SaveState(ctx, state)
 	return nil
 }
 
 // LoadState loads actors current state
-func LoadState(state cbor.Unmarshaler) {
-	root, err := Root()
+func LoadState(ctx context.Context, state cbor.Unmarshaler) {
+	root, err := Root(ctx)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 
-	data, err := Get(root)
+	data, err := Get(ctx, root)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
 	}
 	err = state.UnmarshalCBOR(bytes.NewReader(data))
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
 	}
 }
 
-func LoadStateFromCid(cid cid.Cid, state cbor.Unmarshaler) { // nolint
-	data, err := Get(cid)
+func LoadStateFromCid(ctx context.Context, cid cid.Cid, state cbor.Unmarshaler) { // nolint
+	data, err := Get(ctx, cid)
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
 	}
 	err = state.UnmarshalCBOR(bytes.NewReader(data))
 	if err != nil {
-		Abort(ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
+		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get data: %v", err))
 	}
 }
 

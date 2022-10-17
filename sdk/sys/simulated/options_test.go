@@ -9,10 +9,11 @@ import (
 )
 
 func TestSetSend(t *testing.T) {
-	sendMockCase := make([]SendMock, 0)
-	sendMockCase = append(sendMockCase, SendMock{address.Undef, 1, 1, big.NewInt(1), types.Send{}})
-	SetSend(sendMockCase...)
-	_, ok := DefaultFsm.sendMatch(address.Undef, 1, 1, big.NewInt(1))
+	sendmockcase := make([]SendMock, 0)
+	sendmockcase = append(sendmockcase, SendMock{address.Undef, 1, 1, big.NewInt(1), types.Send{}})
+	defaultfsm := FvmSimulator{}
+	defaultfsm.SetSend(sendmockcase...)
+	_, ok := defaultfsm.sendMatch(address.Undef, 1, 1, big.NewInt(1))
 	if ok != true {
 		t.Errorf("match is failed")
 	}

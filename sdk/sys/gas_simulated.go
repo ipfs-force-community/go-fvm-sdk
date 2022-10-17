@@ -1,13 +1,16 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
+	"context"
 )
 
 // Charge charge gas for the operation identified by name.
-func Charge(name string, compute uint64) error {
-	return simulated.DefaultFsm.Charge(name, compute)
+func Charge(ctx context.Context, name string, compute uint64) error {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Charge(name, compute)
+	}
+	panic(ErrorEnvValid)
 }

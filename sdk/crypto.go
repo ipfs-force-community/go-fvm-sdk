@@ -1,6 +1,8 @@
 package sdk
 
 import (
+	"context"
+
 	address "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
@@ -13,34 +15,36 @@ import (
 
 // VerifySignature verifies that a signature is valid for an address and plaintext.
 func VerifySignature(
+	ctx context.Context,
 	signature *crypto.Signature,
 	signer *address.Address,
 	plainText []byte,
 ) (bool, error) {
-	return sys.VerifySignature(signature, signer, plainText)
+	return sys.VerifySignature(ctx, signature, signer, plainText)
 }
 
 // HashBlake2b hashes input data using blake2b with 256 bit output.
-func HashBlake2b(data []byte) ([32]byte, error) {
-	return sys.HashBlake2b(data)
+func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
+	return sys.HashBlake2b(ctx, data)
 }
 
 // ComputeUnsealedSectorCid computes an unsealed sector CID (CommD) from its constituent piece CIDs (CommPs) and sizes.
 func ComputeUnsealedSectorCid(
+	ctx context.Context,
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
-	return sys.ComputeUnsealedSectorCid(proofType, pieces)
+	return sys.ComputeUnsealedSectorCid(ctx, proofType, pieces)
 }
 
 // VerifySeal verifies a sector seal proof.
-func VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
-	return sys.VerifySeal(info)
+func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
+	return sys.VerifySeal(ctx, info)
 }
 
 // VerifyPost verifies a sector seal proof.
-func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
-	return sys.VerifyPost(info)
+func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, error) {
+	return sys.VerifyPost(ctx, info)
 }
 
 // VerifyConsensusFault verifies that two block headers provide proof of a consensus fault:
@@ -54,24 +58,25 @@ func VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
 // blocks in the parent of h2 (i.e. h2's grandparent).
 // Returns None and an error if the headers don't prove a fault.
 func VerifyConsensusFault(
+	ctx context.Context,
 	h1 []byte,
 	h2 []byte,
 	extra []byte,
 ) (*runtime.ConsensusFault, error) {
-	return sys.VerifyConsensusFault(h1, h2, extra)
+	return sys.VerifyConsensusFault(ctx, h1, h2, extra)
 }
 
 // VerifyAggregateSeals verifies aggregate proof of replication of sectors
-func VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
-	return sys.VerifyAggregateSeals(info)
+func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
+	return sys.VerifyAggregateSeals(ctx, info)
 }
 
 // VerifyReplicaUpdate verifies sector replica update
-func VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
-	return sys.VerifyReplicaUpdate(info)
+func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
+	return sys.VerifyReplicaUpdate(ctx, info)
 }
 
 // BatchVerifySeals batch verifies seals
-func BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
-	return sys.BatchVerifySeals(sealVerifyInfos)
+func BatchVerifySeals(ctx context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
+	return sys.BatchVerifySeals(ctx, sealVerifyInfos)
 }

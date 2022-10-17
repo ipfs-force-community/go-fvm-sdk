@@ -1,9 +1,12 @@
-//go:build !simulated
-// +build !simulated
+//go:build !simulate
+// +build !simulate
 
+// Package sys ...
 package sys
 
-func Abort(code uint32, msg string) {
+import "context"
+
+func Abort(ctx context.Context, code uint32, msg string) {
 	strPtr, strLen := GetStringPointerAndLen(msg)
 	_ = vmAbort(code, strPtr, strLen)
 }

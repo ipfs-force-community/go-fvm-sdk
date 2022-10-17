@@ -1,30 +1,47 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
+	"context"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func Open(id cid.Cid) (*types.IpldOpen, error) {
-	return simulated.DefaultFsm.Open(id)
+func Open(ctx context.Context, id cid.Cid) (*types.IpldOpen, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Open(id)
+	}
+	panic(ErrorEnvValid)
 }
 
-func Create(codec uint64, data []byte) (uint32, error) {
-	return simulated.DefaultFsm.Create(codec, data)
+func Create(ctx context.Context, codec uint64, data []byte) (uint32, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		a, v := env.Create(codec, data)
+		return a, v
+	}
+	panic(ErrorEnvValid)
 }
 
-func Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
-	return simulated.DefaultFsm.Read(id, offset, size)
+func Read(ctx context.Context, id uint32, offset, size uint32) ([]byte, uint32, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Read(id, offset, size)
+	}
+	panic(ErrorEnvValid)
 }
 
-func Stat(id uint32) (*types.IpldStat, error) {
-	return simulated.DefaultFsm.Stat(id)
+func Stat(ctx context.Context, id uint32) (*types.IpldStat, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Stat(id)
+	}
+	panic(ErrorEnvValid)
 }
 
-func BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cided cid.Cid, err error) {
-	return simulated.DefaultFsm.BlockLink(id, hashFun, hashLen, cidBuf)
+func BlockLink(ctx context.Context, id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.BlockLink(id, hashFun, hashLen, cidBuf)
+	}
+	panic(ErrorEnvValid)
 }

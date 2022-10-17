@@ -1,6 +1,8 @@
 package sdk
 
 import (
+	"context"
+
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/network"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -12,10 +14,10 @@ import (
 var InvocationCtx *types.InvocationContext
 
 // Caller get caller, from address of message
-func Caller() (abi.ActorID, error) {
+func Caller(ctx context.Context) (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return 0, err
 		}
@@ -24,10 +26,10 @@ func Caller() (abi.ActorID, error) {
 }
 
 // Receiver get recevier, to address of message
-func Receiver() (abi.ActorID, error) {
+func Receiver(ctx context.Context) (abi.ActorID, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return 0, err
 		}
@@ -36,10 +38,10 @@ func Receiver() (abi.ActorID, error) {
 }
 
 // MethodNumber method number
-func MethodNumber() (abi.MethodNum, error) {
+func MethodNumber(ctx context.Context) (abi.MethodNum, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return 0, err
 		}
@@ -48,10 +50,10 @@ func MethodNumber() (abi.MethodNum, error) {
 }
 
 // ValueReceived the amount was transferred in message
-func ValueReceived() (*types.TokenAmount, error) {
+func ValueReceived(ctx context.Context) (*types.TokenAmount, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -64,16 +66,16 @@ func ValueReceived() (*types.TokenAmount, error) {
 }
 
 // ParamsRaw returns the message codec and parameters.
-func ParamsRaw(id types.BlockID) (*types.ParamsRaw, error) {
+func ParamsRaw(ctx context.Context, id types.BlockID) (*types.ParamsRaw, error) {
 	if id == types.NoDataBlockID {
 		return &types.ParamsRaw{}, nil
 	}
-	state, err := sys.Stat(id)
+	state, err := sys.Stat(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := GetBlock(id, &state.Size)
+	block, err := GetBlock(ctx, id, &state.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +86,10 @@ func ParamsRaw(id types.BlockID) (*types.ParamsRaw, error) {
 }
 
 // CurrEpoch get network current epoch
-func CurrEpoch() (abi.ChainEpoch, error) {
+func CurrEpoch(ctx context.Context) (abi.ChainEpoch, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return 0, err
 		}
@@ -96,10 +98,10 @@ func CurrEpoch() (abi.ChainEpoch, error) {
 }
 
 // Version network version
-func Version() (network.Version, error) {
+func Version(ctx context.Context) (network.Version, error) {
 	if InvocationCtx == nil {
 		var err error
-		InvocationCtx, err = sys.VMContext()
+		InvocationCtx, err = sys.VMContext(ctx)
 		if err != nil {
 			return 0, err
 		}

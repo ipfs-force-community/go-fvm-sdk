@@ -2,6 +2,7 @@
 package simulated
 
 import (
+	"context"
 	"sync"
 
 	"github.com/filecoin-project/go-address"
@@ -12,7 +13,7 @@ import (
 	mh "github.com/multiformats/go-multihash"
 )
 
-//nolint
+// nolint
 type IpldOpen struct {
 	codec uint64
 	id    uint32
@@ -34,25 +35,20 @@ func (s *block) stat() BlockStat {
 
 type blocks []block
 
-var DefaultFsm *Fsm
-
-func init() {
-	Begin()
+// CreateSimulateEnv new context of simulated
+func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int, currentBalance big.Int) (*FvmSimulator, context.Context) {
+	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: types.FromBig(&baseFee), totalFilCircSupply: types.FromBig(&totalFilCircSupply), currentBalance: types.FromBig(&currentBalance)}
+	fsm.Context = context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
+	return fsm, fsm.Context
 }
 
-func Begin() {
-	DefaultFsm = newSate()
-}
-func End() {
-	DefaultFsm = newSate()
-}
-
-type Fsm struct {
+type FvmSimulator struct {
+	Context     context.Context
 	blocksMutex sync.Mutex
-	blocks
-	blockid    uint32
-	Ipld       sync.Map
-	actorMutex sync.Mutex
+	blocks      blocks
+	blockid     uint32
+	ipld        sync.Map
+	actorMutex  sync.Mutex
 	// actorid->ActorState
 	actorsMap sync.Map
 	// address->actorid
@@ -60,14 +56,14 @@ type Fsm struct {
 
 	callContext        *types.InvocationContext
 	rootCid            cid.Cid
-	baseFee            *types.TokenAmount
-	totalFilCircSupply *types.TokenAmount
-	currentBalance     *types.TokenAmount
-	SendList           []SendMock
+	baseFee            types.TokenAmount
+	totalFilCircSupply types.TokenAmount
+	currentBalance     types.TokenAmount
+	sendList           []SendMock
 }
 
-func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
-	for i, v := range a.SendList {
+func (a *FvmSimulator) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
+	for i, v := range a.sendList {
 		if to != v.to {
 			continue
 		}
@@ -80,10 +76,10 @@ func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value 
 		if !value.Equals(v.value) {
 			continue
 		}
-		if i == len(a.SendList)-1 {
-			a.SendList = a.SendList[0 : i-1]
+		if i == len(a.sendList)-1 {
+			a.sendList = a.sendList[0 : i-1]
 		} else {
-			a.SendList = append(a.SendList[:i], a.SendList[i+1:]...)
+			a.sendList = append(a.sendList[:i], a.sendList[i+1:]...)
 		}
 
 		return &v.out, true
@@ -91,27 +87,25 @@ func (a *Fsm) sendMatch(to address.Address, method uint64, params uint32, value 
 	return nil, false
 }
 
-func newSate() *Fsm {
-	return &Fsm{blockid: 1, Ipld: sync.Map{}}
-}
-
-func (s *Fsm) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (cided cid.Cid, err error) {
+func (s *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (blkCid cid.Cid, err error) {
 	block, err := s.getBlock(blockid)
 	if err != nil {
 		return cid.Undef, err
 	}
+
 	Mult, _ := mh.Sum(block.data, hashfun, int(hashlen))
-	cided = cid.NewCidV1(block.codec, Mult)
-	s.putData(cided, block.data)
+
+	blkCid = cid.NewCidV1(block.codec, Mult)
+	s.putData(blkCid, block.data)
 	return
 }
 
-func (s *Fsm) blockCreate(codec uint64, data []byte) uint32 {
+func (s *FvmSimulator) blockCreate(codec uint64, data []byte) uint32 {
 	s.putBlock(block{codec: codec, data: data})
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
+func (s *FvmSimulator) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
 	data, _ := s.getData(id)
 	block := block{data: data, codec: id.Prefix().GetCodec()}
 
@@ -121,7 +115,7 @@ func (s *Fsm) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
 
 }
 
-func (s *Fsm) blockRead(id uint32, offset uint32) ([]byte, error) {
+func (s *FvmSimulator) blockRead(id uint32, offset uint32) ([]byte, error) {
 	block, err := s.getBlock(id)
 	if err != nil {
 		return nil, err
@@ -134,7 +128,7 @@ func (s *Fsm) blockRead(id uint32, offset uint32) ([]byte, error) {
 	return data[offset:], nil
 }
 
-func (s *Fsm) blockStat(blockID uint32) (*types.IpldStat, error) {
+func (s *FvmSimulator) blockStat(blockID uint32) (*types.IpldStat, error) {
 	b, err := s.getBlock(blockID)
 	if err != nil {
 		return nil, ErrorNotFound
@@ -142,28 +136,28 @@ func (s *Fsm) blockStat(blockID uint32) (*types.IpldStat, error) {
 	return &types.IpldStat{Size: b.stat().size, Codec: b.codec}, ErrorNotFound
 }
 
-func (s *Fsm) putData(key cid.Cid, value []byte) {
-
-	s.Ipld.Store(key, value)
+func (s *FvmSimulator) putData(key cid.Cid, value []byte) {
+	s.ipld.Store(key, value)
 }
 
-func (s *Fsm) getData(key cid.Cid) ([]byte, error) {
-	value, ok := s.Ipld.Load(key)
+func (s *FvmSimulator) getData(key cid.Cid) ([]byte, error) {
+	value, ok := s.ipld.Load(key)
 	if ok {
 		return value.([]byte), nil
 	}
 	return nil, ErrorNotFound
 }
 
-func (s *Fsm) putBlock(block block) uint32 {
+func (s *FvmSimulator) putBlock(block block) uint32 {
 	s.blocksMutex.Lock()
 	defer s.blocksMutex.Unlock()
 
 	s.blocks = append(s.blocks, block)
+
 	return uint32(len(s.blocks) - 1)
 }
 
-func (s *Fsm) getBlock(blockID uint32) (block, error) {
+func (s *FvmSimulator) getBlock(blockID uint32) (block, error) {
 	s.blocksMutex.Lock()
 	defer s.blocksMutex.Unlock()
 
@@ -173,18 +167,18 @@ func (s *Fsm) getBlock(blockID uint32) (block, error) {
 	return s.blocks[blockID], nil
 }
 
-//nolint
-func (s *Fsm) putActor(actorID uint64, actor migration.Actor) error {
+// nolint
+func (s *FvmSimulator) putActor(actorID uint64, actor migration.Actor) error {
 	_, err := s.getActorWithActorid(uint32(actorID))
 	if err == nil {
 		return ErrorKeyExists
 	}
-	s.Ipld.Store(actorID, actor)
+	s.ipld.Store(actorID, actor)
 	return nil
 }
 
-//nolint
-func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
+// nolint
+func (s *FvmSimulator) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	actor, ok := s.actorsMap.Load(actorID)
 	if ok {
 		return actor.(migration.Actor), nil
@@ -192,8 +186,8 @@ func (s *Fsm) getActorWithActorid(actorID uint32) (migration.Actor, error) {
 	return migration.Actor{}, ErrorNotFound
 }
 
-//nolint
-func (s *Fsm) getActorWithAddress(addr address.Address) (migration.Actor, error) {
+// nolint
+func (s *FvmSimulator) getActorWithAddress(addr address.Address) (migration.Actor, error) {
 	s.actorMutex.Lock()
 	defer s.actorMutex.Unlock()
 

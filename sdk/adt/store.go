@@ -9,7 +9,7 @@ import (
 
 	"github.com/filecoin-project/go-state-types/cbor"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
-	cid "github.com/ipfs/go-cid"
+	"github.com/ipfs/go-cid"
 )
 
 // IpldStore wraps a Blockstore and provides an interface for storing and retrieving CBOR encoded data.
@@ -45,8 +45,8 @@ var _ Store = &fvmStore{}
 func (r fvmStore) Context() context.Context {
 	return r.ctx
 }
-func (r fvmStore) Get(_ context.Context, c cid.Cid, out interface{}) error {
-	data, err := sdk.Get(c)
+func (r fvmStore) Get(ctx context.Context, c cid.Cid, out interface{}) error {
+	data, err := sdk.Get(ctx, c)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (r fvmStore) Get(_ context.Context, c cid.Cid, out interface{}) error {
 	return unmarshalableObj.UnmarshalCBOR(bytes.NewBuffer(data))
 }
 
-func (r fvmStore) Put(_ context.Context, in interface{}) (cid.Cid, error) {
+func (r fvmStore) Put(ctx context.Context, in interface{}) (cid.Cid, error) {
 	marshalableObj, ok := in.(cbor.Marshaler)
 	if !ok {
 		return cid.Undef, fmt.Errorf("ipld store put method must be marshalable")
@@ -67,5 +67,5 @@ func (r fvmStore) Put(_ context.Context, in interface{}) (cid.Cid, error) {
 	if err != nil {
 		return cid.Undef, fmt.Errorf("marshal object fail")
 	}
-	return sdk.Put(types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, buf.Bytes())
+	return sdk.Put(ctx, types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, buf.Bytes())
 }

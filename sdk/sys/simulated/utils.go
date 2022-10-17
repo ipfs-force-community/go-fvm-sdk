@@ -2,7 +2,6 @@
 package simulated
 
 import (
-	"crypto/sha256"
 	"encoding/binary"
 	"reflect"
 	"unsafe"
@@ -41,10 +40,7 @@ func makeRandomness(dst int64, round int64, entropy []byte) []byte {
 	binary.BigEndian.PutUint64(roundbyte[0:8], abs(round))
 	entropy = append(entropy, dstbyte[:]...)
 	entropy = append(entropy, roundbyte[:]...)
-	h := sha256.New()
-	h.Write(entropy)
-	result := h.Sum(nil)
-	return result
+	return blakehash(entropy)
 }
 
 func abs(i int64) uint64 {

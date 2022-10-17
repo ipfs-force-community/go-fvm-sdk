@@ -19,3 +19,7 @@ type StringKey string
 func (k StringKey) Key() string {
 	return string(k)
 }
+
+type emptyKeyType struct{}
+
+var SimulatedEnvkey emptyKeyType

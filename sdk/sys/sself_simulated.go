@@ -1,27 +1,40 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
+	"context"
+
 	addr "github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func SelfRoot() (cid.Cid, error) {
-	return simulated.DefaultFsm.SelfRoot()
+func SelfRoot(ctx context.Context) (cid.Cid, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.SelfRoot()
+	}
+	panic(ErrorEnvValid)
 }
 
-func SelfSetRoot(id cid.Cid) error {
-	return simulated.DefaultFsm.SelfSetRoot(id)
+func SelfSetRoot(ctx context.Context, id cid.Cid) error {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.SelfSetRoot(id)
+	}
+	panic(ErrorEnvValid)
 }
 
-func SelfCurrentBalance() (*types.TokenAmount, error) {
-	return simulated.DefaultFsm.SelfCurrentBalance()
+func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.SelfCurrentBalance()
+	}
+	panic(ErrorEnvValid)
 }
 
-func SelfDestruct(addr addr.Address) error {
-	return simulated.DefaultFsm.SelfDestruct(addr)
+func SelfDestruct(ctx context.Context, addr addr.Address) error {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.SelfDestruct(addr)
+	}
+	panic(ErrorEnvValid)
 }

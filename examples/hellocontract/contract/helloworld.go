@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -23,17 +24,18 @@ func (e *State) Export() map[int]interface{} {
 // /
 // Method num 1. This is part of the Filecoin calling convention.
 // InitActor#Exec will call the constructor on method_num = 1.
-func Constructor() error {
+func Constructor(ctx context.Context) error {
 	// This constant should be part of the SDK.
 	// var  ActorID = 1;
-	_ = sdk.Constructor(&State{})
+	s := &State{}
+	_ = sdk.Constructor(ctx, s)
 	return nil
 }
 
 // Method num 2.
-func (st *State) SayHello() types.CBORBytes {
+func (st *State) SayHello(ctx context.Context) types.CBORBytes {
 	st.Count += 1
 	ret := fmt.Sprintf("%d", st.Count)
-	_ = sdk.SaveState(&State{})
+	_ = sdk.SaveState(ctx, &State{})
 	return []byte(ret)
 }

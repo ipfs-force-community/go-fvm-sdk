@@ -1,36 +1,55 @@
-//go:build simulated
-// +build simulated
+//go:build simulate
+// +build simulate
 
 package sys
 
 import (
+	"context"
+
 	address "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func ResolveAddress(addr address.Address) (abi.ActorID, error) {
-	return simulated.DefaultFsm.ResolveAddress(addr)
+func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.ResolveAddress(addr)
+	}
+	panic(ErrorEnvValid)
 }
 
-func GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
-	return simulated.DefaultFsm.GetActorCodeCid(addr)
+func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.GetActorCodeCid(addr)
+	}
+	panic(ErrorEnvValid)
 }
 
-func ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
-	return simulated.DefaultFsm.ResolveBuiltinActorType(codeCid)
+func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.ResolveBuiltinActorType(codeCid)
+	}
+	panic(ErrorEnvValid)
 }
 
-func GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
-	return simulated.DefaultFsm.GetCodeCidForType(actorT)
+func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.GetCodeCidForType(actorT)
+	}
+	panic(ErrorEnvValid)
 }
 
-func NewActorAddress() (address.Address, error) {
-	return simulated.DefaultFsm.NewActorAddress()
+func NewActorAddress(ctx context.Context) (address.Address, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.NewActorAddress()
+	}
+	panic(ErrorEnvValid)
 }
 
-func CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	return simulated.DefaultFsm.CreateActor(actorID, codeCid)
+func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.CreateActor(actorID, codeCid)
+	}
+	panic(ErrorEnvValid)
 }
