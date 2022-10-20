@@ -10,7 +10,7 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-func (s *FvmSimulator) VerifySignature(
+func (fvmSimulator *FvmSimulator) VerifySignature(
 	signature *crypto.Signature,
 	signer *address.Address,
 	plaintext []byte,
@@ -18,40 +18,40 @@ func (s *FvmSimulator) VerifySignature(
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) HashBlake2b(data []byte) ([32]byte, error) {
+func (fvmSimulator *FvmSimulator) HashBlake2b(data []byte) ([32]byte, error) {
 	result := blakehash(data)
 	var temp [32]byte
 	copy(temp[:], result[:32])
 	return temp, nil
 }
 
-func (s *FvmSimulator) ComputeUnsealedSectorCid(
+func (fvmSimulator *FvmSimulator) ComputeUnsealedSectorCid(
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
+func (fvmSimulator *FvmSimulator) VerifySeal(info *proof.SealVerifyInfo) (bool, error) {
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
+func (fvmSimulator *FvmSimulator) VerifyPost(info *proof.WindowPoStVerifyInfo) (bool, error) {
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) VerifyConsensusFault(h1 []byte, h2 []byte, extra []byte,
+func (fvmSimulator *FvmSimulator) VerifyConsensusFault(h1 []byte, h2 []byte, extra []byte,
 ) (*runtime.ConsensusFault, error) {
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
+func (fvmSimulator *FvmSimulator) VerifyAggregateSeals(info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
 	panic("This is not implement")
 }
 
-func (s *FvmSimulator) VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
+func (fvmSimulator *FvmSimulator) VerifyReplicaUpdate(info *types.ReplicaUpdateInfo) (bool, error) {
 	panic("This is not implement")
 }
-func (s *FvmSimulator) BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
+func (fvmSimulator *FvmSimulator) BatchVerifySeals(sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
 	panic("This is not implement")
 }

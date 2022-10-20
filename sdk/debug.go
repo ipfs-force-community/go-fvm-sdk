@@ -10,8 +10,8 @@ import (
 // Logger is a debug-only logger that uses the FVM syscalls.
 type Logger interface {
 	Enabled(ctx context.Context) bool
-	Log(ctx context.Context, args ...interface{}) error
-	Logf(ctx context.Context, format string, a ...interface{}) error
+	Log(ctx context.Context, args ...interface{})
+	Logf(ctx context.Context, format string, a ...interface{})
 }
 
 var _ Logger = (*logger)(nil)
@@ -35,16 +35,14 @@ func (l *logger) Enabled(ctx context.Context) bool {
 	return logEnable
 }
 
-func (l *logger) Log(ctx context.Context, a ...interface{}) error {
+func (l *logger) Log(ctx context.Context, a ...interface{}) {
 	if l.Enabled(ctx) {
-		return sys.Log(ctx, fmt.Sprint(a...))
+		_ = sys.Log(ctx, fmt.Sprint(a...)) //todo check error and abort?
 	}
-	return nil
 }
 
-func (l *logger) Logf(ctx context.Context, format string, a ...interface{}) error {
+func (l *logger) Logf(ctx context.Context, format string, a ...interface{}) {
 	if l.Enabled(ctx) {
-		return sys.Log(ctx, fmt.Sprintf(format, a...))
+		_ = sys.Log(ctx, fmt.Sprintf(format, a...)) //todo check error and abort?
 	}
-	return nil
 }

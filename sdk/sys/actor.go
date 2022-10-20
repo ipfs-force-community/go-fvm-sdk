@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"unsafe"
 
-	address "github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
+func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error) {
 	if addr.Protocol() == address.ID {
 		actid, err := address.IDFromAddress(addr)
 		return abi.ActorID(actid), err
@@ -29,7 +29,7 @@ func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, err
 	return result, nil
 }
 
-func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
+func GetActorCodeCid(_ context.Context, addr address.Address) (*cid.Cid, error) {
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
@@ -50,7 +50,7 @@ func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error
 	}
 }
 
-func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
+func ResolveBuiltinActorType(_ context.Context, codeCid cid.Cid) (types.ActorType, error) {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
 	var result types.ActorType
 	code := actorResolveBuiltinActorType(uintptr(unsafe.Pointer(&result)), addrBufPtr)
@@ -60,7 +60,7 @@ func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorT
 	return result, nil
 }
 
-func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, error) {
+func GetCodeCidForType(_ context.Context, actorT types.ActorType) (cid.Cid, error) {
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
@@ -76,7 +76,7 @@ func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, er
 	return result, nil
 }
 
-func NewActorAddress(ctx context.Context) (address.Address, error) {
+func NewActorAddress(_ context.Context) (address.Address, error) {
 	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
@@ -88,7 +88,7 @@ func NewActorAddress(ctx context.Context) (address.Address, error) {
 	return address.NewFromBytes(buf[:addrLen])
 }
 
-func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
+func CreateActor(_ context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
 	code := actorCreateActor(uint64(actorID), addrBufPtr)
 	if code != 0 {

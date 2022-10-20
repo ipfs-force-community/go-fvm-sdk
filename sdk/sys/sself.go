@@ -8,13 +8,15 @@ import (
 	"fmt"
 	"unsafe"
 
+	"github.com/filecoin-project/go-state-types/abi"
+
 	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func SelfRoot(ctx context.Context) (cid.Cid, error) {
+func SelfRoot(_ context.Context) (cid.Cid, error) {
 	// I really hate this CID interface. Why can't I just have bytes?
 	result := uint32(0)
 	cidBuf := make([]byte, types.MaxCidLen)
@@ -31,7 +33,7 @@ func SelfRoot(ctx context.Context) (cid.Cid, error) {
 	return cid, err
 }
 
-func SelfSetRoot(ctx context.Context, id cid.Cid) error {
+func SelfSetRoot(_ context.Context, id cid.Cid) error {
 	buf := make([]byte, types.MaxCidLen)
 	copy(buf, id.Bytes())
 	cidBufPtr, _ := GetSlicePointerAndLen(buf)
@@ -43,16 +45,16 @@ func SelfSetRoot(ctx context.Context, id cid.Cid) error {
 
 }
 
-func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
-	result := new(types.TokenAmount)
+func SelfCurrentBalance(_ context.Context) (abi.TokenAmount, error) {
+	result := new(fvmTokenAmount)
 	code := selfCurrentBalance(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create ipld")
+		return abi.TokenAmount{}, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to create ipld")
 	}
-	return result, nil
+	return result.TokenAmount(), nil
 }
 
-func SelfDestruct(ctx context.Context, addr addr.Address) error {
+func SelfDestruct(_ context.Context, addr addr.Address) error {
 	addrPtr, addrLen := GetSlicePointerAndLen(addr.Bytes())
 	code := selfDestruct(addrPtr, addrLen)
 	if code != 0 {

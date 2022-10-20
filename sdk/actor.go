@@ -4,7 +4,7 @@ package sdk
 import (
 	"context"
 
-	address "github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"

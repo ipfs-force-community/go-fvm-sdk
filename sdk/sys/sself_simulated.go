@@ -6,8 +6,9 @@ package sys
 import (
 	"context"
 
+	"github.com/filecoin-project/go-state-types/abi"
+
 	addr "github.com/filecoin-project/go-address"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
@@ -25,7 +26,7 @@ func SelfSetRoot(ctx context.Context, id cid.Cid) error {
 	panic(ErrorEnvValid)
 }
 
-func SelfCurrentBalance(ctx context.Context) (*types.TokenAmount, error) {
+func SelfCurrentBalance(ctx context.Context) (abi.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfCurrentBalance()
 	}

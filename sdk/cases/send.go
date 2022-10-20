@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 
+	"github.com/filecoin-project/go-state-types/abi"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/testing"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,12 +29,12 @@ func Invoke(_ uint32) uint32 { //nolint
 	case 1:
 		// actor does not exist: 128788 (6: resource not found)
 		addr, _ := address.NewFromString("f0128788")
-		ret, err := sdk.Send(ctx, addr, 0, []byte{}, types.From64(1000))
+		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(1000))
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
 	case 2:
 		addr, _ := address.NewFromString("f010000")
-		ret, err := sdk.Send(ctx, addr, 0, []byte{}, types.From64(1))
+		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(1))
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
 		assert.Equal(t, 0, int(ret.GasUsed))
@@ -41,7 +42,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	case 3:
 		// sender does not have funds to transfer (balance 10, transfer 5000) (5: insufficient funds)
 		addr, _ := address.NewFromString("f010000")
-		ret, err := sdk.Send(ctx, addr, 0, []byte{}, types.From64(5000))
+		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(5000))
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
 	}

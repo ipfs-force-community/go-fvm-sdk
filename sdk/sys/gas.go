@@ -11,7 +11,7 @@ import (
 )
 
 // Charge charge gas for the operation identified by name.
-func Charge(ctx context.Context, name string, compute uint64) error {
+func Charge(_ context.Context, name string, compute uint64) error {
 	nameBufPtr, nameBufLen := GetStringPointerAndLen(name)
 	code := gasCharge(nameBufPtr, nameBufLen, compute)
 	if code != 0 {

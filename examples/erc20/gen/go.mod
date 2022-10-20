@@ -19,20 +19,20 @@ require (
 	github.com/filecoin-project/go-bitfield v0.2.4 // indirect
 	github.com/filecoin-project/go-commp-utils v0.1.3 // indirect
 	github.com/filecoin-project/go-commp-utils/nonffi v0.0.0-20220905160352-62059082a837 // indirect
+	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/go-fil-commcid v0.1.0 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-state-types v0.1.12-alpha // indirect
 	github.com/filecoin-project/specs-actors v0.9.14 // indirect
-	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
 	github.com/filecoin-project/specs-actors/v5 v5.0.4 // indirect
 	github.com/filecoin-project/specs-actors/v7 v7.0.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-cid v0.2.0 // indirect
 	github.com/ipfs/go-ipfs-util v0.0.2 // indirect
 	github.com/ipfs/go-ipld-cbor v0.0.6 // indirect
 	github.com/ipfs/go-ipld-format v0.2.0 // indirect
+	github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect

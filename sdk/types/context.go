@@ -2,11 +2,12 @@ package types
 
 import (
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/network"
 )
 
 type InvocationContext struct {
 	/// The value that was received.
-	ValueReceived TokenAmount
+	ValueReceived abi.TokenAmount
 	/// The caller's actor ID.
 	Caller abi.ActorID
 	/// The receiver's actor ID (i.e. ourselves).
@@ -17,5 +18,5 @@ type InvocationContext struct {
 	/// The current epoch.
 	NetworkCurrEpoch abi.ChainEpoch
 	/// The network version.
-	NetworkVersion uint32
+	NetworkVersion network.Version
 }

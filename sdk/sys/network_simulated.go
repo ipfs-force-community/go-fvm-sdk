@@ -6,11 +6,11 @@ package sys
 import (
 	"context"
 
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	"github.com/filecoin-project/go-state-types/abi"
 )
 
 // BaseFee gets the base fee for the current epoch.
-func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
+func BaseFee(ctx context.Context) (abi.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.BaseFee()
 	}
@@ -18,7 +18,7 @@ func BaseFee(ctx context.Context) (*types.TokenAmount, error) {
 }
 
 // TotalFilCircSupply gets the circulating supply.
-func TotalFilCircSupply(ctx context.Context) (*types.TokenAmount, error) {
+func TotalFilCircSupply(ctx context.Context) (abi.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.TotalFilCircSupply()
 	}

@@ -9,36 +9,37 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-func (s *FvmSimulator) SetAccount(actorID abi.ActorID, addr address.Address, actor migration.Actor) {
-	s.actorLk.Lock()
-	defer s.actorLk.Unlock()
+func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Address, actor migration.Actor) {
+	fvmSimulator.actorLk.Lock()
+	defer fvmSimulator.actorLk.Unlock()
 
-	s.actorsMap[actorID] = actor
-	s.addressMap[addr] = actorID
+	fvmSimulator.actorsMap[actorID] = actor
+	fvmSimulator.addressMap[addr] = actorID
 }
 
-func (s *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error) {
-	s.actorLk.Lock()
-	defer s.actorLk.Unlock()
-	id, ok := s.addressMap[addr]
+func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error) {
+	fvmSimulator.actorLk.Lock()
+	defer fvmSimulator.actorLk.Unlock()
+	id, ok := fvmSimulator.addressMap[addr]
 	if !ok {
 		return 0, ErrorNotFound
 	}
 	return id, nil
 }
 
-func (s *FvmSimulator) NewActorAddress() (address.Address, error) {
+func (fvmSimulator *FvmSimulator) NewActorAddress() (address.Address, error) {
 	seed := time.Now().String()
 	return address.NewActorAddress([]byte(seed))
 }
 
-func (s *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	s.SetAccount(actorID, address.Address{}, migration.Actor{Code: codeCid})
+// CreateActor this is api can only create builtin actor
+func (fvmSimulator *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
+	fvmSimulator.SetActor(actorID, address.Address{}, migration.Actor{Code: codeCid})
 	return nil
 }
 
-func (s *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
-	acstat, err := s.getActorWithAddress(addr)
+func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
+	acstat, err := fvmSimulator.getActorWithAddress(addr)
 	if err != nil {
 		return nil, err
 	}

@@ -12,8 +12,8 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
+	"github.com/filecoin-project/go-state-types/proof"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
-	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
@@ -21,7 +21,7 @@ import (
 )
 
 func VerifySignature(
-	ctx context.Context,
+	_ context.Context,
 	signature *crypto.Signature,
 	signer *address.Address,
 	plaintext []byte,
@@ -43,7 +43,7 @@ func VerifySignature(
 	return result == 0, nil
 }
 
-func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
+func HashBlake2b(_ context.Context, data []byte) ([32]byte, error) {
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
 	result := [32]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
@@ -55,7 +55,7 @@ func HashBlake2b(ctx context.Context, data []byte) ([32]byte, error) {
 }
 
 func ComputeUnsealedSectorCid(
-	ctx context.Context,
+	_ context.Context,
 	proofType abi.RegisteredSealProof,
 	pieces []abi.PieceInfo,
 ) (cid.Cid, error) {
@@ -87,7 +87,7 @@ func ComputeUnsealedSectorCid(
 }
 
 // VerifySeal Verifies a sector seal proof.
-func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
+func VerifySeal(_ context.Context, info *proof.SealVerifyInfo) (bool, error) {
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)
 	if err != nil {
@@ -103,7 +103,7 @@ func VerifySeal(ctx context.Context, info *proof.SealVerifyInfo) (bool, error) {
 }
 
 // VerifyPost Verifies a sector seal proof.
-func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, error) {
+func VerifyPost(_ context.Context, info *proof.WindowPoStVerifyInfo) (bool, error) {
 	verifyBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(verifyBuf)
 	if err != nil {
@@ -119,7 +119,7 @@ func VerifyPost(ctx context.Context, info *proof.WindowPoStVerifyInfo) (bool, er
 }
 
 func VerifyConsensusFault(
-	ctx context.Context,
+	_ context.Context,
 	h1 []byte,
 	h2 []byte,
 	extra []byte,
@@ -152,10 +152,6 @@ func VerifyConsensusFault(
 }
 
 func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyProofAndInfos) (bool, error) {
-	if env, ok := tryGetSimulator(ctx); ok {
-		return env.VerifyAggregateSeals(info)
-	}
-
 	aggregateSealBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(aggregateSealBuf)
 	if err != nil {
@@ -170,7 +166,7 @@ func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyPr
 	return result == 0, nil
 }
 
-func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
+func VerifyReplicaUpdate(_ context.Context, info *types.ReplicaUpdateInfo) (bool, error) {
 	replicaUpdateInfoBuf := bytes.NewBuffer([]byte{})
 	err := info.MarshalCBOR(replicaUpdateInfoBuf)
 	if err != nil {
@@ -185,7 +181,7 @@ func VerifyReplicaUpdate(ctx context.Context, info *types.ReplicaUpdateInfo) (bo
 	return result == 0, nil
 }
 
-func BatchVerifySeals(ctx context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
+func BatchVerifySeals(_ context.Context, sealVerifyInfos []proof.SealVerifyInfo) ([]bool, error) {
 	//todo need to be test
 	buf := bytes.NewBuffer([]byte{})
 	cw := cbg.NewCborWriter(buf)

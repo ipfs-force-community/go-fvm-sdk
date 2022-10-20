@@ -17,8 +17,7 @@ func Put(ctx context.Context, mhCode uint64, mhSize uint32, codec uint64, data [
 	}
 
 	// I really hate this CID interface. Why can't I just have bytes?
-	buf := [types.MaxCidLen]byte{}
-	return sys.BlockLink(ctx, id, mhCode, mhSize, buf[:])
+	return sys.BlockLink(ctx, id, mhCode, mhSize)
 }
 
 // Get get a block. It's valid to call this on:

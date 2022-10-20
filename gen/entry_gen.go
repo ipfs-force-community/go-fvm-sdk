@@ -2,6 +2,7 @@ package gen
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"go/format"
 	"os"
@@ -101,7 +102,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 	returns := exportFunc.Func.Call([]reflect.Value{stateV})
 	exports, ok := returns[0].Interface().(map[int]interface{})
 	if !ok {
-		return nil, fmt.Errorf("assert Export return type fail,")
+		return nil, errors.New("assert Export return type fail")
 	}
 
 	var methodsMap []*methodMap
@@ -115,7 +116,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		}
 		var method = &methodMap{}
 		method.FuncT = reflect.ValueOf(sortedFunc.funcT)
-		method.MethodNum = sortedFunc.method_num
+		method.MethodNum = sortedFunc.methodNum
 		//	functionT := function.Type
 
 		if functionT.NumIn() > 0 {
@@ -130,7 +131,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		if (method.HasContext == false && functionT.NumIn() == 1) || (method.HasContext == true && functionT.NumIn() == 2) {
 			if method.HasContext == true && functionT.NumIn() == 2 {
 				if !functionT.In(1).AssignableTo(unMarshallerT) {
-					return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+					return nil, fmt.Errorf("func %v arg type at index 2 must can be unmarshaller", method)
 				}
 				method.HasParam = true
 				method.ParamsType = functionT.In(1)
@@ -138,9 +139,8 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 				typesToImport = append(typesToImport, functionT.In(1))
 
 			} else {
-
 				if !functionT.In(0).AssignableTo(unMarshallerT) {
-					return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+					return nil, fmt.Errorf("func %v arg type at index 1 must can be unmarshaller", method.FuncName)
 				}
 
 				method.HasParam = true
@@ -202,7 +202,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		}
 		if m.HasReturn {
 			m.ReturnTypeName = typeName(pkg, m.ReturnType)
-			m.DefaultReturn = defaultValue(m.ReturnType)
+			m.DefaultReturn = defaultValue(pkg, m.ReturnType)
 		}
 	}
 	return &entryMeta{
@@ -252,10 +252,10 @@ func resolvePkgByFullName(path, typeName string) string {
 		panic(fmt.Sprintf("expected type to have a package name: %s", typeName))
 	}
 	defaultName := parts[0]
-	return resolvePkgName(path, defaultName)
+	return resolvePkgNameByFullPath(path, defaultName)
 }
 
-func resolvePkgName(path, defaultName string) string {
+func resolvePkgNameByFullPath(path, defaultName string) string {
 	knownPackageNamesMu.Lock()
 	defer knownPackageNamesMu.Unlock()
 
@@ -279,20 +279,20 @@ func resolvePkgName(path, defaultName string) string {
 }
 
 type sortMethod struct {
-	method_num int
-	funcT      interface{}
+	methodNum int
+	funcT     interface{}
 }
 
 func sortMap(v map[int]interface{}) []sortMethod {
 	var sortMethods []sortMethod
 	for index, method := range v {
 		sortMethods = append(sortMethods, sortMethod{
-			method_num: index,
-			funcT:      method,
+			methodNum: index,
+			funcT:     method,
 		})
 	}
 	sort.Slice(sortMethods, func(i, j int) bool {
-		return sortMethods[i].method_num < sortMethods[j].method_num
+		return sortMethods[i].methodNum < sortMethods[j].methodNum
 	})
 	return sortMethods
 }
@@ -494,7 +494,7 @@ func Invoke(blockId uint32) uint32 {
 
 `
 
-func defaultValue(t reflect.Type) string {
+func defaultValue(pkg string, t reflect.Type) string {
 	switch t.Kind() {
 	case reflect.Bool:
 		return "false"
@@ -521,7 +521,9 @@ func defaultValue(t reflect.Type) string {
 		case "cid":
 			return "cid.Undef"
 		default:
-			return fmt.Sprintf("%s{}", t.Name())
+			pkg := resolvePkgNameByFullPath(t.PkgPath(), t.Name())
+			fmt.Println(pkg)
+			return fmt.Sprintf("%s.%s{}", pkg, t.Name())
 		}
 	default:
 		panic("unsupprt type")
@@ -539,5 +541,5 @@ func getFunctionName(temp reflect.Value) (string, string) {
 
 	split2 := strings.Split(split[0], "/")
 	pkgName := split2[len(split2)-1]
-	return resolvePkgName(split[0], pkgName), name
+	return resolvePkgNameByFullPath(split[0], pkgName), name
 }

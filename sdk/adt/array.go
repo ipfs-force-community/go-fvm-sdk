@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 
-	amt "github.com/filecoin-project/go-amt-ipld/v4"
+	"github.com/filecoin-project/go-amt-ipld/v4"
 
 	"github.com/filecoin-project/go-state-types/cbor"
-	cid "github.com/ipfs/go-cid"
+	"github.com/ipfs/go-cid"
 	cbg "github.com/whyrusleeping/cbor-gen"
 )
 

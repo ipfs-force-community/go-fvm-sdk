@@ -1,6 +1,6 @@
 package types
 
-import cid "github.com/ipfs/go-cid"
+import "github.com/ipfs/go-cid"
 
 type InstallParams struct {
 	Code []byte
