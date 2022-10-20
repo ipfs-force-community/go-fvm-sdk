@@ -5,6 +5,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/filecoin-project/go-state-types/abi"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
@@ -36,9 +38,8 @@ func (s *block) stat() BlockStat {
 type blocks []block
 
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int, currentBalance big.Int) (*FvmSimulator, context.Context) {
-	fsm := &FvmSimulator{blockid: 1, ipld: sync.Map{}, callContext: callContext, rootCid: cid.Undef, baseFee: types.FromBig(&baseFee), totalFilCircSupply: types.FromBig(&totalFilCircSupply), currentBalance: types.FromBig(&currentBalance)}
-	fsm.Context = context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
+func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
+	fsm := NewFvmSimulator(callContext, baseFee, totalFilCircSupply)
 	return fsm, fsm.Context
 }
 
@@ -48,11 +49,11 @@ type FvmSimulator struct {
 	blocks      blocks
 	blockid     uint32
 	ipld        sync.Map
-	actorMutex  sync.Mutex
+	actorLk     sync.Mutex
 	// actorid->ActorState
-	actorsMap sync.Map
+	actorsMap map[abi.ActorID]migration.Actor
 	// address->actorid
-	addressMap sync.Map
+	addressMap map[address.Address]abi.ActorID
 
 	callContext        *types.InvocationContext
 	rootCid            cid.Cid
@@ -60,6 +61,17 @@ type FvmSimulator struct {
 	totalFilCircSupply types.TokenAmount
 	currentBalance     types.TokenAmount
 	sendList           []SendMock
+}
+
+func NewFvmSimulator(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int) *FvmSimulator {
+	fsm := &FvmSimulator{
+		blockid:            1,
+		callContext:        callContext,
+		baseFee:            types.FromBig(&baseFee),
+		totalFilCircSupply: types.FromBig(&totalFilCircSupply),
+	}
+	fsm.Context = context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
+	return fsm
 }
 
 func (a *FvmSimulator) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
@@ -168,8 +180,8 @@ func (s *FvmSimulator) getBlock(blockID uint32) (block, error) {
 }
 
 // nolint
-func (s *FvmSimulator) putActor(actorID uint64, actor migration.Actor) error {
-	_, err := s.getActorWithActorid(uint32(actorID))
+func (s *FvmSimulator) putActor(actorID abi.ActorID, actor migration.Actor) error {
+	_, err := s.getActorWithActorid(actorID)
 	if err == nil {
 		return ErrorKeyExists
 	}
@@ -178,26 +190,29 @@ func (s *FvmSimulator) putActor(actorID uint64, actor migration.Actor) error {
 }
 
 // nolint
-func (s *FvmSimulator) getActorWithActorid(actorID uint32) (migration.Actor, error) {
-	actor, ok := s.actorsMap.Load(actorID)
+func (s *FvmSimulator) getActorWithActorid(actorID abi.ActorID) (migration.Actor, error) {
+	s.actorLk.Lock()
+	defer s.actorLk.Unlock()
+
+	actor, ok := s.actorsMap[actorID]
 	if ok {
-		return actor.(migration.Actor), nil
+		return actor, nil
 	}
 	return migration.Actor{}, ErrorNotFound
 }
 
 // nolint
 func (s *FvmSimulator) getActorWithAddress(addr address.Address) (migration.Actor, error) {
-	s.actorMutex.Lock()
-	defer s.actorMutex.Unlock()
+	s.actorLk.Lock()
+	defer s.actorLk.Unlock()
 
-	actorid, ok := s.addressMap.Load(addr)
+	actorId, ok := s.addressMap[addr]
 	if ok {
 		return migration.Actor{}, ErrorNotFound
 	}
-	as, ok := s.actorsMap.Load(actorid)
+	as, ok := s.actorsMap[actorId]
 	if !ok {
 		return migration.Actor{}, ErrorNotFound
 	}
-	return as.(migration.Actor), nil
+	return as, nil
 }

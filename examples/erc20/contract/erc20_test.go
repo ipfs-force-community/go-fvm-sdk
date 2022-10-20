@@ -22,55 +22,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func makeErc20Token(t *testing.T, ctx context.Context) Erc20Token {
+func makeErc20Token(t *testing.T, ctx context.Context, supply int64) Erc20Token {
 	empMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 	assert.Nil(t, err)
 	cidtest, err := empMap.Root()
 	assert.Nil(t, err)
-	totalsupplytest := big.NewInt(888888)
+	totalsupplytest := big.NewInt(supply)
 	return Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: &totalsupplytest, Balances: cidtest, Allowed: cidtest}
 }
 
-func newSimulated() (*simulated.FvmSimulator, context.Context) {
-	callcontext := &types.InvocationContext{}
-	return simulated.CreateSimulateEnv(callcontext, big.NewInt(1), big.NewInt(1), big.NewInt(1))
-}
-
 func TestErc20TokenFakeSetBalance(t *testing.T) {
-	_, ctx := newSimulated()
+	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, big.NewInt(1), big.NewInt(1), big.NewInt(1))
 	balance := big.NewInt(1)
 	addr, err := address.NewIDAddress(uint64(rand.Int()))
 	if err != nil {
 		panic(err)
 	}
-	fakeSetBalance := &FakeSetBalance{Addr: addr, Balance: &balance}
-	type args struct {
-		req *FakeSetBalance
-	}
-	tests := []struct {
-		name    string
-		fields  Erc20Token
-		args    args
-		wantErr bool
-	}{
-		{name: "pass", fields: makeErc20Token(t, ctx), args: args{req: fakeSetBalance}, wantErr: true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tr := &Erc20Token{
-				Name:        tt.fields.Name,
-				Symbol:      tt.fields.Symbol,
-				Decimals:    tt.fields.Decimals,
-				TotalSupply: tt.fields.TotalSupply,
-				Balances:    tt.fields.Balances,
-				Allowed:     tt.fields.Allowed,
-			}
-			if err := tr.FakeSetBalance(ctx, tt.args.req); (err != nil) != tt.wantErr {
-				t.Errorf("Erc20Token.FakeSetBalance() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+	simulator.SetAccount(addr)
 
+	erc20State := makeErc20Token(t, ctx, 100000)
+	fakeSetBalance := &FakeSetBalance{Addr: addr, Balance: &balance}
+	erc20State.FakeSetBalance(ctx, fakeSetBalance)
 }
 
 func TestErc20TokenGetName(t *testing.T) {
