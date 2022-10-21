@@ -33,7 +33,7 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	ercClient := client.NewStateClient(v0FullNode, client.SetFromAddressOpt(addr))
+	helloClient := client.NewStateClient(v0FullNode, client.SetFromAddressOpt(addr))
 
 	code, err := ioutil.ReadFile("../hellocontract.wasm")
 	if err != nil {
@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	installRet, err := ercClient.Install(ctx, code)
+	installRet, err := helloClient.Install(ctx, code)
 	if err != nil {
 		log.Fatalln(err)
 		return
@@ -52,14 +52,14 @@ func main() {
 		return
 	}
 
-	execRet, err := ercClient.CreateActor(ctx, installRet.CodeCid, createParams)
+	execRet, err := helloClient.CreateActor(ctx, installRet.CodeCid, createParams)
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
 	println("actor id", execRet.IDAddress.String())
 
-	ret, err := ercClient.SayHello(ctx)
+	ret, err := helloClient.SayHello(ctx)
 	if err != nil {
 		log.Fatalln(err)
 		return

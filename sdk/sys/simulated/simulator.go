@@ -11,11 +11,6 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-func (fvmSimulator *FvmSimulator) Open(id cid.Cid) (*types.IpldOpen, error) {
-	blockid, blockstat := fvmSimulator.blockOpen(id)
-	return &types.IpldOpen{ID: blockid, Size: blockstat.size, Codec: blockstat.codec}, nil
-}
-
 func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
@@ -28,62 +23,6 @@ func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Acto
 		return migration.Actor{}, ErrorNotFound
 	}
 	return actor, nil
-}
-
-func (fvmSimulator *FvmSimulator) SelfRoot() (cid.Cid, error) {
-	return fvmSimulator.rootCid, nil
-}
-
-func (fvmSimulator *FvmSimulator) SelfSetRoot(id cid.Cid) error {
-	fvmSimulator.rootCid = id
-	return nil
-}
-
-func (fvmSimulator *FvmSimulator) SelfCurrentBalance() (abi.TokenAmount, error) {
-	fvmSimulator.actorLk.Lock()
-	defer fvmSimulator.actorLk.Unlock()
-
-	actor, ok := fvmSimulator.actorsMap[fvmSimulator.callContext.Caller]
-	if !ok {
-		return abi.TokenAmount{}, ErrorNotFound
-	}
-	return actor.Balance, nil
-}
-
-func (fvmSimulator *FvmSimulator) SelfDestruct(addr address.Address) error {
-	fvmSimulator.actorLk.Lock()
-	defer fvmSimulator.actorLk.Unlock()
-
-	actorId, ok := fvmSimulator.addressMap[addr] //nolint
-	if !ok {
-		return ErrorNotFound
-	}
-	delete(fvmSimulator.actorsMap, actorId)
-	return nil
-}
-
-func (fvmSimulator *FvmSimulator) Create(codec uint64, data []byte) (uint32, error) {
-	index := fvmSimulator.blockCreate(codec, data)
-	return index, nil
-}
-
-func (fvmSimulator *FvmSimulator) Read(id uint32, offset, size uint32) ([]byte, uint32, error) {
-	data, err := fvmSimulator.blockRead(id, offset)
-	if err != nil {
-		return nil, 0, err
-	}
-	if size < uint32(len(data)) {
-		return data[:size], uint32(len(data)) - size, nil
-	}
-	return data, 0, nil
-}
-
-func (fvmSimulator *FvmSimulator) Stat(id uint32) (*types.IpldStat, error) {
-	return fvmSimulator.blockStat(id)
-}
-
-func (fvmSimulator *FvmSimulator) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
-	return fvmSimulator.blockLink(id, hashFun, hashLen)
 }
 
 func (fvmSimulator *FvmSimulator) ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
@@ -117,16 +56,8 @@ func (fvmSimulator *FvmSimulator) Log(msg string) error {
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) GetChainRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	return makeRandomness(dst, round, entropy), nil
-}
-
-func (fvmSimulator *FvmSimulator) GetBeaconRandomness(dst int64, round int64, entropy []byte) (abi.Randomness, error) {
-	return makeRandomness(dst, round, entropy), nil
-}
-
-func (fvmSimulator *FvmSimulator) SetCallContext(callcontext *types.InvocationContext) {
-	fvmSimulator.callContext = callcontext
+func (fvmSimulator *FvmSimulator) SetCallContext(callContext *types.InvocationContext) {
+	fvmSimulator.callContext = callContext
 }
 
 func (fvmSimulator *FvmSimulator) VMContext() (*types.InvocationContext, error) {

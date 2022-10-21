@@ -35,7 +35,10 @@ fn main() {
     let cli = Cli::parse();
     match &cli.command {
         Commands::Version => {
-            println!("go-fvm-sdk-tools version v0.0.1+git.{}", &env!("GIT_HASH")[..7]);
+            println!(
+                "go-fvm-sdk-tools version v0.0.1+git.{}",
+                &env!("GIT_HASH")[..7]
+            );
         }
         Commands::Build(cfg) => {
             if let Err(e) = wasmprocess::run_process(cfg) {

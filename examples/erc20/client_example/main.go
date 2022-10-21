@@ -65,7 +65,7 @@ func main() {
 	val := big.NewInt(1000)
 	req := contract.FakeSetBalance{
 		Addr:    addr,
-		Balance: &val,
+		Balance: val,
 	}
 	err = ercClient.FakeSetBalance(ctx, &req)
 	if err != nil {
