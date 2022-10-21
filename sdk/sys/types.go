@@ -1,46 +1,58 @@
 //nolint:param
-package types
+package sys
 
 import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"math"
 	"math/bits"
+
+	"github.com/filecoin-project/go-state-types/abi"
 
 	stdBig "math/big"
 
 	"github.com/filecoin-project/go-state-types/big"
 )
 
-// Zero is a zero-valued uint128.
-var Zero TokenAmount
+type invocationContext struct {
+	/// The value that was received.
+	ValueReceived fvmTokenAmount
+	/// The caller's actor ID.
+	Caller abi.ActorID
+	/// The receiver's actor ID (i.e. ourselves).
+	Receiver abi.ActorID
 
-// Max is the largest possible uint128 value.
-var Max = New(math.MaxUint64, math.MaxUint64)
+	/// The method number from the message.
+	MethodNumber abi.MethodNum
+	/// The current epoch.
+	NetworkCurrEpoch abi.ChainEpoch
+	/// The network version.
+	NetworkVersion uint32
+}
 
-type TokenAmount struct {
+// fvmTokenAmount use this amount to receive value from fvm
+type fvmTokenAmount struct {
 	Lo uint64
 	Hi uint64
 }
 
 // IsZero returns true if u == 0.
-func (u TokenAmount) IsZero() bool {
+func (u fvmTokenAmount) IsZero() bool {
 	// NOTE: we do not compare against Zero, because that is a global variable
 	// that could be modified.
-	return u == TokenAmount{}
+	return u == fvmTokenAmount{}
 }
 
 // Equals returns true if u == v.
 //
 // Uint128 values can be compared directly with ==, but use of the Equals method
 // is preferred for consistency.
-func (u TokenAmount) Equals(v TokenAmount) bool {
+func (u fvmTokenAmount) Equals(v fvmTokenAmount) bool {
 	return u == v
 }
 
 // Equals64 returns true if u == v.
-func (u TokenAmount) Equals64(v uint64) bool {
+func (u fvmTokenAmount) Equals64(v uint64) bool {
 	return u.Lo == v && u.Hi == 0
 }
 
@@ -49,7 +61,7 @@ func (u TokenAmount) Equals64(v uint64) bool {
 //	-1 if u <  v
 //	 0 if u == v
 //	+1 if u >  v
-func (u TokenAmount) Cmp(v TokenAmount) int {
+func (u fvmTokenAmount) Cmp(v fvmTokenAmount) int {
 	if u == v {
 		return 0
 	} else if u.Hi < v.Hi || (u.Hi == v.Hi && u.Lo < v.Lo) {
@@ -64,7 +76,7 @@ func (u TokenAmount) Cmp(v TokenAmount) int {
 //	-1 if u <  v
 //	 0 if u == v
 //	+1 if u >  v
-func (u TokenAmount) Cmp64(v uint64) int {
+func (u fvmTokenAmount) Cmp64(v uint64) int {
 	if u.Hi == 0 && u.Lo == v {
 		return 0
 	} else if u.Hi == 0 && u.Lo < v {
@@ -75,109 +87,109 @@ func (u TokenAmount) Cmp64(v uint64) int {
 }
 
 // And returns u&v.
-func (u TokenAmount) And(v TokenAmount) TokenAmount {
-	return TokenAmount{u.Lo & v.Lo, u.Hi & v.Hi}
+func (u fvmTokenAmount) And(v fvmTokenAmount) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo & v.Lo, u.Hi & v.Hi}
 }
 
 // And64 returns u&v.
-func (u TokenAmount) And64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo & v, 0}
+func (u fvmTokenAmount) And64(v uint64) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo & v, 0}
 }
 
 // Or returns u|v.
-func (u TokenAmount) Or(v TokenAmount) TokenAmount {
-	return TokenAmount{u.Lo | v.Lo, u.Hi | v.Hi}
+func (u fvmTokenAmount) Or(v fvmTokenAmount) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo | v.Lo, u.Hi | v.Hi}
 }
 
 // Or64 returns u|v.
-func (u TokenAmount) Or64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo | v, 0}
+func (u fvmTokenAmount) Or64(v uint64) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo | v, 0}
 }
 
 // Xor returns u^v.
-func (u TokenAmount) Xor(v TokenAmount) TokenAmount {
-	return TokenAmount{u.Lo ^ v.Lo, u.Hi ^ v.Hi}
+func (u fvmTokenAmount) Xor(v fvmTokenAmount) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo ^ v.Lo, u.Hi ^ v.Hi}
 }
 
 // Xor64 returns u^v.
-func (u TokenAmount) Xor64(v uint64) TokenAmount {
-	return TokenAmount{u.Lo ^ v, 0}
+func (u fvmTokenAmount) Xor64(v uint64) fvmTokenAmount {
+	return fvmTokenAmount{u.Lo ^ v, 0}
 }
 
 // Add returns u+v.
-func (u TokenAmount) Add(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) Add(v fvmTokenAmount) fvmTokenAmount {
 	lo, carry := bits.Add64(u.Lo, v.Lo, 0)
 	hi, carry := bits.Add64(u.Hi, v.Hi, carry)
 	if carry != 0 {
 		panic("overflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // AddWrap returns u+v with wraparound semantics; for example,
 // Max.AddWrap(From64(1)) == Zero.
-func (u TokenAmount) AddWrap(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) AddWrap(v fvmTokenAmount) fvmTokenAmount {
 	lo, carry := bits.Add64(u.Lo, v.Lo, 0)
 	hi, _ := bits.Add64(u.Hi, v.Hi, carry)
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Add64 returns u+v.
-func (u TokenAmount) Add64(v uint64) TokenAmount {
+func (u fvmTokenAmount) Add64(v uint64) fvmTokenAmount {
 	lo, carry := bits.Add64(u.Lo, v, 0)
 	hi, carry := bits.Add64(u.Hi, 0, carry)
 	if carry != 0 {
 		panic("overflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // AddWrap64 returns u+v with wraparound semantics; for example,
 // Max.AddWrap64(1) == Zero.
-func (u TokenAmount) AddWrap64(v uint64) TokenAmount {
+func (u fvmTokenAmount) AddWrap64(v uint64) fvmTokenAmount {
 	lo, carry := bits.Add64(u.Lo, v, 0)
 	hi := u.Hi + carry
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Sub returns u-v.
-func (u TokenAmount) Sub(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) Sub(v fvmTokenAmount) fvmTokenAmount {
 	lo, borrow := bits.Sub64(u.Lo, v.Lo, 0)
 	hi, borrow := bits.Sub64(u.Hi, v.Hi, borrow)
 	if borrow != 0 {
 		panic("underflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // SubWrap returns u-v with wraparound semantics; for example,
 // Zero.SubWrap(From64(1)) == Max.
-func (u TokenAmount) SubWrap(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) SubWrap(v fvmTokenAmount) fvmTokenAmount {
 	lo, borrow := bits.Sub64(u.Lo, v.Lo, 0)
 	hi, _ := bits.Sub64(u.Hi, v.Hi, borrow)
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Sub64 returns u-v.
-func (u TokenAmount) Sub64(v uint64) TokenAmount {
+func (u fvmTokenAmount) Sub64(v uint64) fvmTokenAmount {
 	lo, borrow := bits.Sub64(u.Lo, v, 0)
 	hi, borrow := bits.Sub64(u.Hi, 0, borrow)
 	if borrow != 0 {
 		panic("underflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // SubWrap64 returns u-v with wraparound semantics; for example,
 // Zero.SubWrap64(1) == Max.
-func (u TokenAmount) SubWrap64(v uint64) TokenAmount {
+func (u fvmTokenAmount) SubWrap64(v uint64) fvmTokenAmount {
 	lo, borrow := bits.Sub64(u.Lo, v, 0)
 	hi := u.Hi - borrow
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Mul returns u*v, panicking on overflow.
-func (u TokenAmount) Mul(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) Mul(v fvmTokenAmount) fvmTokenAmount {
 	hi, lo := bits.Mul64(u.Lo, v.Lo)
 	p0, p1 := bits.Mul64(u.Hi, v.Lo)
 	p2, p3 := bits.Mul64(u.Lo, v.Hi)
@@ -186,50 +198,50 @@ func (u TokenAmount) Mul(v TokenAmount) TokenAmount {
 	if (u.Hi != 0 && v.Hi != 0) || p0 != 0 || p2 != 0 || c1 != 0 {
 		panic("overflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // MulWrap returns u*v with wraparound semantics; for example,
 // Max.MulWrap(Max) == 1.
-func (u TokenAmount) MulWrap(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) MulWrap(v fvmTokenAmount) fvmTokenAmount {
 	hi, lo := bits.Mul64(u.Lo, v.Lo)
 	hi += u.Hi*v.Lo + u.Lo*v.Hi
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Mul64 returns u*v, panicking on overflow.
-func (u TokenAmount) Mul64(v uint64) TokenAmount {
+func (u fvmTokenAmount) Mul64(v uint64) fvmTokenAmount {
 	hi, lo := bits.Mul64(u.Lo, v)
 	p0, p1 := bits.Mul64(u.Hi, v)
 	hi, c0 := bits.Add64(hi, p1, 0)
 	if p0 != 0 || c0 != 0 {
 		panic("overflow")
 	}
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // MulWrap64 returns u*v with wraparound semantics; for example,
 // Max.MulWrap64(2) == Max.Sub64(1).
-func (u TokenAmount) MulWrap64(v uint64) TokenAmount {
+func (u fvmTokenAmount) MulWrap64(v uint64) fvmTokenAmount {
 	hi, lo := bits.Mul64(u.Lo, v)
 	hi += u.Hi * v
-	return TokenAmount{lo, hi}
+	return fvmTokenAmount{lo, hi}
 }
 
 // Div returns u/v.
-func (u TokenAmount) Div(v TokenAmount) TokenAmount {
+func (u fvmTokenAmount) Div(v fvmTokenAmount) fvmTokenAmount {
 	q, _ := u.QuoRem(v)
 	return q
 }
 
 // Div64 returns u/v.
-func (u TokenAmount) Div64(v uint64) TokenAmount {
+func (u fvmTokenAmount) Div64(v uint64) fvmTokenAmount {
 	q, _ := u.QuoRem64(v)
 	return q
 }
 
 // QuoRem returns q = u/v and r = u%v.
-func (u TokenAmount) QuoRem(v TokenAmount) (q, r TokenAmount) {
+func (u fvmTokenAmount) QuoRem(v fvmTokenAmount) (q, r fvmTokenAmount) {
 	if v.Hi == 0 {
 		var r64 uint64
 		q, r64 = u.QuoRem64(v.Lo)
@@ -258,7 +270,7 @@ func (u TokenAmount) QuoRem(v TokenAmount) (q, r TokenAmount) {
 }
 
 // QuoRem64 returns q = u/v and r = u%v.
-func (u TokenAmount) QuoRem64(v uint64) (q TokenAmount, r uint64) {
+func (u fvmTokenAmount) QuoRem64(v uint64) (q fvmTokenAmount, r uint64) {
 	if u.Hi < v {
 		q.Lo, r = bits.Div64(u.Hi, u.Lo, v)
 	} else {
@@ -269,19 +281,19 @@ func (u TokenAmount) QuoRem64(v uint64) (q TokenAmount, r uint64) {
 }
 
 // Mod returns r = u%v.
-func (u TokenAmount) Mod(v TokenAmount) (r TokenAmount) {
+func (u fvmTokenAmount) Mod(v fvmTokenAmount) (r fvmTokenAmount) {
 	_, r = u.QuoRem(v)
 	return
 }
 
 // Mod64 returns r = u%v.
-func (u TokenAmount) Mod64(v uint64) (r uint64) {
+func (u fvmTokenAmount) Mod64(v uint64) (r uint64) {
 	_, r = u.QuoRem64(v)
 	return
 }
 
 // Lsh returns u<<n.
-func (u TokenAmount) Lsh(n uint) (s TokenAmount) {
+func (u fvmTokenAmount) Lsh(n uint) (s fvmTokenAmount) {
 	if n > 64 {
 		s.Lo = 0
 		s.Hi = u.Lo << (n - 64)
@@ -293,7 +305,7 @@ func (u TokenAmount) Lsh(n uint) (s TokenAmount) {
 }
 
 // Rsh returns u>>n.
-func (u TokenAmount) Rsh(n uint) (s TokenAmount) {
+func (u fvmTokenAmount) Rsh(n uint) (s fvmTokenAmount) {
 	if n > 64 {
 		s.Lo = u.Hi >> (n - 64)
 		s.Hi = 0
@@ -306,7 +318,7 @@ func (u TokenAmount) Rsh(n uint) (s TokenAmount) {
 
 // LeadingZeros returns the number of leading zero bits in u; the result is 128
 // for u == 0.
-func (u TokenAmount) LeadingZeros() int {
+func (u fvmTokenAmount) LeadingZeros() int {
 	if u.Hi > 0 {
 		return bits.LeadingZeros64(u.Hi)
 	}
@@ -315,7 +327,7 @@ func (u TokenAmount) LeadingZeros() int {
 
 // TrailingZeros returns the number of trailing zero bits in u; the result is
 // 128 for u == 0.
-func (u TokenAmount) TrailingZeros() int {
+func (u fvmTokenAmount) TrailingZeros() int {
 	if u.Lo > 0 {
 		return bits.TrailingZeros64(u.Lo)
 	}
@@ -323,40 +335,40 @@ func (u TokenAmount) TrailingZeros() int {
 }
 
 // OnesCount returns the number of one bits ("population count") in u.
-func (u TokenAmount) OnesCount() int {
+func (u fvmTokenAmount) OnesCount() int {
 	return bits.OnesCount64(u.Hi) + bits.OnesCount64(u.Lo)
 }
 
 // RotateLeft returns the value of u rotated left by (k mod 128) bits.
-func (u TokenAmount) RotateLeft(k int) TokenAmount {
+func (u fvmTokenAmount) RotateLeft(k int) fvmTokenAmount {
 	const n = 128
 	s := uint(k) & (n - 1)
 	return u.Lsh(s).Or(u.Rsh(n - s))
 }
 
 // RotateRight returns the value of u rotated left by (k mod 128) bits.
-func (u TokenAmount) RotateRight(k int) TokenAmount {
+func (u fvmTokenAmount) RotateRight(k int) fvmTokenAmount {
 	return u.RotateLeft(-k)
 }
 
 // Reverse returns the value of u with its bits in reversed order.
-func (u TokenAmount) Reverse() TokenAmount {
-	return TokenAmount{bits.Reverse64(u.Hi), bits.Reverse64(u.Lo)}
+func (u fvmTokenAmount) Reverse() fvmTokenAmount {
+	return fvmTokenAmount{bits.Reverse64(u.Hi), bits.Reverse64(u.Lo)}
 }
 
 // ReverseBytes returns the value of u with its bytes in reversed order.
-func (u TokenAmount) ReverseBytes() TokenAmount {
-	return TokenAmount{bits.ReverseBytes64(u.Hi), bits.ReverseBytes64(u.Lo)}
+func (u fvmTokenAmount) ReverseBytes() fvmTokenAmount {
+	return fvmTokenAmount{bits.ReverseBytes64(u.Hi), bits.ReverseBytes64(u.Lo)}
 }
 
 // Len returns the minimum number of bits required to represent u; the result is
 // 0 for u == 0.
-func (u TokenAmount) Len() int {
+func (u fvmTokenAmount) Len() int {
 	return 128 - u.LeadingZeros()
 }
 
 // String returns the base-10 representation of u as a string.
-func (u TokenAmount) String() string {
+func (u fvmTokenAmount) String() string {
 	if u.IsZero() {
 		return "0"
 	}
@@ -376,68 +388,63 @@ func (u TokenAmount) String() string {
 }
 
 // PutBytes stores u in b in little-endian order. It panics if len(b) < 16.
-func (u TokenAmount) PutBytes(b []byte) {
+func (u fvmTokenAmount) PutBytes(b []byte) {
 	binary.LittleEndian.PutUint64(b[:8], u.Lo)
 	binary.LittleEndian.PutUint64(b[8:], u.Hi)
 }
 
-// Big returns u as a *big.Int.
-func (u TokenAmount) Big() *big.Int {
-	i := new(stdBig.Int).SetUint64(u.Hi)
-	i = i.Lsh(i, 64)
-	i = i.Xor(i, new(stdBig.Int).SetUint64(u.Lo))
-	big := big.NewFromGo(i)
-	return &big
-}
-
 // Scan implements fmt.Scanner.
-func (u *TokenAmount) Scan(s fmt.ScanState, ch rune) error {
+func (u *fvmTokenAmount) Scan(s fmt.ScanState, ch rune) error {
 	i := new(big.Int)
 	if err := i.Scan(s, ch); err != nil {
 		return err
 	} else if i.Sign() < 0 {
 		return errors.New("value cannot be negative")
 	} else if i.BitLen() > 128 {
-		return errors.New("value overflows TokenAmount")
+		return errors.New("value overflows fvmTokenAmount")
 	}
 	u.Lo = i.Uint64()
 	u.Hi = i.Rsh(i.Int, 64).Uint64()
 	return nil
 }
 
-// New returns the TokenAmount value (lo,hi).
-func New(lo, hi uint64) TokenAmount {
-	return TokenAmount{lo, hi}
+// New returns the fvmTokenAmount value (lo,hi).
+func New(lo, hi uint64) fvmTokenAmount {
+	return fvmTokenAmount{lo, hi}
 }
 
-// From64 converts v to a TokenAmount value.
-func From64(v uint64) TokenAmount {
+// From64 converts v to a fvmTokenAmount value.
+func From64(v uint64) fvmTokenAmount {
 	return New(v, 0)
 }
 
-// FromBytes converts b to a TokenAmount value.
-func FromBytes(b []byte) TokenAmount {
+// FromBytes converts b to a fvmTokenAmount value.
+func FromBytes(b []byte) fvmTokenAmount {
 	return New(
 		binary.LittleEndian.Uint64(b[:8]),
 		binary.LittleEndian.Uint64(b[8:]),
 	)
 }
 
-// FromBig converts i to a TokenAmount value. It panics if i is negative or
+// TokenAmount returns u as a *ab.
+func (u fvmTokenAmount) TokenAmount() abi.TokenAmount {
+	i := new(stdBig.Int).SetUint64(u.Hi)
+	i = i.Lsh(i, 64)
+	i = i.Xor(i, new(stdBig.Int).SetUint64(u.Lo))
+	return abi.TokenAmount{
+		Int: i,
+	}
+}
+
+// FromBig converts i to a fvmTokenAmount value. It panics if i is negative or
 // overflows 128 bits.
-func FromBig(i *big.Int) (u TokenAmount) {
+func FromBig(i *big.Int) (u fvmTokenAmount) {
 	if i.Sign() < 0 {
 		panic("value cannot be negative")
 	} else if i.BitLen() > 128 {
-		panic("value overflows TokenAmount")
+		panic("value overflows fvmTokenAmount")
 	}
 	u.Lo = i.Uint64()
 	u.Hi = i.Rsh(i.Int, 64).Uint64()
 	return u
-}
-
-// FromString parses s as a TokenAmount value.
-func FromString(s string) (u TokenAmount, err error) {
-	_, err = fmt.Sscan(s, &u)
-	return
 }

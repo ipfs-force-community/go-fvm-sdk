@@ -10,7 +10,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
-func GetChainRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+func GetChainRandomness(_ context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
 	result := [abi.RandomnessLength]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
 
@@ -23,7 +23,7 @@ func GetChainRandomness(ctx context.Context, dst int64, round int64, entropy []b
 	return result[:], nil
 }
 
-func GetBeaconRandomness(ctx context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
+func GetBeaconRandomness(_ context.Context, dst int64, round int64, entropy []byte) (abi.Randomness, error) {
 	result := [abi.RandomnessLength]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
 

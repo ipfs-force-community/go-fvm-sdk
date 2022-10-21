@@ -6,31 +6,31 @@ Convert go contract to wasm and help wasm code run on fvm
 2. implement fvm system call interface
 3. pure modify library for running on fvm
 
-## dependency
+## Install
 
-### Install wasm tools
+1. download the latest release version from [wasm tools](https://github.com/WebAssembly/binaryen), and configure the corresponding bin path in the $PATH
+2. install [go](https://go.dev/doc/install)  require v1.17+
+3. install [tinygo](https://tinygo.org/getting-started/install/) require v0.26+
+4. build go-fvm-sdk tool, tool will in path ``` target/release/go-fvm-sdk-tools```
+  ```
+  git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
+  make
+  ```
+5. use go-fvm-sdk-tools tool to patch your environment(go/tinygo) 
+  ```
+    go-fvm-sdk patch
+  ```
 
-download the latest release version from [wasm tools](https://github.com/WebAssembly/binaryen), and configure the corresponding bin path in the $PATH
+  this log meaning operate successfully
+  ```log
+  patching file src/reflect/value.go
+  Hunk #1 succeeded at 754 (offset 3 lines).
+  patching file targets/wasi.json
+  patch unexpectedly ends in middle of line
+  Hunk #2 succeeded at 10 with fuzz 1.
+  ```
 
-
-### install modified tinygo
-
-modify fmt to remove os refrence
-
-```
-git clone git@github.com:ipfs-force-community/tinygo.git
-git checkout fvm
-```
-
-[build doc](https://tinygo.org/docs/guides/build/)
-
-### dependency analyze
-
-```
-go list -json -deps > deps.json 
-```
-
-### build and run hello-world contract
+### quick start this hello world actor
 * Compile hellocontract to Wasm
     ```
         git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
@@ -51,3 +51,7 @@ go list -json -deps > deps.json
 
 1. Do not use asm code
 2. Try not to use the reflect library, if you must use it, make sure that tinygo supports it.
+3. use go list command to check actor dependency graph, check which package
+    ```
+    go list -json -deps > deps.json 
+    ```

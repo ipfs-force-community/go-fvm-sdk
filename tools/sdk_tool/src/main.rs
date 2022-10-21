@@ -8,8 +8,6 @@ use clap::Parser;
 use clap::Subcommand;
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(propagate_version = true)]
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
@@ -17,6 +15,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// version command (version git commit)
+    Version,
     /// build and process wasm
     Build(wasmprocess::BuildCLiConfig),
     /// test wasm on fvm
@@ -34,6 +34,12 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
     match &cli.command {
+        Commands::Version => {
+            println!(
+                "go-fvm-sdk-tools version v0.0.1+git.{}",
+                &env!("GIT_HASH")[..7]
+            );
+        }
         Commands::Build(cfg) => {
             if let Err(e) = wasmprocess::run_process(cfg) {
                 println!("run build command fail {}", e);

@@ -22,8 +22,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	enabled := logger.Enabled(ctx)
 	assert.Equal(t, true, enabled)
 
-	err = logger.Log(ctx, "")
-	assert.Nil(t, err)
+	logger.Log(ctx, "")
 
 	return 0
 }

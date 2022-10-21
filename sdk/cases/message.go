@@ -23,12 +23,12 @@ func Invoke(_ uint32) uint32 { //nolint
 	assert.Nil(t, err)
 	assert.Equal(t, 10000, int(receiver))
 
-	method_num, err := sdk.MethodNumber(ctx)
+	methodNum, err := sdk.MethodNumber(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, int(method_num))
+	assert.Equal(t, 1, int(methodNum))
 
 	valueRecieved, err := sdk.ValueReceived(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "10", valueRecieved.Big().String())
+	assert.Equal(t, "10", valueRecieved.String())
 	return 0
 }

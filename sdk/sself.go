@@ -3,9 +3,10 @@ package sdk
 import (
 	"context"
 
+	"github.com/filecoin-project/go-state-types/abi"
+
 	addr "github.com/filecoin-project/go-address"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
@@ -26,7 +27,7 @@ func SetRoot(ctx context.Context, c cid.Cid) error {
 }
 
 // CurrentBalance gets the current balance for the calling actor.
-func CurrentBalance(ctx context.Context) *types.TokenAmount {
+func CurrentBalance(ctx context.Context) abi.TokenAmount {
 	tok, err := sys.SelfCurrentBalance(ctx)
 	if err != nil {
 		panic(err.Error())

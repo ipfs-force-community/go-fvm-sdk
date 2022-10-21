@@ -8,7 +8,6 @@ import (
 	"math"
 	"sort"
 
-	big "github.com/filecoin-project/go-state-types/big"
 	cid "github.com/ipfs/go-cid"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	xerrors "golang.org/x/xerrors"
@@ -142,18 +141,8 @@ func (t *Erc20Token) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.TotalSupply = new(big.Int)
-			if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.TotalSupply pointer: %w", err)
-			}
+		if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.TotalSupply: %w", err)
 		}
 
 	}
@@ -294,18 +283,8 @@ func (t *ConstructorReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.TotalSupply = new(big.Int)
-			if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.TotalSupply pointer: %w", err)
-			}
+		if err := t.TotalSupply.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.TotalSupply: %w", err)
 		}
 
 	}
@@ -374,18 +353,8 @@ func (t *TransferReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.TransferAmount = new(big.Int)
-			if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.TransferAmount pointer: %w", err)
-			}
+		if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.TransferAmount: %w", err)
 		}
 
 	}
@@ -538,18 +507,8 @@ func (t *TransferFromReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.TransferAmount = new(big.Int)
-			if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.TransferAmount pointer: %w", err)
-			}
+		if err := t.TransferAmount.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.TransferAmount: %w", err)
 		}
 
 	}
@@ -618,18 +577,8 @@ func (t *ApprovalReq) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.NewAllowance = new(big.Int)
-			if err := t.NewAllowance.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.NewAllowance pointer: %w", err)
-			}
+		if err := t.NewAllowance.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.NewAllowance: %w", err)
 		}
 
 	}
@@ -698,18 +647,8 @@ func (t *FakeSetBalance) UnmarshalCBOR(r io.Reader) (err error) {
 
 	{
 
-		b, err := cr.ReadByte()
-		if err != nil {
-			return err
-		}
-		if b != cbg.CborNull[0] {
-			if err := cr.UnreadByte(); err != nil {
-				return err
-			}
-			t.Balance = new(big.Int)
-			if err := t.Balance.UnmarshalCBOR(cr); err != nil {
-				return xerrors.Errorf("unmarshaling t.Balance pointer: %w", err)
-			}
+		if err := t.Balance.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.Balance: %w", err)
 		}
 
 	}

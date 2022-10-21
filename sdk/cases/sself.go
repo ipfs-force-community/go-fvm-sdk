@@ -43,7 +43,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	//check balance
 	actorBalance := sdk.CurrentBalance(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "20", actorBalance.Big().String())
+	assert.Equal(t, "20", actorBalance.String())
 
 	//destruct
 	toAddr, err := address.NewFromString("f1dwyrbh74hr5nwqv2gjedjyvgphxxkffxug4rkkq")

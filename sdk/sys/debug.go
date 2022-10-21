@@ -10,7 +10,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
-func Enabled(ctx context.Context) (bool, error) {
+func Enabled(_ context.Context) (bool, error) {
 	var result int32
 	code := debugEnabled(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {
@@ -20,7 +20,7 @@ func Enabled(ctx context.Context) (bool, error) {
 	return result == 0, nil
 }
 
-func Log(ctx context.Context, msg string) error {
+func Log(_ context.Context, msg string) error {
 	msgBufPtr, msgBufLen := GetStringPointerAndLen(msg)
 	code := debugLog(msgBufPtr, msgBufLen)
 	if code != 0 {

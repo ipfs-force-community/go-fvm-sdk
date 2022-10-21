@@ -35,7 +35,7 @@ func Constructor(ctx context.Context) error {
 // Method num 2.
 func (st *State) SayHello(ctx context.Context) types.CBORBytes {
 	st.Count += 1
-	ret := fmt.Sprintf("%d", st.Count)
-	_ = sdk.SaveState(ctx, &State{})
+	ret := fmt.Sprintf("Hello World %d", st.Count)
+	_ = sdk.SaveState(ctx, st)
 	return []byte(ret)
 }

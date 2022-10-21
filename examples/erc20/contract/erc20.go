@@ -45,31 +45,31 @@ func init() {
 	logger, _ = sdk.NewLogger()
 }
 
-/*basic Token20*/
+// Erc20Token basic Token20
 type Erc20Token struct {
 	Name        string
 	Symbol      string
 	Decimals    uint8
-	TotalSupply *big.Int
+	TotalSupply abi.TokenAmount
 
 	//todo cbor gen not support non-string key and map value
 	Balances cid.Cid //map[string]*big.Int
 	Allowed  cid.Cid // map[string]*big.Int //owner-spender
 }
 
-func (e *Erc20Token) Export() map[int]interface{} {
+func (t *Erc20Token) Export() map[int]interface{} {
 	return map[int]interface{}{
 		1:  Constructor,
-		2:  e.GetName,
-		3:  e.GetSymbol,
-		4:  e.GetDecimal,
-		5:  e.GetTotalSupply,
-		6:  e.GetBalanceOf,
-		7:  e.Transfer,
-		8:  e.TransferFrom,
-		9:  e.Approval,
-		10: e.Allowance,
-		11: e.FakeSetBalance,
+		2:  t.GetName,
+		3:  t.GetSymbol,
+		4:  t.GetDecimal,
+		5:  t.GetTotalSupply,
+		6:  t.GetBalanceOf,
+		7:  t.Transfer,
+		8:  t.TransferFrom,
+		9:  t.Approval,
+		10: t.Allowance,
+		11: t.FakeSetBalance,
 	}
 }
 
@@ -77,7 +77,7 @@ type ConstructorReq struct {
 	Name        string
 	Symbol      string
 	Decimals    uint8
-	TotalSupply *big.Int
+	TotalSupply abi.TokenAmount
 }
 
 func Constructor(ctx context.Context, req *ConstructorReq) error {
@@ -95,7 +95,7 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 	}
 
 	//todo call is init actor but not message real sendor wait for ref fvm fix this issue
-	err = emptyMap.Put(types.ActorKey(caller), req.TotalSupply)
+	err = emptyMap.Put(types.ActorKey(caller), &req.TotalSupply)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 
 type FakeSetBalance struct {
 	Addr    address.Address
-	Balance *big.Int
+	Balance abi.TokenAmount
 }
 
 // FakeSetBalance NOTICE **beacause unable to set init balance in constructor, so just add this function for test contract, and must be remove after fvm support get really caller**
@@ -135,7 +135,7 @@ func (t *Erc20Token) FakeSetBalance(ctx context.Context, req *FakeSetBalance) er
 	if err != nil {
 		return err
 	}
-	err = balanceMap.Put(types.ActorKey(addrId), req.Balance)
+	err = balanceMap.Put(types.ActorKey(addrId), &req.Balance)
 	if err != nil {
 		return err
 	}
@@ -147,24 +147,24 @@ func (t *Erc20Token) FakeSetBalance(ctx context.Context, req *FakeSetBalance) er
 	return nil
 }
 
-/*GetDecimal return token Name of erc20 token*/
+// GetName return token Name of erc20 token
 func (t *Erc20Token) GetName() types.CborString {
 	return types.CborString(t.Name)
 }
 
-/*GetDecimal return token Symbol of erc20 token*/
+// GetDecimal return token Symbol of erc20 token
 func (t *Erc20Token) GetSymbol() types.CborString {
 	return types.CborString(t.Symbol)
 }
 
-/*GetDecimal return decimal of erc20 token*/
+// GetDecimal return decimal of erc20 token
 func (t *Erc20Token) GetDecimal() typegen.CborInt {
 	return typegen.CborInt(t.Decimals)
 }
 
-/*GetTotalSupply returns total number of tokens in existence*/
-func (t *Erc20Token) GetTotalSupply() *big.Int {
-	return t.TotalSupply
+// GetTotalSupply returns total number of tokens in existence
+func (t *Erc20Token) GetTotalSupply() *abi.TokenAmount {
+	return &t.TotalSupply
 }
 
 /*
@@ -185,17 +185,18 @@ func (t *Erc20Token) getBalanceOf(ctx context.Context, act abi.ActorID) (*big.In
 	if err != nil {
 		return nil, err
 	}
-	var balance = &big.Int{stdbig.NewInt(0)}
+	var balance = &big.Int{Int: stdbig.NewInt(0)}
 	_, err = balanceMap.Get(types.ActorKey(act), balance)
 	if err != nil {
 		return nil, err
 	}
+	//return 0 if not exit
 	return balance, nil
 }
 
 type TransferReq struct {
 	ReceiverAddr   address.Address
-	TransferAmount *big.Int
+	TransferAmount abi.TokenAmount
 }
 
 /*
@@ -218,7 +219,7 @@ func (t *Erc20Token) Transfer(ctx context.Context, transferReq *TransferReq) err
 	}
 
 	if transferReq.TransferAmount.LessThanEqual(big.Zero()) {
-		return errors.New("trasfer value must bigger than zero")
+		return errors.New("transfer value must bigger than zero")
 	}
 
 	balanceOfSender, err := t.getBalanceOf(ctx, senderID)
@@ -234,7 +235,7 @@ func (t *Erc20Token) Transfer(ctx context.Context, transferReq *TransferReq) err
 		return err
 	}
 
-	if err := isSmallerOrEqual(transferReq.TransferAmount, balanceOfSender); err != nil {
+	if err := isSmallerOrEqual(&transferReq.TransferAmount, balanceOfSender); err != nil {
 		return fmt.Errorf("transfer amount should be less than balance of sender (%v): %v", senderID, err)
 	}
 
@@ -243,10 +244,10 @@ func (t *Erc20Token) Transfer(ctx context.Context, transferReq *TransferReq) err
 		return err
 	}
 
-	if err = balanceMap.Put(types.ActorKey(senderID), sub(balanceOfSender, transferReq.TransferAmount)); err != nil {
+	if err = balanceMap.Put(types.ActorKey(senderID), sub(balanceOfSender, &transferReq.TransferAmount)); err != nil {
 		return err
 	}
-	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, transferReq.TransferAmount)); err != nil {
+	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, &transferReq.TransferAmount)); err != nil {
 		return err
 	}
 	newBalanceMapRoot, err := balanceMap.Root()
@@ -265,7 +266,7 @@ type AllowanceReq struct {
 }
 
 /*
-GetAllowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
+Allowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
 
 * `ownerAddr` - the ID of owner.
 
@@ -291,7 +292,7 @@ func (t *Erc20Token) getAllowance(ctx context.Context, ownerID, spenderId abi.Ac
 		return nil, err
 	}
 
-	balance := &big.Int{stdbig.NewInt(0)}
+	balance := &big.Int{Int: stdbig.NewInt(0)}
 	if _, err = allowBalanceMap.Get(types.StringKey(getAllowKey(ownerID, spenderId)), balance); err != nil {
 		return nil, err
 	}
@@ -302,7 +303,7 @@ func (t *Erc20Token) getAllowance(ctx context.Context, ownerID, spenderId abi.Ac
 type TransferFromReq struct {
 	OwnerAddr      address.Address
 	ReceiverAddr   address.Address
-	TransferAmount *big.Int
+	TransferAmount abi.TokenAmount
 }
 
 /*
@@ -333,15 +334,15 @@ func (t *Erc20Token) TransferFrom(ctx context.Context, req *TransferFromReq) err
 	if err != nil {
 		return err
 	}
-	balanceOfTokenOwner, err := t.getBalanceOf(ctx,tokenOwnerID)
+	balanceOfTokenOwner, err := t.getBalanceOf(ctx, tokenOwnerID)
 	if err != nil {
 		return err
 	}
-	balanceOfReceiver, err := t.getBalanceOf(ctx,receiverID)
+	balanceOfReceiver, err := t.getBalanceOf(ctx, receiverID)
 	if err != nil {
 		return err
 	}
-	approvedAmount, err := t.getAllowance(ctx,tokenOwnerID, spenderID)
+	approvedAmount, err := t.getAllowance(ctx, tokenOwnerID, spenderID)
 	if err != nil {
 		return err
 	}
@@ -357,10 +358,10 @@ func (t *Erc20Token) TransferFrom(ctx context.Context, req *TransferFromReq) err
 		return fmt.Errorf("approved amount for %v-%v less than zero", tokenOwnerID, spenderID)
 	}
 
-	if err := isSmallerOrEqual(req.TransferAmount, balanceOfTokenOwner); err != nil {
+	if err := isSmallerOrEqual(&req.TransferAmount, balanceOfTokenOwner); err != nil {
 		return fmt.Errorf("transfer amount should be less than balance of token owner (%v): %v", tokenOwnerID, err)
 	}
-	if err := isSmallerOrEqual(req.TransferAmount, approvedAmount); err != nil {
+	if err := isSmallerOrEqual(&req.TransferAmount, approvedAmount); err != nil {
 		return fmt.Errorf("transfer amount should be less than approved spending amount of %v: %v", spenderID, err)
 	}
 
@@ -375,15 +376,15 @@ func (t *Erc20Token) TransferFrom(ctx context.Context, req *TransferFromReq) err
 		return err
 	}
 
-	if err = balanceMap.Put(types.ActorKey(tokenOwnerID), sub(balanceOfTokenOwner, req.TransferAmount)); err != nil {
+	if err = balanceMap.Put(types.ActorKey(tokenOwnerID), sub(balanceOfTokenOwner, &req.TransferAmount)); err != nil {
 		return err
 	}
 
-	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, req.TransferAmount)); err != nil {
+	if err = balanceMap.Put(types.ActorKey(receiverID), add(balanceOfReceiver, &req.TransferAmount)); err != nil {
 		return err
 	}
 
-	if err = allowBalanceMap.Put(types.StringKey(getAllowKey(tokenOwnerID, spenderID)), sub(approvedAmount, req.TransferAmount)); err != nil {
+	if err = allowBalanceMap.Put(types.StringKey(getAllowKey(tokenOwnerID, spenderID)), sub(approvedAmount, &req.TransferAmount)); err != nil {
 		return err
 	}
 
@@ -399,7 +400,7 @@ func (t *Erc20Token) TransferFrom(ctx context.Context, req *TransferFromReq) err
 
 type ApprovalReq struct {
 	SpenderAddr  address.Address
-	NewAllowance *big.Int
+	NewAllowance abi.TokenAmount
 }
 
 /*Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
@@ -420,7 +421,7 @@ func (t *Erc20Token) Approval(ctx context.Context, req *ApprovalReq) error {
 		return err
 	}
 
-	allowance, err := t.getAllowance(ctx,callerID, spenderID)
+	allowance, err := t.getAllowance(ctx, callerID, spenderID)
 	if err != nil {
 		return err
 	}
@@ -430,7 +431,7 @@ func (t *Erc20Token) Approval(ctx context.Context, req *ApprovalReq) error {
 		return err
 	}
 
-	err = allowBalanceMap.Put(types.StringKey(getAllowKey(callerID, spenderID)), add(allowance, req.NewAllowance))
+	err = allowBalanceMap.Put(types.StringKey(getAllowKey(callerID, spenderID)), add(allowance, &req.NewAllowance))
 	if err != nil {
 		return err
 	}
@@ -452,7 +453,7 @@ func checkBalance(balance *big.Int, mspID abi.ActorID) error {
 }
 
 /*isSmallerOrEqual returns `nil` if a is <= b*/
-func isSmallerOrEqual(a *big.Int, b *big.Int) error {
+func isSmallerOrEqual(a *abi.TokenAmount, b *abi.TokenAmount) error {
 	if a.GreaterThan(*b) {
 		return fmt.Errorf("%v should be <= to %v", a, b)
 	}
@@ -472,10 +473,10 @@ func getAllowKey(ownerID, spenderId abi.ActorID) string {
 	return actorToString(ownerID) + actorToString(spenderId)
 }
 
-func sub(a, b *big.Int) *big.Int {
-	return &big.Int{big.NewInt(0).Sub(a.Int, b.Int)}
+func sub(a, b *abi.TokenAmount) *big.Int {
+	return &big.Int{Int: big.NewInt(0).Sub(a.Int, b.Int)}
 }
 
-func add(a, b *big.Int) *big.Int {
-	return &big.Int{big.NewInt(0).Add(a.Int, b.Int)}
+func add(a, b *abi.TokenAmount) *big.Int {
+	return &big.Int{Int: big.NewInt(0).Add(a.Int, b.Int)}
 }
