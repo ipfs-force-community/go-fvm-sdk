@@ -29,8 +29,9 @@ walkdir = "2"
 regex = "1"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 
-fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/set_sys_code_cid",  features = ["m2-native"]}
-fvm_shared = {  git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/set_sys_code_cid"}
-fvm_ipld_blockstore = { git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/set_sys_code_cid"}
-fvm_ipld_encoding = { git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/set_sys_code_cid"}
-fvm_integration_tests = { git = "https://github.com/ipfs-force-community/ref-fvm", branch="feat/set_sys_code_cid",  features = ["m2-native"]}
+actors-v10 = { package = "fil_builtin_actors_bundle", git = "https://github.com/filecoin-project/builtin-actors", branch = "next", features = ["m2-native"] }
+fvm = {  git = "https://github.com/filecoin-project/ref-fvm",  features = ["m2-native","testing"]}
+fvm_shared = {  git = "https://github.com/filecoin-project/ref-fvm"}
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm"}
+fvm_integration_tests = { git = "https://github.com/filecoin-project/ref-fvm",   features = ["m2-native"]}

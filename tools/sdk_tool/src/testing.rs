@@ -8,6 +8,7 @@ use fvm::executor::{ApplyKind, Executor};
 use fvm::init_actor::INIT_ACTOR_ADDR;
 use fvm::machine::Machine;
 use fvm_integration_tests::dummy::DummyExterns;
+use fvm_integration_tests::bundle;
 use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
@@ -171,7 +172,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             to: INIT_ACTOR_ADDR,
             gas_limit: 1000000000000,
             method_num: 3,
-            value: BigInt::zero(),
+            value: TokenAmount::zero(),
             params: RawBytes::from(install_params),
             sequence: 0,
             ..Message::default()
@@ -203,7 +204,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             to: INIT_ACTOR_ADDR,
             gas_limit: 1000000000000,
             method_num: 2,
-            value: BigInt::zero(),
+            value: TokenAmount::zero(),
             params: RawBytes::from(exec_params),
             sequence: 1,
             ..Message::default()
@@ -223,6 +224,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
     for wasm_case in &contract_case.cases {
         let from_addr = accounts[wasm_case.send_from].1;
         let actor = executor.state_tree().get_actor(&from_addr)?.unwrap();
+        let send_value=BigInt::from(wasm_case.send_value);
         let message = Message {
             from: from_addr,
             sequence: actor.sequence,
@@ -230,7 +232,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             gas_limit: 1000000000000,
             method_num: wasm_case.method_num,
             params: RawBytes::from(hex::decode(&wasm_case.params)?),
-            value: BigInt::from(wasm_case.send_value),
+            value: TokenAmount::from_whole(send_value),
             ..Message::default()
         };
 
@@ -338,17 +340,21 @@ struct State {
 pub fn new_tester(
     accounts_cfg: &[InitAccount],
 ) -> Result<(Tester<MemoryBlockstore, DummyExterns>, Vec<Account>)> {
+    let bs = MemoryBlockstore::default();
+    let bundle_root = bundle::import_bundle(&bs, actors_v10::BUNDLE_CAR).unwrap();
     let mut tester = Tester::new(
         NetworkVersion::V15,
         StateTreeVersion::V4,
-        MemoryBlockstore::default(),
+        bundle_root,
+        bs,
     )
     .unwrap();
     let mut accounts: Vec<Account> = vec![];
     for init_account in accounts_cfg {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
+        let balance=BigInt::from(init_account.balance);
         let account =
-            tester.make_secp256k1_account(priv_key, TokenAmount::from(init_account.balance))?;
+            tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
         accounts.push(account);
     }
     Ok((tester, accounts))
@@ -370,25 +376,27 @@ pub fn exec(
 
     // Set actor
     let actor_address = Address::new_id(10000);
+    let actor_balance=BigInt::from(wasm_case.actor_balance);
     tester
         .set_actor_from_bin(
             wasm_bin,
             state_cid,
             actor_address,
-            BigInt::from(wasm_case.actor_balance),
+            TokenAmount::from_whole(actor_balance),
         )
         .unwrap();
 
     // Instantiate machine
     tester.instantiate_machine(DummyExterns)?;
-
+    
     // Send message
+    let send_value=BigInt::from(wasm_case.send_value);
     let message = Message {
         from: accounts[wasm_case.send_from].1,
         to: actor_address,
         gas_limit: 1000000000000,
         method_num: wasm_case.method_num,
-        value: BigInt::from(wasm_case.send_value),
+        value: TokenAmount::from_whole(send_value),
         ..Message::default()
     };
 
