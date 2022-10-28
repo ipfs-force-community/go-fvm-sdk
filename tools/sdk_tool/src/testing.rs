@@ -28,6 +28,7 @@ use std::env::current_dir;
 use std::fs;
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
+
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct TestConfig {
@@ -146,11 +147,11 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         current_dir()?,
         Path::new(&contract_case.binary).to_path_buf(),
     ]
-    .iter()
-    .collect::<PathBuf>()
-    .absolutize()
-    .map(|v| v.into_owned())
-    .expect("get binary path");
+        .iter()
+        .collect::<PathBuf>()
+        .absolutize()
+        .map(|v| v.into_owned())
+        .expect("get binary path");
     let buf = fs::read(path.clone())
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().get_or_insert("unknown")));
     // Instantiate tester
@@ -166,12 +167,12 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         let install_params = InstallParams {
             code: RawBytes::from(buf),
         }
-        .marshal_cbor()?;
+            .marshal_cbor()?;
         let install_message = Message {
             from: accounts[contract_case.owner_account].1,
             to: INIT_ACTOR_ADDR,
             gas_limit: 1000000000000,
-            method_num: 3,
+            method_num: 4,
             value: TokenAmount::zero(),
             params: RawBytes::from(install_params),
             sequence: 0,
@@ -196,8 +197,9 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         let exec_params = ExecParams {
             code_cid: install_return.code_cid,
             constructor_params: RawBytes::from(constructor_params),
+
         }
-        .marshal_cbor()?;
+            .marshal_cbor()?;
 
         let create_message = Message {
             from: accounts[contract_case.owner_account].1,
@@ -224,7 +226,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
     for wasm_case in &contract_case.cases {
         let from_addr = accounts[wasm_case.send_from].1;
         let actor = executor.state_tree().get_actor(&from_addr)?.unwrap();
-        let send_value=BigInt::from(wasm_case.send_value);
+        let send_value = BigInt::from(wasm_case.send_value);
         let message = Message {
             from: from_addr,
             sequence: actor.sequence,
@@ -264,6 +266,7 @@ pub fn run_signle_wasm(accounts: &[InitAccount], wasm_case: &WasmCase) -> Result
         )
     })?;
     let ret = exec(&buf, accounts, wasm_case)?;
+
     check_message_receipt(
         wasm_case.name.clone(),
         &ret,
@@ -343,16 +346,16 @@ pub fn new_tester(
     let bs = MemoryBlockstore::default();
     let bundle_root = bundle::import_bundle(&bs, actors_v10::BUNDLE_CAR).unwrap();
     let mut tester = Tester::new(
-        NetworkVersion::V15,
+        NetworkVersion::V18,
         StateTreeVersion::V4,
         bundle_root,
         bs,
     )
-    .unwrap();
+        .unwrap();
     let mut accounts: Vec<Account> = vec![];
     for init_account in accounts_cfg {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
-        let balance=BigInt::from(init_account.balance);
+        let balance = BigInt::from(init_account.balance);
         let account =
             tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
         accounts.push(account);
@@ -376,7 +379,7 @@ pub fn exec(
 
     // Set actor
     let actor_address = Address::new_id(10000);
-    let actor_balance=BigInt::from(wasm_case.actor_balance);
+    let actor_balance = BigInt::from(wasm_case.actor_balance);
     tester
         .set_actor_from_bin(
             wasm_bin,
@@ -388,9 +391,9 @@ pub fn exec(
 
     // Instantiate machine
     tester.instantiate_machine(DummyExterns)?;
-    
+
     // Send message
-    let send_value=BigInt::from(wasm_case.send_value);
+    let send_value = BigInt::from(wasm_case.send_value);
     let message = Message {
         from: accounts[wasm_case.send_from].1,
         to: actor_address,
@@ -412,6 +415,7 @@ pub fn exec(
 pub struct ExecParams {
     pub code_cid: Cid,
     pub constructor_params: RawBytes,
+
 }
 
 /// Init actor Exec Return value
@@ -424,6 +428,7 @@ pub struct ExecReturn {
 }
 
 impl Cbor for ExecReturn {}
+
 impl Cbor for ExecParams {}
 
 /// Init actor Install Params
@@ -440,4 +445,5 @@ pub struct InstallReturn {
 }
 
 impl Cbor for InstallParams {}
+
 impl Cbor for InstallReturn {}

@@ -33,10 +33,11 @@ func VerifySignature(
 	}
 
 	var result int32
+	sig_type := signature.Type
 	sigPtr, sigLen := GetSlicePointerAndLen(sigBuf.Bytes())
 	signerPtr, signerLen := GetSlicePointerAndLen(signer.Bytes())
 	plainTextPtr, plainTextLen := GetSlicePointerAndLen(plaintext)
-	code := cryptoVerifySignature(uintptr(unsafe.Pointer(&result)), sigPtr, sigLen, signerPtr, signerLen, plainTextPtr, plainTextLen)
+	code := cryptoVerifySignature(uintptr(unsafe.Pointer(&result)), uint32(sig_type), sigPtr, sigLen, signerPtr, signerLen, plainTextPtr, plainTextLen)
 	if code != 0 {
 		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
 	}
@@ -47,7 +48,8 @@ func HashBlake2b(_ context.Context, data []byte) ([32]byte, error) {
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
 	result := [32]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
-	code := cryptoHashBlake2b(resultPtr, dataPtr, dataLen)
+	retPtr, retLen := GetSlicePointerAndLen(result)
+	code := cryptoHashBlake2b(resultPtr, 0xb220, dataPtr, dataLen, retPtr, uint32(retLen))
 	if code != 0 {
 		return result, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to compute blak2b hash")
 	}

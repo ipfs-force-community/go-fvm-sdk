@@ -20,7 +20,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	case 1:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_ARGUMENT, "test_abort USR_ILLEGAL_ARGUMENT")
 	case 2:
-		sdk.Abort(ctx, ferrors.SYS_SENDER_STATE_INVALID, "test_abort SYS_SENDER_STATE_INVALID")
+		sdk.Abort(ctx, ferrors.USR_NOT_FOUND, "test_abort SYS_SENDER_STATE_INVALID")
 	}
 	return 0
 }

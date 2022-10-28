@@ -1875,7 +1875,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "3.0.0-alpha.3"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1886,11 +1886,11 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api",
  "fvm-wasm-instrument",
- "fvm_ipld_amt 0.5.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_hamt 0.6.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_amt 0.5.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_hamt 0.6.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "lazy_static",
  "log",
  "multihash",
@@ -1920,18 +1920,18 @@ dependencies = [
 [[package]]
 name = "fvm_integration_tests"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "cid",
  "futures",
  "fvm",
- "fvm_ipld_amt 0.5.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_car 0.6.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_hamt 0.6.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_amt 0.5.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_car 0.6.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_hamt 0.6.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "lazy_static",
  "libsecp256k1",
  "multihash",
@@ -1964,12 +1964,12 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.5.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "cid",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "itertools 0.10.5",
  "once_cell",
  "serde",
@@ -2002,7 +2002,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.1"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "cid",
@@ -2027,12 +2027,12 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.6.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "cid",
  "futures",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "integer-encoding",
  "serde",
  "thiserror",
@@ -2058,11 +2058,11 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.3.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "cid",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "multihash",
  "serde",
  "serde_ipld_dagcbor",
@@ -2094,14 +2094,14 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.6.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "byteorder",
  "cid",
  "forest_hash_utils",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "libipld-core 0.14.0",
  "multihash",
  "once_cell",
@@ -2156,7 +2156,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "3.0.0-alpha.6"
-source = "git+https://github.com/filecoin-project/ref-fvm#9f4b8ab536ec8308bf33ce0a748aebd6bca5dd67"
+source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -2166,8 +2166,8 @@ dependencies = [
  "data-encoding",
  "data-encoding-macro",
  "filecoin-proofs-api",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "lazy_static",
  "libsecp256k1",
  "log",
@@ -2268,9 +2268,9 @@ dependencies = [
  "fil_builtin_actors_bundle",
  "fvm",
  "fvm_integration_tests",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm)",
- "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm)",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
  "hex",
  "libsecp256k1",
  "num-traits",

@@ -15,7 +15,7 @@ package sys
 //
 //go:wasm-module crypto
 //export verify_signature
-func cryptoVerifySignature(ret uintptr, sigOff uintptr, sigLen uint32, addrOff uintptr, addrLen uint32, plainTextOff uintptr, plainTextLen uint32) uint32
+func cryptoVerifySignature(ret uintptr, sig_type uint32, sigOff uintptr, sigLen uint32, addrOff uintptr, addrLen uint32, plainTextOff uintptr, plainTextLen uint32) uint32
 
 // Hashes input data using blake2b with 256 bit output.
 // /
@@ -28,8 +28,8 @@ func cryptoVerifySignature(ret uintptr, sigOff uintptr, sigLen uint32, addrOff u
 // | `IllegalArgument` | the input buffer does not point to valid memory |
 //
 //go:wasm-module crypto
-//export hash_blake2b
-func cryptoHashBlake2b(ret uintptr, dataOff uintptr, dataLen uint32) uint32
+//export hash
+func cryptoHashBlake2b(ret uintptr, hash_code uint64, dataOff uintptr, dataLen uint32, digest_off uintptr, digest_len uint32) uint32
 
 // Computes an unsealed sector CID (CommD) from its constituent piece CIDs
 // (CommPs) and sizes.

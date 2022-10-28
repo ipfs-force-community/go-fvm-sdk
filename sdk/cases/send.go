@@ -3,9 +3,8 @@ package main
 import (
 	"context"
 
-	"github.com/filecoin-project/go-state-types/abi"
-
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/testing"
@@ -45,6 +44,7 @@ func Invoke(_ uint32) uint32 { //nolint
 		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(5000))
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
+		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "=="+err.Error()+"===")
 	}
 
 	return 0

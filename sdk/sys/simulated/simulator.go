@@ -1,7 +1,9 @@
 package simulated
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 
@@ -55,6 +57,10 @@ func (fvmSimulator *FvmSimulator) Log(msg string) error {
 	fmt.Println(msg)
 	return nil
 }
+func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data string) error {
+	fmt.Printf("%s %s\n", name, data)
+	return nil
+}
 
 func (fvmSimulator *FvmSimulator) SetCallContext(callContext *types.InvocationContext) {
 	fvmSimulator.callContext = callContext
@@ -76,10 +82,29 @@ func (fvmSimulator *FvmSimulator) Charge(_ string, _ uint64) error {
 	return nil
 }
 
+func (fvmSimulator *FvmSimulator) Available(_ string, _ uint64) (uint64, error) {
+	return 0, nil
+}
+
 func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) {
 	fvmSimulator.totalFilCircSupply = amount
 }
 
+func (fvmSimulator *FvmSimulator) SetTipsetCid(epoch int64, cid *cid.Cid) {
+	fvmSimulator.tipsetCids[epoch] = cid
+}
+
 func (fvmSimulator *FvmSimulator) TotalFilCircSupply() (abi.TokenAmount, error) {
 	return fvmSimulator.totalFilCircSupply, nil
+}
+
+func (fvmSimulator *FvmSimulator) TipsetTimestamp() (uint64, error) {
+	return uint64(time.Now().Unix()), nil
+}
+
+func (fvmSimulator *FvmSimulator) TipsetCid(ctx context.Context, epoch int64) (*cid.Cid, error) {
+	if v, ok := fvmSimulator.tipsetCids[epoch]; ok {
+		return v, nil
+	}
+	return nil, ErrorNotFound
 }

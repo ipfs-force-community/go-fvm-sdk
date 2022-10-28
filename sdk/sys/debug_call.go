@@ -15,3 +15,9 @@ func debugEnabled(ret uintptr) uint32
 //go:wasm-module debug
 //export log
 func debugLog(message uintptr, message_len uint32) uint32
+
+// Logs a message on the node.
+//
+//go:wasm-module debug
+//export store_artifact
+func debugStoreArtifact(name_off uintptr, name_len uint32, data_off uintptr, data_len uint32) uint32

@@ -29,3 +29,14 @@ func Log(_ context.Context, msg string) error {
 
 	return nil
 }
+
+func StoreArtifact(_ context.Context, name string, data string) error {
+	nameBufPtr, nameBufLen := GetStringPointerAndLen(name)
+	dataBufPtr, dataBufLen := GetStringPointerAndLen(data)
+	code := debugStoreArtifact(nameBufPtr, nameBufLen, dataBufPtr, dataBufLen)
+	if code != 0 {
+		return ferrors.NewFvmError(ferrors.ExitCode(code), "failed to record debug log")
+	}
+
+	return nil
+}

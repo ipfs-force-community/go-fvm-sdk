@@ -14,3 +14,11 @@ func Charge(ctx context.Context, name string, compute uint64) error {
 	}
 	panic(ErrorEnvValid)
 }
+
+// Returns the amount of gas remaining.
+func Available(_ context.Context) (uint64, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.Available()
+	}
+	panic(ErrorEnvValid)
+}

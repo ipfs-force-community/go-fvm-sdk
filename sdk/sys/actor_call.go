@@ -16,6 +16,30 @@ package sys
 //export resolve_address
 func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32
 
+// / Looks up the "predictable" address of the target actor.
+// /
+// / # Arguments
+// /
+// / `addr_buf_off` and `addr_buf_len` specify the location and length of the output buffer in
+// / which to store the address.
+// /
+// / # Returns
+// /
+// / The length of the address written to the output buffer, or 0 if the target actor has no
+// / predictable address.
+// /
+// / # Errors
+// /
+// / | Error               | Reason                                                           |
+// / |---------------------|------------------------------------------------------------------|
+// / | [`NotFound`]        | if the target actor does not exist                               |
+// / | [`BufferTooSmall`]  | if the output buffer isn't large enough to fit the address       |
+// / | [`IllegalArgument`] | if the output buffer isn't valid, in memory, etc.
+//
+//go:wasm-module actor
+//export lookup_address
+func actorLookupAddress(ret uintptr, actor_id uint64, addr_buf_off uintptr, addr_buf_len uint32) uint32
+
 // Gets the CodeCID of an actor by address.
 // /
 // Returns the
@@ -29,7 +53,7 @@ func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32
 //
 //go:wasm-module actor
 //export get_actor_code_cid
-func actorGetActorCodeCid(ret uintptr, addr_off uintptr, addr_len uint32, obuf_off uintptr, obuf_len uint32) uint32
+func actorGetActorCodeCid(ret uintptr, actor_id uint64, obuf_off uintptr, obuf_len uint32) uint32
 
 // Determines whether the specified CodeCID belongs to that of a builtin
 // actor and which. Returns 0 if unrecognized. Can only fail due to
@@ -64,4 +88,8 @@ func actorNewActorAddress(ret uintptr, obuf_off uintptr, obuf_len uint32) uint32
 //
 //go:wasm-module actor
 //export create_actor
-func actorCreateActor(actor_id uint64, typ_off uintptr) uint32
+func actorCreateActor(actor_id uint64, typ_off uintptr, predictable_addr_off uintptr, predictable_addr_len uint32) uint32
+
+//go:wasm-module actor
+//export balance_of
+func actorBalanceOf(ret uintptr, actor_id uint64) uint32

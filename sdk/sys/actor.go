@@ -29,12 +29,25 @@ func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error
 	return result, nil
 }
 
-func GetActorCodeCid(_ context.Context, addr address.Address) (*cid.Cid, error) {
-	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
+func LookupAddress(_ context.Context, actorid abi.ActorID) (address.Address, error) {
+	buf := make([]byte, types.MaxCidLen)
+	bufPtr, bufLen := GetSlicePointerAndLen(buf)
+	code := actorLookupAddress(uintptr(unsafe.Pointer(&buf)), uint64(actorid), bufPtr, bufLen)
+	if code <= 0 {
+		return address.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), "address is predictable")
+	}
+	return address.NewFromBytes(buf)
+}
+
+func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	var result int32
-	code := actorGetActorCodeCid(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen, bufPtr, bufLen)
+	actorID, err := ResolveAddress(ctx, addr)
+	if err != nil {
+		return &cid.Undef, err
+	}
+	code := actorGetActorCodeCid(uintptr(unsafe.Pointer(&result)), uint64(actorID), bufPtr, bufLen)
 	if code != 0 {
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to get actor code id from address %s", addr))
 	}
@@ -88,11 +101,21 @@ func NewActorAddress(_ context.Context) (address.Address, error) {
 	return address.NewFromBytes(buf[:addrLen])
 }
 
-func CreateActor(_ context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
-	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
-	code := actorCreateActor(uint64(actorID), addrBufPtr)
+func CreateActor(_ context.Context, actorID abi.ActorID, codeCid cid.Cid, address address.Address) error {
+	cidBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
+	addrBufPtr, addrBufLen := GetSlicePointerAndLen(address.Bytes())
+	code := actorCreateActor(uint64(actorID), cidBufPtr, addrBufPtr, addrBufLen)
 	if code != 0 {
 		return ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor type %d code cid %s", actorID, codeCid))
 	}
 	return nil
+}
+
+func BalanceOf(_ context.Context, actorID abi.ActorID) (abi.TokenAmount, error) {
+	tokenAmount := new(fvmTokenAmount)
+	code := actorBalanceOf(uintptr(unsafe.Pointer(tokenAmount)), uint64(actorID))
+	if code != 0 {
+		return abi.NewTokenAmount(0), ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to create actor type %d ", actorID))
+	}
+	return tokenAmount.TokenAmount(), nil
 }

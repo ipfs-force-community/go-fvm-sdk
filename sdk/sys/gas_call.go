@@ -10,9 +10,10 @@ package sys
 // /
 // # Arguments
 // /
-// - `name_off` and `name_len` specify the location and length of the "name" of the gas charge,
-//   for debugging.
-// - `amount` is the amount of gas to charge.
+//   - `name_off` and `name_len` specify the location and length of the "name" of the gas charge,
+//     for debugging.
+//   - `amount` is the amount of gas to charge.
+//
 // /
 // # Errors
 // /
@@ -23,3 +24,9 @@ package sys
 //go:wasm-module gas
 //export charge
 func gasCharge(name_off uintptr, name_len uint32, amount uint64) uint32
+
+// / Returns the amount of gas remaining.
+//
+//go:wasm-module available
+//export available
+func gasAvailable(ret uintptr) uint32

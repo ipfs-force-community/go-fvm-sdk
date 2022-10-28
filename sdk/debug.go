@@ -46,3 +46,9 @@ func (l *logger) Logf(ctx context.Context, format string, a ...interface{}) {
 		_ = sys.Log(ctx, fmt.Sprintf(format, a...)) //todo check error and abort?
 	}
 }
+
+func (l *logger) StoreArtifact(ctx context.Context, name string, data string) {
+	if l.Enabled(ctx) {
+		_ = sys.StoreArtifact(ctx, name, data) //todo check error and abort?
+	}
+}
