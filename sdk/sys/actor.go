@@ -32,11 +32,17 @@ func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error
 func LookupAddress(_ context.Context, actorid abi.ActorID) (address.Address, error) {
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
-	code := actorLookupAddress(uintptr(unsafe.Pointer(&buf)), uint64(actorid), bufPtr, bufLen)
-	if code <= 0 {
+	var addrLen uint32
+	code := actorLookupAddress(uintptr(unsafe.Pointer(&addrLen)), uint64(actorid), bufPtr, bufLen)
+	if code != 0 {
 		return address.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), "address is predictable")
 	}
-	return address.NewFromBytes(buf)
+	//
+	addr, err := address.NewFromBytes(buf[:addrLen])
+	if err != nil {
+		Abort(context.Background(), uint32(ferrors.USR_NOT_FOUND), fmt.Sprintf("%v", buf[:addrLen]))
+	}
+	return addr, err
 }
 
 func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
@@ -52,7 +58,7 @@ func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error
 		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to get actor code id from address %s", addr))
 	}
 
-	if result == 0 {
+	if code == 0 {
 		_, result, err := cid.CidFromBytes(buf)
 		if err != nil {
 			return nil, err
