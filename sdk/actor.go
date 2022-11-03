@@ -22,6 +22,8 @@ func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, err
 func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
 	return sys.GetActorCodeCid(ctx, addr)
 }
+
+// LookupAddress look up the address at an actor  ID. Returns `None` if the actor cannot be found.
 func LookupAddress(ctx context.Context, actorid abi.ActorID) (address.Address, error) {
 	return sys.LookupAddress(ctx, actorid)
 }

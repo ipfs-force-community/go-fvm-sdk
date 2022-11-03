@@ -91,6 +91,8 @@ func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) 
 }
 
 func (fvmSimulator *FvmSimulator) SetTipsetCid(epoch int64, cid *cid.Cid) {
+	fvmSimulator.tipsetCidLk.Lock()
+	defer fvmSimulator.tipsetCidLk.Unlock()
 	fvmSimulator.tipsetCids[epoch] = cid
 }
 
@@ -103,6 +105,8 @@ func (fvmSimulator *FvmSimulator) TipsetTimestamp() (uint64, error) {
 }
 
 func (fvmSimulator *FvmSimulator) TipsetCid(ctx context.Context, epoch int64) (*cid.Cid, error) {
+	fvmSimulator.tipsetCidLk.Lock()
+	defer fvmSimulator.tipsetCidLk.Unlock()
 	if v, ok := fvmSimulator.tipsetCids[epoch]; ok {
 		return v, nil
 	}

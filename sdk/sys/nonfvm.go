@@ -10,7 +10,7 @@ func vmAbort(code uint32, msgOff uintptr, msgLen uint32) uint32 {
 func actorResolveAddress(ret uintptr, addrOff uintptr, addrLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorGetActorCodeCid(ret uintptr, actor_id uint64, oBufOff uintptr, oBufLen uint32) uint32 {
+func actorGetActorCodeCid(ret uintptr, actorID uint64, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 func actorResolveBuiltinActorType(ret uintptr, cidOff uintptr) uint32 {
@@ -22,16 +22,16 @@ func actorGetCodeCidForType(ret uintptr, typ int32, oBufOff uintptr, oBufLen uin
 func actorNewActorAddress(ret uintptr, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorCreateActor(actor_id uint64, typ_off uintptr, predictable_addr_off uintptr, predictable_addr_len uint32) uint32 {
+func actorCreateActor(actorID uint64, typOff uintptr, predictableAddrOff uintptr, predictableAddrLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
 func vmContext(ret uintptr) uint32 { panic("ignore this error, just implement nonfvm for ide working") }
 
-func cryptoVerifySignature(ret uintptr, sig_type uint32, sigOff uintptr, sigLen uint32, addrOff uintptr, addrLen uint32, plainTextOff uintptr, plainTextLen uint32) uint32 {
+func cryptoVerifySignature(ret uintptr, sigType uint32, sigOff uintptr, sigLen uint32, addrOff uintptr, addrLen uint32, plainTextOff uintptr, plainTextLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func cryptoHashBlake2b(ret uintptr, hash_code uint64, dataOff uintptr, dataLen uint32, digest_off uintptr, digest_len uint32) uint32 {
+func cryptoHashBlake2b(ret uintptr, hashCode uint64, dataOff uintptr, dataLen uint32, digestOff uintptr, digestLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 func cryptoComputeUnsealedSectorCid(ret uintptr, proofType int64, piecesOff uintptr, pieceLen uint32, cidPtr uintptr, cidLen uint32) uint32 {
@@ -113,14 +113,14 @@ func selfCurrentBalance(ret uintptr) uint32 {
 func selfDestruct(addrOff uintptr, addrLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorLookupAddress(ret uintptr, actor_id uint64, addr_buf_off uintptr, addr_buf_len uint32) uint32 {
+func actorLookupAddress(ret uintptr, actorID uint64, addrBufOff uintptr, addrBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func actorBalanceOf(ret uintptr, actor_id uint64) uint32 {
+func actorBalanceOf(ret uintptr, actorID uint64) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func debugStoreArtifact(name_off uintptr, name_len uint32, data_off uintptr, data_len uint32) uint32 {
+func debugStoreArtifact(nameOff uintptr, nameLen uint32, dataOff uintptr, dataLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 func gasAvailable(ret uintptr) uint32 {
@@ -130,6 +130,6 @@ func networkTipsetTimestamp(ret uintptr) uint64 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func networkTipsetCid(ret uintptr, epoch uint64, ret_off uintptr, ret_len uint32) uint32 {
+func networkTipsetCid(ret uintptr, epoch uint64, retOff uintptr, retLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }

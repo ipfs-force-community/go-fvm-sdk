@@ -21,12 +21,12 @@ func Charge(_ context.Context, name string, compute uint64) error {
 	return nil
 }
 
-// Returns the amount of gas remaining.
+// Available Returns the amount of gas remaining.
 func Available(_ context.Context) (uint64, error) {
 	var retptr uint32
 	code := gasAvailable(uintptr(unsafe.Pointer(&retptr)))
 	if code != 0 {
-		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("Available is fail"))
+		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "Available is fail")
 	}
 	return uint64(retptr), nil
 }
