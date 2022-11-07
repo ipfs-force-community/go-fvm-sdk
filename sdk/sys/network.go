@@ -5,7 +5,6 @@ package sys
 
 import (
 	"context"
-	"fmt"
 	"unsafe"
 
 	"github.com/filecoin-project/go-state-types/abi"
@@ -20,9 +19,9 @@ func BaseFee(_ context.Context) (abi.TokenAmount, error) {
 	result := new(fvmTokenAmount)
 	code := networkBaseFee(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
-		return abi.TokenAmount{}, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get base fee")
+		return abi.TokenAmount{}, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to get base fee")
 	}
-	return result.TokenAmount(), nil
+	return *result.TokenAmount(), nil
 }
 
 // TotalFilCircSupply gets the circulating supply.
@@ -30,17 +29,17 @@ func TotalFilCircSupply(_ context.Context) (abi.TokenAmount, error) {
 	result := new(fvmTokenAmount)
 	code := networkTotalFilCircSupply(uintptr(unsafe.Pointer(result)))
 	if code != 0 {
-		return abi.TokenAmount{}, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get circulating supply")
+		return abi.TokenAmount{}, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to get circulating supply")
 	}
 
-	return result.TokenAmount(), nil
+	return *result.TokenAmount(), nil
 }
 
 func TipsetTimestamp(_ context.Context) (uint64, error) {
 	var timestamp uint64
 	code := networkTipsetTimestamp(uintptr(unsafe.Pointer(&timestamp)))
 	if code != 0 {
-		return 0, ferrors.NewFvmError(ferrors.ExitCode(code), "failed to get timestamp")
+		return 0, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to get timestamp")
 	}
 
 	return timestamp, nil
@@ -52,7 +51,8 @@ func TipsetCid(_ context.Context, epoch uint64) (*cid.Cid, error) {
 	var result uint32
 	code := networkTipsetCid(uintptr(unsafe.Pointer(&result)), epoch, bufPtr, bufLen)
 	if code != 0 {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("unable to get TipsetCid:%d", epoch))
+		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unexpected cid resolution failure: "+ferrors.EnToString(code))
+
 	}
 	if result > 0 {
 		_, result, err := cid.CidFromBytes(buf)

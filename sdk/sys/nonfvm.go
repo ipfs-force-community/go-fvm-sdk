@@ -126,7 +126,7 @@ func debugStoreArtifact(nameOff uintptr, nameLen uint32, dataOff uintptr, dataLe
 func gasAvailable(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func networkTipsetTimestamp(ret uintptr) uint64 {
+func networkTipsetTimestamp(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 

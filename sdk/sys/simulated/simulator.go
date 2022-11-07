@@ -78,14 +78,6 @@ func (fvmSimulator *FvmSimulator) BaseFee() (abi.TokenAmount, error) {
 	return fvmSimulator.baseFee, nil
 }
 
-func (fvmSimulator *FvmSimulator) Charge(_ string, _ uint64) error {
-	return nil
-}
-
-func (fvmSimulator *FvmSimulator) Available(_ string, _ uint64) (uint64, error) {
-	return 0, nil
-}
-
 func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) {
 	fvmSimulator.totalFilCircSupply = amount
 }

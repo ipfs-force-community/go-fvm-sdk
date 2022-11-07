@@ -32,7 +32,7 @@ func CurrentBalance(ctx context.Context) abi.TokenAmount {
 	if err != nil {
 		panic(err.Error())
 	}
-	return tok
+	return *tok
 }
 
 // SelfDestruct destroys the calling actor, sending its current balance

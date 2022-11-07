@@ -18,6 +18,8 @@ func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Add
 }
 
 func (fvmSimulator *FvmSimulator) LookupAddress(actorID abi.ActorID) (address.Address, error) {
+	fvmSimulator.actorLk.Lock()
+	defer fvmSimulator.actorLk.Unlock()
 	for k, v := range fvmSimulator.addressMap {
 		if v == actorID {
 			return k, nil

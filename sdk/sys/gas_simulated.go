@@ -10,7 +10,7 @@ import (
 // Charge charge gas for the operation identified by name.
 func Charge(ctx context.Context, name string, compute uint64) error {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.Charge(name, compute)
+		return env.GasCharge(name, compute)
 	}
 	panic(ErrorEnvValid)
 }
@@ -18,7 +18,7 @@ func Charge(ctx context.Context, name string, compute uint64) error {
 // Returns the amount of gas remaining.
 func Available(_ context.Context) (uint64, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.Available()
+		return env.GasAvailable()
 	}
 	panic(ErrorEnvValid)
 }

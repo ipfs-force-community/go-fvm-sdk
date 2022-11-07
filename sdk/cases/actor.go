@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/testing"
@@ -33,6 +34,12 @@ func Invoke(_ uint32) uint32 { //nolint
 		balance, err := sdk.BalanceOf(ctx, actorID)
 		assert.Nil(t, err)
 		assert.Equal(t, "10000000000000000000000", balance.String())
+	case 2:
+		_, err := sdk.LookupAddress(ctx, abi.ActorID(1))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_NOT_FOUND, "test_actor USR_NOT_FOUND")
+		}
+
 	}
 	return 0
 }

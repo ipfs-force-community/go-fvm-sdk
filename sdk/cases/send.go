@@ -24,6 +24,10 @@ func Invoke(_ uint32) uint32 { //nolint
 	if err != nil {
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get method number")
 	}
+
+	// acid, _ := sdk.Caller(ctx)
+	// a, _ := sdk.BalanceOf(ctx, acid)
+	// sdk.Abort(ctx, ferrors.USR_NOT_FOUND, "1111"+a.String()+"----")
 	switch methodsNum {
 	case 1:
 		// actor does not exist: 128788 (6: resource not found)
@@ -39,12 +43,12 @@ func Invoke(_ uint32) uint32 { //nolint
 		assert.Equal(t, 0, int(ret.GasUsed))
 		assert.Equal(t, "", string(ret.ReturnData))
 	case 3:
-		// sender does not have funds to transfer (balance 10, transfer 5000) (5: insufficient funds)
+		//sender does not have funds to transfer (balance 10, transfer 5000000000000000) (5: insufficient funds)
 		addr, _ := address.NewFromString("f010000")
-		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(5000))
+		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(5000000000000000))
+		sdk.Abort(ctx, ferrors.USR_NOT_FOUND, "22222"+err.Error())
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
-		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "=="+err.Error()+"===")
 	}
 
 	return 0

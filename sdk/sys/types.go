@@ -427,11 +427,11 @@ func FromBytes(b []byte) fvmTokenAmount {
 }
 
 // TokenAmount returns u as a *ab.
-func (u fvmTokenAmount) TokenAmount() abi.TokenAmount {
+func (u fvmTokenAmount) TokenAmount() *abi.TokenAmount {
 	i := new(stdBig.Int).SetUint64(u.Hi)
 	i = i.Lsh(i, 64)
 	i = i.Xor(i, new(stdBig.Int).SetUint64(u.Lo))
-	return abi.TokenAmount{
+	return &abi.TokenAmount{
 		Int: i,
 	}
 }

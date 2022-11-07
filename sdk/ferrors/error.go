@@ -110,3 +110,106 @@ func (fvmError FvmError) Error() string {
 func (fvmError FvmError) Unwrap() error {
 	return fvmError.code
 }
+
+// ErrorNumber  When a syscall fails, it returns an `ErrorNumber` to indicate why
+type ErrorNumber uint32
+
+// Error return error message of ErrorNumber
+func (e ErrorNumber) Error() string {
+	return EnToString(uint32(e))
+}
+
+// EnToString return string message of ErrorNumber
+func EnToString(code uint32) string {
+	switch code {
+	case 1:
+		return "illegal argument"
+	case 2:
+		return "illegal operation"
+	case 3:
+		return "limit exceeded"
+	case 4:
+		return "filecoin assertion failed"
+	case 5:
+		return "insufficient funds"
+	case 6:
+		return "resource not found"
+	case 7:
+		return "invalid ipld block handle"
+	case 8:
+		return "illegal cid specification"
+	case 9:
+		return "illegal ipld codec"
+	case 10:
+		return "serialization error"
+	case 11:
+		return "operation forbidden"
+	case 12:
+		return "buffer too small"
+	}
+	return "other error"
+}
+
+// Is check whether error is ErrorNumber
+func (e ErrorNumber) Is(code error) bool {
+	return e == code
+}
+
+// IsSystemError Returns true if the error code is in the range of exit codes reserved for the VM (including Ok).
+func (e ErrorNumber) IsSystemError() bool {
+	return uint32(e) <= 12
+}
+
+// nolint
+const (
+	// A syscall parameters was invalid.
+	IllegalArgument ErrorNumber = 1
+	// The actor is not in the correct state to perform the requested operation.
+	IllegalOperation ErrorNumber = 2
+	// This syscall would exceed some system limit (memory, lookback, call depth, etc.).
+	LimitExceeded ErrorNumber = 3
+	// A system-level assertion has failed.
+	//
+	// # Note
+	//
+	// Non-system actors should never receive this error number. A system-level assertion will
+	// cause the entire message to fail.
+	AssertionFailed ErrorNumber = 4
+	// There were insufficient funds to complete the requested operation.
+	InsufficientFunds ErrorNumber = 5
+	// A resource was not found.
+	NotFound ErrorNumber = 6
+	// The specified IPLD block handle was invalid.
+	InvalidHandle ErrorNumber = 7
+	// The requested CID shape (multihash codec, multihash length) isn't supported.
+	IllegalCid ErrorNumber = 8
+	// The requested IPLD codec isn't supported.
+	IllegalCodec ErrorNumber = 9
+	// The IPLD block did not match the specified IPLD codec.
+	Serialization ErrorNumber = 10
+	// The operation is forbidden.
+	Forbidden ErrorNumber = 11
+	// The passed buffer is too small.
+	BufferTooSmall ErrorNumber = 12
+)
+
+// FvmErrorNumber Fvm error number include error code and error message
+type FvmErrorNumber struct {
+	code    ErrorNumber
+	message string
+}
+
+// NewFvmErrorNumber new fvm error number from error code and message
+func NewFvmErrorNumber(code ErrorNumber, msg string) FvmErrorNumber {
+	return FvmErrorNumber{code, msg}
+}
+
+// Error return error message for fvm error number
+func (e FvmErrorNumber) Error() string {
+	return fmt.Sprintf("%s %d", e.message, e.code)
+}
+
+// Unwrap return inner error code
+func (e FvmErrorNumber) Unwrap() error {
+	return e.code
+}

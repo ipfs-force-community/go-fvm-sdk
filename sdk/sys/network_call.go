@@ -31,7 +31,7 @@ func networkTotalFilCircSupply(ret uintptr) uint32
 //
 //go:wasm-module network
 //export tipset_timestamp
-func networkTipsetTimestamp(ret uintptr) uint64
+func networkTipsetTimestamp(ret uintptr) uint32
 
 // / Retrieves a tipset's CID within the last finality, if available
 // /

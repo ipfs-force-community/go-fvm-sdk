@@ -17,10 +17,10 @@ func VMContext(_ context.Context) (*types.InvocationContext, error) {
 	var result invocationContext
 	code := vmContext(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to get invocation context")
+		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unable to get invocation context")
 	}
 	return &types.InvocationContext{
-		ValueReceived:    result.ValueReceived.TokenAmount(),
+		ValueReceived:    *result.ValueReceived.TokenAmount(),
 		Caller:           result.Caller,
 		Receiver:         result.Receiver,
 		MethodNumber:     result.MethodNumber,
