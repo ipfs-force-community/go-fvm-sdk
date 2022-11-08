@@ -7,8 +7,8 @@ use fvm::executor::ApplyRet;
 use fvm::executor::{ApplyKind, Executor};
 use fvm::init_actor::INIT_ACTOR_ADDR;
 use fvm::machine::Machine;
-use fvm_integration_tests::dummy::DummyExterns;
 use fvm_integration_tests::bundle;
+use fvm_integration_tests::dummy::DummyExterns;
 use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
@@ -147,11 +147,11 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         current_dir()?,
         Path::new(&contract_case.binary).to_path_buf(),
     ]
-        .iter()
-        .collect::<PathBuf>()
-        .absolutize()
-        .map(|v| v.into_owned())
-        .expect("get binary path");
+    .iter()
+    .collect::<PathBuf>()
+    .absolutize()
+    .map(|v| v.into_owned())
+    .expect("get binary path");
     let buf = fs::read(path.clone())
         .unwrap_or_else(|_| panic!("path {} not found", path.to_str().get_or_insert("unknown")));
     // Instantiate tester
@@ -167,7 +167,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         let install_params = InstallParams {
             code: RawBytes::from(buf),
         }
-            .marshal_cbor()?;
+        .marshal_cbor()?;
         let install_message = Message {
             from: accounts[contract_case.owner_account].1,
             to: INIT_ACTOR_ADDR,
@@ -197,9 +197,8 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         let exec_params = ExecParams {
             code_cid: install_return.code_cid,
             constructor_params: RawBytes::from(constructor_params),
-
         }
-            .marshal_cbor()?;
+        .marshal_cbor()?;
 
         let create_message = Message {
             from: accounts[contract_case.owner_account].1,
@@ -345,19 +344,13 @@ pub fn new_tester(
 ) -> Result<(Tester<MemoryBlockstore, DummyExterns>, Vec<Account>)> {
     let bs = MemoryBlockstore::default();
     let bundle_root = bundle::import_bundle(&bs, actors_v10::BUNDLE_CAR).unwrap();
-    let mut tester = Tester::new(
-        NetworkVersion::V18,
-        StateTreeVersion::V4,
-        bundle_root,
-        bs,
-    )
-        .unwrap();
+    let mut tester =
+        Tester::new(NetworkVersion::V18, StateTreeVersion::V4, bundle_root, bs).unwrap();
     let mut accounts: Vec<Account> = vec![];
     for init_account in accounts_cfg {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
         let balance = BigInt::from(init_account.balance);
-        let account =
-            tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
+        let account = tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
         accounts.push(account);
     }
     Ok((tester, accounts))
@@ -415,7 +408,6 @@ pub fn exec(
 pub struct ExecParams {
     pub code_cid: Cid,
     pub constructor_params: RawBytes,
-
 }
 
 /// Init actor Exec Return value
