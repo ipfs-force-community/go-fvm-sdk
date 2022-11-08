@@ -1,7 +1,10 @@
 package ferrors
 
 import (
+	"log"
 	"testing"
+
+	"github.com/filecoin-project/go-state-types/abi"
 )
 
 func TestFvmError(t *testing.T) {
@@ -12,4 +15,4 @@ func TestFvmError(t *testing.T) {
 	//var gotError ExitCode
 	//assert.True(t, errors.As(fvmError, &gotError))
 	//assert.Equal(t, USR_ASSERTION_FAILED, gotError)
-}
+	

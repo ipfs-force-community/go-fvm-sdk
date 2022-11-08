@@ -134,11 +134,6 @@ func (e ErrorNumber) Is(code error) bool {
 	return e == code
 }
 
-// IsSystemError Returns true if the error code is in the range of exit codes reserved for the VM (including Ok).
-func (e ErrorNumber) IsSystemError() bool {
-	return uint32(e) <= 12
-}
-
 // nolint
 const (
 	// A syscall parameters was invalid.
