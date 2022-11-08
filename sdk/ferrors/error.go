@@ -90,27 +90,6 @@ const (
 	// RESERVED_31 ExitCode = 31
 )
 
-// FvmError fvm error include error code and error message
-type FvmError struct {
-	code    ExitCode
-	message string
-}
-
-// NewFvmError new fvm error from error code and message
-func NewFvmError(code ExitCode, msg string) FvmError {
-	return FvmError{code, msg}
-}
-
-// Error return error message for fvm error
-func (fvmError FvmError) Error() string {
-	return fmt.Sprintf("%s %d", fvmError.message, fvmError.code)
-}
-
-// Unwrap return inner error code
-func (fvmError FvmError) Unwrap() error {
-	return fvmError.code
-}
-
 // ErrorNumber  When a syscall fails, it returns an `ErrorNumber` to indicate why
 type ErrorNumber uint32
 
@@ -193,23 +172,23 @@ const (
 	BufferTooSmall ErrorNumber = 12
 )
 
-// FvmErrorNumber Fvm error number include error code and error message
-type FvmErrorNumber struct {
+// SysCallError Fvm error number include error code and error message
+type SysCallError struct {
 	code    ErrorNumber
 	message string
 }
 
-// NewFvmErrorNumber new fvm error number from error code and message
-func NewFvmErrorNumber(code ErrorNumber, msg string) FvmErrorNumber {
-	return FvmErrorNumber{code, msg}
+// NewSysCallError new fvm error number from error code and message
+func NewSysCallError(code ErrorNumber, msg string) SysCallError {
+	return SysCallError{code, msg}
 }
 
 // Error return error message for fvm error number
-func (e FvmErrorNumber) Error() string {
+func (e SysCallError) Error() string {
 	return fmt.Sprintf("%s %d", e.message, e.code)
 }
 
 // Unwrap return inner error code
-func (e FvmErrorNumber) Unwrap() error {
+func (e SysCallError) Unwrap() error {
 	return e.code
 }

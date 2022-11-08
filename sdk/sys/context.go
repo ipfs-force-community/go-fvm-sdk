@@ -17,7 +17,7 @@ func VMContext(_ context.Context) (*types.InvocationContext, error) {
 	var result invocationContext
 	code := vmContext(uintptr(unsafe.Pointer(&result)))
 	if code != 0 {
-		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unable to get invocation context")
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to get invocation context")
 	}
 	return &types.InvocationContext{
 		ValueReceived:    *result.ValueReceived.TokenAmount(),

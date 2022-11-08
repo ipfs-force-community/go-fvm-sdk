@@ -24,7 +24,7 @@ func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error
 	var result abi.ActorID
 	code := actorResolveAddress(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen)
 	if code != 0 {
-		return 0, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unexpected address resolution failure: "+ferrors.EnToString(code))
+		return 0, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected address resolution failure: "+ferrors.EnToString(code))
 	}
 	return result, nil
 }
@@ -36,7 +36,7 @@ func LookupAddress(_ context.Context, actorID abi.ActorID) (address.Address, err
 	var addrLen uint32
 	code := actorLookupAddress(uintptr(unsafe.Pointer(&addrLen)), uint64(actorID), bufPtr, bufLen)
 	if code != 0 {
-		return address.Undef, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unexpected address resolution failure: "+ferrors.EnToString(code))
+		return address.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected address resolution failure: "+ferrors.EnToString(code))
 	}
 	//
 	addr, err := address.NewFromBytes(buf[:addrLen])
@@ -57,7 +57,7 @@ func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error
 
 	code := actorGetActorCodeCid(uintptr(unsafe.Pointer(&cidLen)), uint64(actorID), bufPtr, bufLen)
 	if code != 0 {
-		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unexpected code cid resolution failure: "+ferrors.EnToString(code))
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected code cid resolution failure: "+ferrors.EnToString(code))
 	}
 
 	_, result, err := cid.CidFromBytes(buf)
@@ -73,7 +73,7 @@ func ResolveBuiltinActorType(_ context.Context, codeCid cid.Cid) (types.ActorTyp
 	var result types.ActorType
 	code := actorResolveBuiltinActorType(uintptr(unsafe.Pointer(&result)), addrBufPtr)
 	if code != 0 {
-		return 0, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to determine if CID belongs to builtin actor:"+ferrors.EnToString(code))
+		return 0, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to determine if CID belongs to builtin actor:"+ferrors.EnToString(code))
 	}
 	return result, nil
 }
@@ -85,7 +85,7 @@ func GetCodeCidForType(_ context.Context, actorT types.ActorType) (cid.Cid, erro
 	var cidLen int32
 	code := actorGetCodeCidForType(uintptr(unsafe.Pointer(&cidLen)), int32(actorT), bufPtr, bufLen)
 	if code != 0 {
-		return cid.Undef, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to get CodeCID for type: "+ferrors.EnToString(code))
+		return cid.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to get CodeCID for type: "+ferrors.EnToString(code))
 	}
 	_, result, err := cid.CidFromBytes(buf[:cidLen])
 	if err != nil {
@@ -101,7 +101,7 @@ func NewActorAddress(_ context.Context) (address.Address, error) {
 	var addrLen uint32
 	code := actorNewActorAddress(uintptr(unsafe.Pointer(&addrLen)), bufPtr, bufLen)
 	if code != 0 {
-		return address.Undef, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to create a new actor address "+ferrors.EnToString(code))
+		return address.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to create a new actor address "+ferrors.EnToString(code))
 	}
 	return address.NewFromBytes(buf[:addrLen])
 }
@@ -111,7 +111,7 @@ func CreateActor(_ context.Context, actorID abi.ActorID, codeCid cid.Cid, addres
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(address.Bytes())
 	code := actorCreateActor(uint64(actorID), cidBufPtr, addrBufPtr, addrBufLen)
 	if code != 0 {
-		return ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), fmt.Sprintf("unable to create actor type %d code cid %s address %s", actorID, codeCid, address))
+		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), fmt.Sprintf("unable to create actor type %d code cid %s address %s", actorID, codeCid, address))
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ func BalanceOf(_ context.Context, actorID abi.ActorID) (*abi.TokenAmount, error)
 	tokenAmount := new(fvmTokenAmount)
 	code := actorBalanceOf(uintptr(unsafe.Pointer(tokenAmount)), uint64(actorID))
 	if code != 0 {
-		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "unexpected error: "+ferrors.EnToString(code))
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error: "+ferrors.EnToString(code))
 	}
 	return tokenAmount.TokenAmount(), nil
 }

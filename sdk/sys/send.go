@@ -21,7 +21,7 @@ func Send(_ context.Context, to address.Address, method uint64, params uint32, v
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(to.Bytes())
 	code := sysSend(uintptr(unsafe.Pointer(send)), addrBufPtr, addrBufLen, method, params, fvmTokenAmount.Hi, fvmTokenAmount.Lo)
 	if code != 0 {
-		return nil, ferrors.NewFvmErrorNumber(ferrors.ErrorNumber(code), "failed to send")
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to send")
 	}
 
 	return send, nil
