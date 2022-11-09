@@ -27,6 +27,6 @@ func gasCharge(name_off uintptr, name_len uint32, amount uint64) uint32
 
 // / Returns the amount of gas remaining.
 //
-//go:wasm-module available
+//go:wasm-module gas
 //export available
 func gasAvailable(ret uintptr) uint32

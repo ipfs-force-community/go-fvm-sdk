@@ -22,7 +22,7 @@ func Charge(_ context.Context, name string, compute uint64) error {
 }
 
 // Available Returns the amount of gas remaining.
-func Available(_ context.Context) (uint64, error) {
+func AvailableGas(_ context.Context) (uint64, error) {
 	var retptr uint32
 	code := gasAvailable(uintptr(unsafe.Pointer(&retptr)))
 	if code != 0 {
