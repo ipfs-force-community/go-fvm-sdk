@@ -14,7 +14,6 @@ import (
 
 // Send sends a message to another actor.
 func Send(ctx context.Context, to address.Address, method abi.MethodNum, params types.RawBytes, value abi.TokenAmount) (*types.Receipt, error) {
-
 	var (
 		paramsID uint32
 		err      error
