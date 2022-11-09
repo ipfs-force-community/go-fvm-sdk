@@ -95,11 +95,15 @@ type ErrorNumber uint32
 
 // Error return error message of ErrorNumber
 func (e ErrorNumber) Error() string {
-	return EnToString(uint32(e))
+	return enToString(uint32(e))
+}
+
+func (e ErrorNumber) String() string {
+	return enToString(uint32(e))
 }
 
 // EnToString return string message of ErrorNumber
-func EnToString(code uint32) string {
+func enToString(code uint32) string {
 	switch code {
 	case 1:
 		return "illegal argument"
@@ -180,7 +184,7 @@ func NewSysCallError(code ErrorNumber, msg string) SysCallError {
 
 // Error return error message for fvm error number
 func (e SysCallError) Error() string {
-	return fmt.Sprintf("%s %d", e.message, e.code)
+	return fmt.Sprintf("%s (%d)%s", e.message, e.code, e.code)
 }
 
 // Unwrap return inner error code

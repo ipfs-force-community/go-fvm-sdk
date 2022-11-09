@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -35,10 +36,8 @@ func Invoke(_ uint32) uint32 { //nolint
 		assert.Nil(t, err)
 		assert.Equal(t, "10000000000000000000000", balance.String())
 	case 2:
-		_, err := sdk.LookupAddress(ctx, abi.ActorID(1))
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_NOT_FOUND, "test_actor USR_NOT_FOUND")
-		}
+		_, err := sdk.LookupAddress(ctx, abi.ActorID(9999999))
+		assert.True(t, errors.Is(err, ferrors.NotFound))
 
 	}
 	return 0

@@ -161,8 +161,7 @@
       "send_value": 0,
       "method_num": 2,
       "params":"",
-      "expect_code": 0,
-      "expect_message": "test_actor USR_NOT_FOUND"
+      "expect_code": 0
     }
   ]
 }

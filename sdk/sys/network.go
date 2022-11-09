@@ -51,7 +51,7 @@ func TipsetCid(_ context.Context, epoch uint64) (*cid.Cid, error) {
 	var result uint32
 	code := networkTipsetCid(uintptr(unsafe.Pointer(&result)), epoch, bufPtr, bufLen)
 	if code != 0 {
-		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected cid resolution failure: "+ferrors.EnToString(code))
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected cid resolution failure: ")
 
 	}
 	if result > 0 {

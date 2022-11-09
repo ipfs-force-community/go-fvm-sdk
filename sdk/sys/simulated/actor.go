@@ -6,6 +6,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs/go-cid"
 )
 
@@ -25,7 +26,7 @@ func (fvmSimulator *FvmSimulator) LookupAddress(actorID abi.ActorID) (address.Ad
 			return k, nil
 		}
 	}
-	return address.Undef, ErrorNotFound
+	return address.Undef, ferrors.NotFound
 }
 
 func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error) {
@@ -33,7 +34,7 @@ func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.Acto
 	defer fvmSimulator.actorLk.Unlock()
 	id, ok := fvmSimulator.addressMap[addr]
 	if !ok {
-		return 0, ErrorNotFound
+		return 0, ferrors.NotFound
 	}
 	return id, nil
 }

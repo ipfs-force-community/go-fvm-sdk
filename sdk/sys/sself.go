@@ -23,7 +23,7 @@ func SelfRoot(_ context.Context) (cid.Cid, error) {
 	cidBufPtr, cidBufLen := GetSlicePointerAndLen(cidBuf)
 	code := sselfRoot(uintptr(unsafe.Pointer(&result)), cidBufPtr, cidBufLen)
 	if code != 0 {
-		return cid.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::root` syscall:"+ferrors.EnToString(code))
+		return cid.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::root` syscall:")
 	}
 	if int(cidBufLen) > len(cidBuf) {
 		// TODO: re-try with a larger buffer?
@@ -39,7 +39,7 @@ func SelfSetRoot(_ context.Context, id cid.Cid) error {
 	cidBufPtr, _ := GetSlicePointerAndLen(buf)
 	code := sselfSetRoot(cidBufPtr)
 	if code != 0 {
-		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::set_root` syscall:"+ferrors.EnToString(code))
+		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::set_root` syscall:")
 	}
 	return nil
 
@@ -58,7 +58,7 @@ func SelfDestruct(_ context.Context, addr addr.Address) error {
 	addrPtr, addrLen := GetSlicePointerAndLen(addr.Bytes())
 	code := selfDestruct(addrPtr, addrLen)
 	if code != 0 {
-		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::self_destruct` syscall:"+ferrors.EnToString(code))
+		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected error from `self::self_destruct` syscall:")
 	}
 
 	return nil
