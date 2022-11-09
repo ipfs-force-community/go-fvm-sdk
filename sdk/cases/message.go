@@ -29,6 +29,6 @@ func Invoke(_ uint32) uint32 { //nolint
 
 	valueRecieved, err := sdk.ValueReceived(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "10", valueRecieved.String())
+	assert.Equal(t, "10000000000000000000", valueRecieved.String())
 	return 0
 }

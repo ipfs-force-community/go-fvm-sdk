@@ -24,3 +24,17 @@ func TotalFilCircSupply(ctx context.Context) (abi.TokenAmount, error) {
 	}
 	panic(ErrorEnvValid)
 }
+
+func TipsetTimestamp(ctx context.Context) (uint64, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.TipsetTimestamp()
+	}
+	panic(ErrorEnvValid)
+}
+
+func TipsetCid(ctx context.Context, epoch uint64) (*cid.cid, error) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		return env.TipsetCid(epoch)
+	}
+	panic(ErrorEnvValid)
+}

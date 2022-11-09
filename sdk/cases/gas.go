@@ -17,6 +17,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	ctx := context.Background()
 	err := sdk.Charge(ctx, "OnChainMessage", 38863)
 	assert.Nil(t, err, "charge gas %v", err)
-
+	_, err = sdk.AvailableGas(ctx)
+	assert.Nil(t, err, "charge gas %v", err)
 	return 0
 }

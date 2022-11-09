@@ -1,3 +1,4 @@
+// Package ferrors fvm errors
 package ferrors
 
 import (
@@ -7,12 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFvmError(t *testing.T) {
-	fvmError := NewFvmError(USR_ASSERTION_FAILED, "mock error")
-	assert.True(t, errors.Is(fvmError, USR_ASSERTION_FAILED))
-	assert.False(t, errors.Is(fvmError, USR_FORBIDDEN))
-
-	var gotError ExitCode
-	assert.True(t, errors.As(fvmError, &gotError))
-	assert.Equal(t, USR_ASSERTION_FAILED, gotError)
+func TestNewSysCallError(t *testing.T) {
+	err := NewSysCallError(6, "this is error:")
+	assert.True(t, errors.Is(err, NotFound))
 }

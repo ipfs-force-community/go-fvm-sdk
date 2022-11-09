@@ -22,7 +22,7 @@ func Invoke(_ uint32) uint32 { //nolint
 
 	ver, err := sdk.Version(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 15, int(ver))
+	assert.Equal(t, 18, int(ver))
 
 	fee, err := sdk.BaseFee(ctx)
 	assert.Nil(t, err)

@@ -23,6 +23,11 @@ func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error
 	return sys.GetActorCodeCid(ctx, addr)
 }
 
+// LookupAddress look up the address at an actor  ID. Returns `None` if the actor cannot be found.
+func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
+	return sys.LookupAddress(ctx, actorID)
+}
+
 // NewActorAddress generates a new actor address for an actor deployed
 // by the calling actor.
 func NewActorAddress(ctx context.Context) (address.Address, error) {
@@ -32,8 +37,8 @@ func NewActorAddress(ctx context.Context) (address.Address, error) {
 // CreateActor Creates a new actor of the specified type in the state tree, under
 // the provided address.
 // TODO this syscall will change to calculate the address internally.
-func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid) error {
-	return sys.CreateActor(ctx, actorID, codeCid)
+func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid, addr address.Address) error {
+	return sys.CreateActor(ctx, actorID, codeCid, addr)
 }
 
 // ResolveBuiltinActorType determines whether the supplied CodeCID belongs to a built-in actor type,
@@ -46,4 +51,9 @@ func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorT
 // if the supplied type is invalid.
 func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, error) {
 	return sys.GetCodeCidForType(ctx, actorT)
+}
+
+// BalanceOf Returns balanece of account
+func BalanceOf(ctx context.Context, actorID abi.ActorID) (*abi.TokenAmount, error) {
+	return sys.BalanceOf(ctx, actorID)
 }

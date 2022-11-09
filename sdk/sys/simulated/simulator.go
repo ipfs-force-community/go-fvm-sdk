@@ -1,12 +1,15 @@
 package simulated
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
@@ -20,7 +23,7 @@ func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Acto
 	}
 	actor, ok := fvmSimulator.actorsMap[actorId]
 	if !ok {
-		return migration.Actor{}, ErrorNotFound
+		return migration.Actor{}, ferrors.NotFound
 	}
 	return actor, nil
 }
@@ -32,7 +35,7 @@ func (fvmSimulator *FvmSimulator) ResolveBuiltinActorType(codeCid cid.Cid) (type
 			return av, err
 		}
 	}
-	return types.ActorType(0), ErrorNotFound
+	return types.ActorType(0), ferrors.NotFound
 }
 
 func (fvmSimulator *FvmSimulator) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
@@ -55,6 +58,10 @@ func (fvmSimulator *FvmSimulator) Log(msg string) error {
 	fmt.Println(msg)
 	return nil
 }
+func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data string) error {
+	fmt.Printf("%s %s\n", name, data)
+	return nil
+}
 
 func (fvmSimulator *FvmSimulator) SetCallContext(callContext *types.InvocationContext) {
 	fvmSimulator.callContext = callContext
@@ -72,14 +79,29 @@ func (fvmSimulator *FvmSimulator) BaseFee() (abi.TokenAmount, error) {
 	return fvmSimulator.baseFee, nil
 }
 
-func (fvmSimulator *FvmSimulator) Charge(_ string, _ uint64) error {
-	return nil
-}
-
 func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) {
 	fvmSimulator.totalFilCircSupply = amount
 }
 
+func (fvmSimulator *FvmSimulator) SetTipsetCid(epoch int64, cid *cid.Cid) {
+	fvmSimulator.tipsetCidLk.Lock()
+	defer fvmSimulator.tipsetCidLk.Unlock()
+	fvmSimulator.tipsetCids[epoch] = cid
+}
+
 func (fvmSimulator *FvmSimulator) TotalFilCircSupply() (abi.TokenAmount, error) {
 	return fvmSimulator.totalFilCircSupply, nil
+}
+
+func (fvmSimulator *FvmSimulator) TipsetTimestamp() (uint64, error) {
+	return uint64(time.Now().Unix()), nil
+}
+
+func (fvmSimulator *FvmSimulator) TipsetCid(ctx context.Context, epoch int64) (*cid.Cid, error) {
+	fvmSimulator.tipsetCidLk.Lock()
+	defer fvmSimulator.tipsetCidLk.Unlock()
+	if v, ok := fvmSimulator.tipsetCids[epoch]; ok {
+		return v, nil
+	}
+	return nil, ferrors.NotFound
 }

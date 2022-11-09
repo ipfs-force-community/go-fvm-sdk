@@ -36,20 +36,22 @@ func VerifySignature(
 	sigPtr, sigLen := GetSlicePointerAndLen(sigBuf.Bytes())
 	signerPtr, signerLen := GetSlicePointerAndLen(signer.Bytes())
 	plainTextPtr, plainTextLen := GetSlicePointerAndLen(plaintext)
-	code := cryptoVerifySignature(uintptr(unsafe.Pointer(&result)), sigPtr, sigLen, signerPtr, signerLen, plainTextPtr, plainTextLen)
+	code := cryptoVerifySignature(uintptr(unsafe.Pointer(&result)), uint32(signature.Type), sigPtr, sigLen, signerPtr, signerLen, plainTextPtr, plainTextLen)
 	if code != 0 {
-		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
+		return false, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify signature")
 	}
 	return result == 0, nil
 }
 
 func HashBlake2b(_ context.Context, data []byte) ([32]byte, error) {
 	dataPtr, dataLen := GetSlicePointerAndLen(data)
+	digest := [32]byte{}
+	digestPtr, digestLen := GetSlicePointerAndLen(digest)
 	result := [32]byte{}
 	resultPtr, _ := GetSlicePointerAndLen(result[:])
-	code := cryptoHashBlake2b(resultPtr, dataPtr, dataLen)
+	code := cryptoHashBlake2b(resultPtr, 0xb220, dataPtr, dataLen, digestPtr, digestLen)
 	if code != 0 {
-		return result, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to compute blak2b hash")
+		return result, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to compute blake2b hash")
 	}
 	return result, nil
 }
@@ -76,7 +78,7 @@ func ComputeUnsealedSectorCid(
 	var cidLen uint32
 	code := cryptoComputeUnsealedSectorCid(uintptr(unsafe.Pointer(&cidLen)), int64(proofType), piecesPtr, piecesLen, cidBufPtr, types.MaxCidLen)
 	if code != 0 {
-		return cid.Undef, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
+		return cid.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify signature")
 	}
 
 	_, sID, err := cid.CidFromBytes(cidBuf[:cidLen])
@@ -97,7 +99,7 @@ func VerifySeal(_ context.Context, info *proof.SealVerifyInfo) (bool, error) {
 	verifyBufPtr, verifyBufLen := GetSlicePointerAndLen(verifyBuf.Bytes())
 	code := cryptoVerifySeal(uintptr(unsafe.Pointer(&result)), verifyBufPtr, verifyBufLen)
 	if code != 0 {
-		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
+		return false, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify signature")
 	}
 	return result == 0, nil
 }
@@ -113,7 +115,7 @@ func VerifyPost(_ context.Context, info *proof.WindowPoStVerifyInfo) (bool, erro
 	verifyBufPtr, verifyBufLen := GetSlicePointerAndLen(verifyBuf.Bytes())
 	code := cryptoVerifyPost(uintptr(unsafe.Pointer(&result)), verifyBufPtr, verifyBufLen)
 	if code != 0 {
-		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify signature")
+		return false, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify signature")
 	}
 	return result == 0, nil
 }
@@ -130,7 +132,7 @@ func VerifyConsensusFault(
 	verifyFault := new(types.VerifyConsensusFault)
 	code := cryptoVerifyConsensusFault(uintptr(unsafe.Pointer(verifyFault)), h1Ptr, h1Len, h2Ptr, h2Len, extraPtr, extraLen)
 	if code != 0 {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify consensus signature")
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify consensus signature")
 	}
 	if verifyFault.Fault == 0 {
 		return nil, nil
@@ -138,11 +140,11 @@ func VerifyConsensusFault(
 
 	faultType := runtime.ConsensusFaultType(verifyFault.Fault)
 	if !types.ValidateConsensusFaultType(faultType) {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), fmt.Sprintf("received an invalid fault type (%d) from the runtime", faultType))
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), fmt.Sprintf("received an invalid fault type (%d) from the runtime", faultType))
 	}
 	target, err := address.NewIDAddress(uint64(verifyFault.Target))
 	if err != nil {
-		return nil, ferrors.NewFvmError(ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("unable to new id address for %d %v", verifyFault.Target, err))
+		return nil, ferrors.NewSysCallError(ferrors.AssertionFailed, fmt.Sprintf("unable to new id address for %d %v", verifyFault.Target, err))
 	}
 	return &runtime.ConsensusFault{
 		Epoch:  abi.ChainEpoch(verifyFault.Epoch),
@@ -161,7 +163,7 @@ func VerifyAggregateSeals(ctx context.Context, info *types.AggregateSealVerifyPr
 	aggregateSealBufPtr, aggregateSealBufLen := GetSlicePointerAndLen(aggregateSealBuf.Bytes())
 	code := cryptoVerifyAggregateSeals(uintptr(unsafe.Pointer(&result)), aggregateSealBufPtr, aggregateSealBufLen)
 	if code != 0 {
-		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify aggregate seals")
+		return false, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify aggregate seals")
 	}
 	return result == 0, nil
 }
@@ -176,7 +178,7 @@ func VerifyReplicaUpdate(_ context.Context, info *types.ReplicaUpdateInfo) (bool
 	replicaUpdateInfoBufPtr, replicaUpdateInfoBufLen := GetSlicePointerAndLen(replicaUpdateInfoBuf.Bytes())
 	code := cryptoVerifyReplicaUpdate(uintptr(unsafe.Pointer(&result)), replicaUpdateInfoBufPtr, replicaUpdateInfoBufLen)
 	if code != 0 {
-		return false, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to verify aggregate seals")
+		return false, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to verify aggregate seals")
 	}
 	return result == 0, nil
 }
@@ -199,7 +201,7 @@ func BatchVerifySeals(_ context.Context, sealVerifyInfos []proof.SealVerifyInfo)
 	resultPtr, _ := GetSlicePointerAndLen(verifyResult)
 	code := cryptoBatchVerifySeals(sealInfoPtr, sealInfoLen, resultPtr)
 	if code != 0 {
-		return nil, ferrors.NewFvmError(ferrors.ExitCode(code), "unable to batch verify seal info")
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to batch verify seal info")
 	}
 	return verifyResult, nil
 }

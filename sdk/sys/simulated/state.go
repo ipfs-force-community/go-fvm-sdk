@@ -57,6 +57,8 @@ type FvmSimulator struct {
 
 	callContext        *types.InvocationContext
 	rootCid            cid.Cid
+	tipsetCidLk        sync.Mutex
+	tipsetCids         map[int64]*cid.Cid
 	baseFee            abi.TokenAmount
 	totalFilCircSupply abi.TokenAmount
 	sendList           []SendMock

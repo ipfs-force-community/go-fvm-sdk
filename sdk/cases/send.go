@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 
-	"github.com/filecoin-project/go-state-types/abi"
-
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/testing"
@@ -25,6 +25,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	if err != nil {
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to get method number")
 	}
+
 	switch methodsNum {
 	case 1:
 		// actor does not exist: 128788 (6: resource not found)
@@ -40,9 +41,9 @@ func Invoke(_ uint32) uint32 { //nolint
 		assert.Equal(t, 0, int(ret.GasUsed))
 		assert.Equal(t, "", string(ret.ReturnData))
 	case 3:
-		// sender does not have funds to transfer (balance 10, transfer 5000) (5: insufficient funds)
+		//sender does not have funds to transfer (balance 10, transfer 5000000000000000) (5: insufficient funds)
 		addr, _ := address.NewFromString("f010000")
-		ret, err := sdk.Send(ctx, addr, 0, []byte{}, abi.NewTokenAmount(5000))
+		ret, err := sdk.Send(ctx, addr, 0, []byte{}, big.MustFromString("50000000000000000000000"))
 		assert.Nil(t, err, "send %v", err)
 		assert.Equal(t, 0, int(ret.ExitCode))
 	}

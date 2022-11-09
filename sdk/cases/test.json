@@ -28,13 +28,13 @@
       "expect_message": "test_abort USR_ILLEGAL_ARGUMENT"
     },
     {
-      "name": "abort_SYS_SENDER_STATE_INVALID ",
+      "name": "abort_SYS_SENDER_STATE_INVALID",
       "binary": "abort.wasm",
       "actor_balance": 0,
       "send_value": 0,
       "params":"",
       "method_num": 2,
-      "expect_code": 2,
+      "expect_code": 17,
       "expect_message": "test_abort SYS_SENDER_STATE_INVALID"
     },
     {
@@ -48,7 +48,7 @@
       "expect_message": ""
     },
     {
-      "name": "message_test ",
+      "name": "message_test",
       "binary": "message.wasm",
       "actor_balance": 0,
       "send_value": 10,
@@ -58,7 +58,7 @@
       "expect_message": ""
     },
     {
-      "name": "sself_test ",
+      "name": "sself_test",
       "binary": "sself.wasm",
       "actor_balance": 20,
       "send_value": 0,
@@ -142,6 +142,24 @@
       "actor_balance": 0,
       "send_value": 0,
       "method_num": 1,
+      "params":"",
+      "expect_code": 0
+    },
+    {
+      "name": "actor_test",
+      "binary": "actor.wasm",
+      "actor_balance": 1,
+      "send_value": 0,
+      "method_num": 1,
+      "params":"",
+      "expect_code": 0
+    },
+    {
+      "name": "test_USR_NOT_FOUND",
+      "binary": "actor.wasm",
+      "actor_balance": 1,
+      "send_value": 0,
+      "method_num": 2,
       "params":"",
       "expect_code": 0
     }

@@ -6,6 +6,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs/go-cid"
 )
 
@@ -17,12 +18,23 @@ func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Add
 	fvmSimulator.addressMap[addr] = actorID
 }
 
+func (fvmSimulator *FvmSimulator) LookupAddress(actorID abi.ActorID) (address.Address, error) {
+	fvmSimulator.actorLk.Lock()
+	defer fvmSimulator.actorLk.Unlock()
+	for k, v := range fvmSimulator.addressMap {
+		if v == actorID {
+			return k, nil
+		}
+	}
+	return address.Undef, ferrors.NotFound
+}
+
 func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 	id, ok := fvmSimulator.addressMap[addr]
 	if !ok {
-		return 0, ErrorNotFound
+		return 0, ferrors.NotFound
 	}
 	return id, nil
 }
@@ -38,10 +50,17 @@ func (fvmSimulator *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.C
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
+func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address, actorID abi.ActorID) (*cid.Cid, error) {
 	acstat, err := fvmSimulator.getActorWithAddress(addr)
 	if err != nil {
 		return nil, err
 	}
 	return &acstat.Code, nil
+}
+
+func (fvmSimulator *FvmSimulator) BalanceOf(addr address.Address, actorID abi.ActorID) (abi.TokenAmount, error) {
+	if v, ok := fvmSimulator.actorsMap[actorID]; ok {
+		return v.Balance, nil
+	}
+	return abi.NewTokenAmount(0), ferrors.NotFound
 }
