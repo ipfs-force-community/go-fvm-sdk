@@ -30,8 +30,7 @@ func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error
 }
 
 func LookupAddress(_ context.Context, actorID abi.ActorID) (address.Address, error) {
-
-	buf := make([]byte, types.MaxCidLen)
+	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	var addrLen uint32
 	code := actorLookupAddress(uintptr(unsafe.Pointer(&addrLen)), uint64(actorID), bufPtr, bufLen)
