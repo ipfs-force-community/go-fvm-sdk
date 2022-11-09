@@ -62,5 +62,5 @@ func (fvmSimulator *FvmSimulator) BalanceOf(addr address.Address, actorID abi.Ac
 	if v, ok := fvmSimulator.actorsMap[actorID]; ok {
 		return v.Balance, nil
 	}
-	return abi.NewTokenAmount(0), ErrorNotFound
+	return abi.NewTokenAmount(0), ferrors.NotFound
 }

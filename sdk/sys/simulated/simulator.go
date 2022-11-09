@@ -9,6 +9,7 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
@@ -22,7 +23,7 @@ func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Acto
 	}
 	actor, ok := fvmSimulator.actorsMap[actorId]
 	if !ok {
-		return migration.Actor{}, ErrorNotFound
+		return migration.Actor{}, ferrors.NotFound
 	}
 	return actor, nil
 }
@@ -34,7 +35,7 @@ func (fvmSimulator *FvmSimulator) ResolveBuiltinActorType(codeCid cid.Cid) (type
 			return av, err
 		}
 	}
-	return types.ActorType(0), ErrorNotFound
+	return types.ActorType(0), ferrors.NotFound
 }
 
 func (fvmSimulator *FvmSimulator) GetCodeCidForType(actorT types.ActorType) (cid.Cid, error) {
@@ -102,5 +103,5 @@ func (fvmSimulator *FvmSimulator) TipsetCid(ctx context.Context, epoch int64) (*
 	if v, ok := fvmSimulator.tipsetCids[epoch]; ok {
 		return v, nil
 	}
-	return nil, ErrorNotFound
+	return nil, ferrors.NotFound
 }
