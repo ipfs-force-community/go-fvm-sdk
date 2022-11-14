@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"flag"
 	"hellocontract/client"
 	"io/ioutil"
@@ -46,13 +45,7 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	createParams, err := hex.DecodeString("846556656e757361560647005af3107a3fff")
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-
-	execRet, err := helloClient.CreateActor(ctx, installRet.CodeCid, createParams)
+	execRet, err := helloClient.CreateActor(ctx, installRet.CodeCid, nil)
 	if err != nil {
 		log.Fatalln(err)
 		return
