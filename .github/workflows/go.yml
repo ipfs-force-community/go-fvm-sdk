@@ -1,8 +1,5 @@
 name: go-fvm-sdk
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - '**'
