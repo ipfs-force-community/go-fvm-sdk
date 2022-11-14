@@ -1,8 +1,5 @@
 name: rust-check
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - '**'
@@ -10,8 +7,7 @@ env:
   RUSTFLAGS: -Dwarnings
 
 jobs:
-
-  check:
+  rust-check:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
