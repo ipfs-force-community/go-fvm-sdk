@@ -64,11 +64,17 @@ func GenEntry(stateT reflect.Type, output string) error {
 	return formateAndWriteCode(buf.Bytes(), output)
 }
 
-func formateAndWriteCode(code []byte, output string) error {
+func formateAndWriteCode(code []byte, output string) (err error) {
 	f, err := os.Create(output)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if err != nil {
+			//output error file for debug
+			fmt.Println(string(code))
+		}
+	}()
 
 	fmtCode, err := format.Source(code)
 	if err != nil {

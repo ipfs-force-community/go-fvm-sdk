@@ -101,6 +101,11 @@ func GenContractClient(stateT reflect.Type, output string) error {
 	if err = genClientImplemnt(buf, *entryMeta); err != nil {
 		return err
 	}
+
+	if err = genClientConstructor(buf, *entryMeta); err != nil {
+		return err
+	}
+
 	//write implement
 	for _, method := range entryMeta.Methods {
 		if method.FuncName == "Constructor" {
@@ -211,47 +216,6 @@ func New{{trimPackage .StateName}}Client(fullNode v0.FullNode, opts ...Option) *
 	}
 }
 
-func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
-		CodeCID:           codeCid,
-		ConstructorParams: execParams,
-	})
-	if aErr != nil {
-		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
-	}
-
-	msg := &types.Message{
-		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
-		Value:  big.Zero(),
-		Method: 2,
-		Params: params,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
-	}
-
-	var result init8.ExecReturn
-	r := bytes.NewReader(wait.Receipt.Return)
-	if err := result.UnmarshalCBOR(r); err != nil {
-		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
-	}
-	c.actor = result.IDAddress
-	return &result, nil
-}
-
 func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
@@ -301,11 +265,78 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 	return render.Execute(w, meta)
 }
 
+func genClientConstructor(w io.Writer, meta entryMeta) error {
+	tpl := `func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid{{if .HasParam}}, ctorReq {{.ParamsTypeName}}{{else}}{{end}}) (*init8.ExecReturn, error) {
+    {{if .HasParam}}buf := bytes.NewBufferString("")
+	if err := ctorReq.MarshalCBOR(buf); err != nil {
+		return nil, err
+	}
+	params, aErr := actors.SerializeParams(&init8.ExecParams{
+		CodeCID:           codeCid,
+		ConstructorParams: buf.Bytes(),
+	})
+	{{else}}
+	params, aErr := actors.SerializeParams(&init8.ExecParams{
+		CodeCID:           codeCid,
+	})
+	{{end}}
+
+	if aErr != nil {
+		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
+	}
+
+	msg := &types.Message{
+		To:     builtin.InitActorAddr,
+		From:   c.fromAddress,
+		Value:  big.Zero(),
+		Method: 2,
+		Params: params,
+	}
+
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return nil, fmt.Errorf("actor execution failed")
+	}
+
+	var result init8.ExecReturn
+	r := bytes.NewReader(wait.Receipt.Return)
+	if err := result.UnmarshalCBOR(r); err != nil {
+		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
+	}
+	c.actor = result.IDAddress
+	return &result, nil
+}
+`
+
+	render, err := template.New("gen client interface").Funcs(funcs).Parse(tpl)
+	if err != nil {
+		return err
+	}
+
+	var ctrFunc *methodMap
+	for _, method := range meta.Methods {
+		if method.FuncName == "Constructor" {
+			ctrFunc = method
+		}
+	}
+	return render.Execute(w, ctrFunc)
+}
+
 func genClientInterface(w io.Writer, entry entryMeta) error {
 	tpl := `
 type I{{trimPackage .StateName}}Client interface {
 	Install( context.Context,  []byte) (*sdkTypes.InstallReturn, error)
-	CreateActor( context.Context,  cid.Cid,  []byte) (*init8.ExecReturn, error)
+
 	{{range .Methods}}
     {{if ne .FuncName "Constructor"}}
 		{{if .HasParam}}
@@ -321,6 +352,9 @@ type I{{trimPackage .StateName}}Client interface {
 				{{.FuncName}}(context.Context, {{.ParamsTypeName}}) error
 			{{end}}
 		{{end}}
+	{{end}}
+    {{if eq .FuncName "Constructor"}}
+		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}) (*init8.ExecReturn, error)
 	{{end}}
 	{{end}}
 }

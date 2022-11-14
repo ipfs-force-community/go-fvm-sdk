@@ -26,7 +26,8 @@ type FullNode interface {
 
 type IStateClient interface {
 	Install(context.Context, []byte) (*sdkTypes.InstallReturn, error)
-	CreateActor(context.Context, cid.Cid, []byte) (*init8.ExecReturn, error)
+
+	CreateActor(context.Context, cid.Cid) (*init8.ExecReturn, error)
 
 	SayHello(context.Context) (sdkTypes.CBORBytes, error)
 }
@@ -83,47 +84,6 @@ func NewStateClient(fullNode v0.FullNode, opts ...Option) *StateClient {
 	}
 }
 
-func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
-		CodeCID:           codeCid,
-		ConstructorParams: execParams,
-	})
-	if aErr != nil {
-		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
-	}
-
-	msg := &types.Message{
-		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
-		Value:  big.Zero(),
-		Method: 2,
-		Params: params,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
-	}
-
-	var result init8.ExecReturn
-	r := bytes.NewReader(wait.Receipt.Return)
-	if err := result.UnmarshalCBOR(r); err != nil {
-		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
-	}
-	c.actor = result.IDAddress
-	return &result, nil
-}
-
 func (c *StateClient) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
@@ -161,6 +121,47 @@ func (c *StateClient) Install(ctx context.Context, code []byte) (*sdkTypes.Insta
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
 	c.codeCid = result.CodeCid
+	return &result, nil
+}
+func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid) (*init8.ExecReturn, error) {
+
+	params, aErr := actors.SerializeParams(&init8.ExecParams{
+		CodeCID: codeCid,
+	})
+
+	if aErr != nil {
+		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
+	}
+
+	msg := &types.Message{
+		To:     builtin.InitActorAddr,
+		From:   c.fromAddress,
+		Value:  big.Zero(),
+		Method: 2,
+		Params: params,
+	}
+
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return nil, fmt.Errorf("actor execution failed")
+	}
+
+	var result init8.ExecReturn
+	r := bytes.NewReader(wait.Receipt.Return)
+	if err := result.UnmarshalCBOR(r); err != nil {
+		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
+	}
+	c.actor = result.IDAddress
 	return &result, nil
 }
 

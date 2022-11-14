@@ -176,25 +176,6 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Allowance(ctx, &req)
 
-	case 11:
-
-		raw, err = sdk.ParamsRaw(ctx, blockId)
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
-		}
-		var req contract.FakeSetBalance
-		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
-		}
-
-		// have params/error but no return val
-		state := new(contract.Erc20Token)
-		sdk.LoadState(ctx, state)
-		if err = state.FakeSetBalance(ctx, &req); err == nil {
-			callResult = typegen.CborBool(true)
-		}
-
 	default:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")
 	}
