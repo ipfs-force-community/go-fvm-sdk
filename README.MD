@@ -39,6 +39,12 @@ $ make
 
 *Note: it may take a while before you finish buiding from source.*
 
+Check if `go-fvm-sdk-tools` is operational.
+
+```bash
+$ go-fvm-sdk-tools -h
+```
+
 Once you have `go-fvm-sdk-tools` ready, `Go` and `TinyGo` need to be patched in order to have the compiled WASM contract compatible with FVM.
 
 ```bash
@@ -54,15 +60,36 @@ patching file targets/wasi.json
 Hunk #2 succeeded at 10 with fuzz 1.
 ```
 
-## Create your First Contract!
+## Create your first Contract!
 
-It is recommended that you create your first project using our template.
+It is recommended that you create your first project using our template. 
 
 ```bash
 $ go-fvm-sdk-tools new -- <YOUR_ACTOR_NAME>
 ```
 
-Compile your contract.
+`go-fvm-sdk-tools` will generate the following scaffolding for you.
+
+```bash
+.
+├── README.md 
+├── actor
+│   ├── actor.go # Write your contract here
+│   └── cbor_gen.go
+├── client
+│   └── client.go # client for installation and deployment of the contract
+├── entry.go # Main entry point of the contract. If you change interfaces of your actor, please build again to renew the entry point file
+├── gen
+│   ├── go.mod
+│   ├── go.sum
+│   └── main.go
+├── go.mod
+├── go.sum
+├── <YOUR_ACTOR_NAME>.wasm # WASM contract compiled from actor.go
+└── test.json
+```
+
+Compile your contract. And you now have your very first contract ready to be depolyed!
 
 ```bash
 $ go-fvm-sdk-tools build
@@ -72,19 +99,19 @@ $ go-fvm-sdk-tools build
 
 Follow this [instruction](https://lotus.filecoin.io/developers/local-network/) to setup local devnet with fvm branch `experimental/fvm-m2`. 
 
-Install Actor
+Install actor.
 
 ```bash
 $ lotus chain install-actor <path-to-wasm-bytecode>
 ```
 
-Instantiate Actor
+Instantiate actor.
 
 ```bash
 $ lotus chain create-actor <code-cid> <encoded-params>
 ```
 
-Invoke actor
+Invoke actor.
 
 ```bash
 $ lotus chain invoke <address> <method_num>
@@ -92,9 +119,9 @@ $ lotus chain invoke <address> <method_num>
 
 ## Tips
 
-- Do not use asm code
-- Try not to use the reflect library, if you must use it, make sure that tinygo supports it.
-- Use `go list` command to check actor dependency graph, check which package
+- Do not use ASM code.
+- Avoid using the reflect library. If you have to, make sure that `TinyGo` supports it.
+- Use `go list` command to check actor dependency graph and packages.
 
 ```bash
 $ go list -json -deps > deps.json 
