@@ -8,29 +8,12 @@ import (
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 
-	"github.com/filecoin-project/go-state-types/big"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestErc20TokenFakeSetBalance(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, big.NewInt(1), big.NewInt(1))
-	addr, err := simulated.NewF1Address()
-	assert.NoError(t, err)
-	simulator.SetActor(abi.ActorID(1), addr, migration.Actor{})
-
-	empMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
-	assert.Nil(t, err)
-	emptyBalance, err := empMap.Root()
-	assert.Nil(t, err)
-
-	erc20State := &Erc20Token{Name: "name", Symbol: "symbol", Decimals: 8, TotalSupply: abi.NewTokenAmount(100000), Balances: emptyBalance, Allowed: emptyBalance}
-	err = erc20State.FakeSetBalance(ctx, &FakeSetBalance{Addr: addr, Balance: abi.NewTokenAmount(1)})
-	assert.NoError(t, err)
-}
 
 func TestErc20TokenGetter(t *testing.T) {
 	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))

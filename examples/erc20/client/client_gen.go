@@ -28,7 +28,8 @@ type FullNode interface {
 
 type IErc20TokenClient interface {
 	Install(context.Context, []byte) (*sdkTypes.InstallReturn, error)
-	CreateActor(context.Context, cid.Cid, []byte) (*init8.ExecReturn, error)
+
+	CreateActor(context.Context, cid.Cid, *contract.ConstructorReq) (*init8.ExecReturn, error)
 
 	GetName(context.Context) (sdkTypes.CborString, error)
 
@@ -47,8 +48,6 @@ type IErc20TokenClient interface {
 	Approval(context.Context, *contract.ApprovalReq) error
 
 	Allowance(context.Context, *contract.AllowanceReq) (*big.Int, error)
-
-	FakeSetBalance(context.Context, *contract.FakeSetBalance) error
 }
 
 var _ IErc20TokenClient = (*Erc20TokenClient)(nil)
@@ -103,47 +102,6 @@ func NewErc20TokenClient(fullNode v0.FullNode, opts ...Option) *Erc20TokenClient
 	}
 }
 
-func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, execParams []byte) (*init8.ExecReturn, error) {
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
-		CodeCID:           codeCid,
-		ConstructorParams: execParams,
-	})
-	if aErr != nil {
-		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
-	}
-
-	msg := &types.Message{
-		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
-		Value:  big.Zero(),
-		Method: 2,
-		Params: params,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
-	}
-
-	var result init8.ExecReturn
-	r := bytes.NewReader(wait.Receipt.Return)
-	if err := result.UnmarshalCBOR(r); err != nil {
-		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
-	}
-	c.actor = result.IDAddress
-	return &result, nil
-}
-
 func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
@@ -181,6 +139,51 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*sdkTypes.
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
 	c.codeCid = result.CodeCid
+	return &result, nil
+}
+func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, ctorReq *contract.ConstructorReq) (*init8.ExecReturn, error) {
+	buf := bytes.NewBufferString("")
+	if err := ctorReq.MarshalCBOR(buf); err != nil {
+		return nil, err
+	}
+	params, aErr := actors.SerializeParams(&init8.ExecParams{
+		CodeCID:           codeCid,
+		ConstructorParams: buf.Bytes(),
+	})
+
+	if aErr != nil {
+		return nil, fmt.Errorf("failed to serialize params: %w", aErr)
+	}
+
+	msg := &types.Message{
+		To:     builtin.InitActorAddr,
+		From:   c.fromAddress,
+		Value:  big.Zero(),
+		Method: 2,
+		Params: params,
+	}
+
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return nil, fmt.Errorf("actor execution failed")
+	}
+
+	var result init8.ExecReturn
+	r := bytes.NewReader(wait.Receipt.Return)
+	if err := result.UnmarshalCBOR(r); err != nil {
+		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
+	}
+	c.actor = result.IDAddress
 	return &result, nil
 }
 
@@ -520,38 +523,4 @@ func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.Allowance
 
 	return result, nil
 
-}
-
-func (c *Erc20TokenClient) FakeSetBalance(ctx context.Context, p0 *contract.FakeSetBalance) error {
-	if c.actor == address.Undef {
-		return fmt.Errorf("unset actor address for call")
-	}
-
-	buf := bytes.NewBufferString("")
-	if err := p0.MarshalCBOR(buf); err != nil {
-		return err
-	}
-	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(11),
-		Params: buf.Bytes(),
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return fmt.Errorf("actor execution failed")
-	}
-	return nil
 }

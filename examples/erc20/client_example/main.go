@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"erc20/client"
 	"erc20/contract"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 
-	"github.com/filecoin-project/go-state-types/big"
+	"github.com/filecoin-project/go-state-types/abi"
 
 	"github.com/filecoin-project/go-address"
 
@@ -20,7 +20,7 @@ import (
 func main() {
 	var ip = flag.String("ip", "", "full node url")
 	var token = flag.String("token", "", "full node token")
-	var fromAddrStr = flag.String("from", "", "send message from")
+	var fromAddrStr = flag.String("from", "", "send message from, also erc20 mint address")
 	flag.Parse()
 
 	ctx := context.Background()
@@ -49,27 +49,17 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	createParams, err := hex.DecodeString("846556656e757361560647005af3107a3fff")
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
 
-	execRet, err := ercClient.CreateActor(ctx, installRet.CodeCid, createParams)
+	execRet, err := ercClient.CreateActor(ctx, installRet.CodeCid, &contract.ConstructorReq{
+		Name:        "test_coin",
+		Symbol:      "TC",
+		Decimals:    8,
+		TotalSupply: abi.NewTokenAmount(100),
+		MintAddr:    addr,
+	})
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
-	println("actor id", execRet.IDAddress.String())
-
-	val := big.NewInt(1000)
-	req := contract.FakeSetBalance{
-		Addr:    addr,
-		Balance: val,
-	}
-	err = ercClient.FakeSetBalance(ctx, &req)
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
+	fmt.Println("code cid %s actor id", installRet.CodeCid, execRet.IDAddress.String())
 }

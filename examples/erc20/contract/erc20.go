@@ -69,7 +69,6 @@ func (t *Erc20Token) Export() map[int]interface{} {
 		8:  t.TransferFrom,
 		9:  t.Approval,
 		10: t.Allowance,
-		11: t.FakeSetBalance,
 	}
 }
 
@@ -78,6 +77,7 @@ type ConstructorReq struct {
 	Symbol      string
 	Decimals    uint8
 	TotalSupply abi.TokenAmount
+	MintAddr    address.Address
 }
 
 func Constructor(ctx context.Context, req *ConstructorReq) error {
@@ -96,6 +96,16 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 
 	//todo call is init actor but not message real sendor wait for ref fvm fix this issue
 	err = emptyMap.Put(types.ActorKey(caller), &req.TotalSupply)
+	if err != nil {
+		return err
+	}
+
+	mintActId, err := sdk.ResolveAddress(ctx, req.MintAddr)
+	if err != nil {
+		return err
+	}
+
+	err = emptyMap.Put(types.ActorKey(mintActId), &req.TotalSupply)
 	if err != nil {
 		return err
 	}
@@ -122,29 +132,6 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 type FakeSetBalance struct {
 	Addr    address.Address
 	Balance abi.TokenAmount
-}
-
-// FakeSetBalance NOTICE **beacause unable to set init balance in constructor, so just add this function for test contract, and must be remove after fvm support get really caller**
-func (t *Erc20Token) FakeSetBalance(ctx context.Context, req *FakeSetBalance) error {
-	addrId, err := sdk.ResolveAddress(ctx, req.Addr)
-	if err != nil {
-		return err
-	}
-
-	balanceMap, err := adt.AsMap(adt.AdtStore(ctx), t.Balances, adt.BalanceTableBitwidth)
-	if err != nil {
-		return err
-	}
-	err = balanceMap.Put(types.ActorKey(addrId), &req.Balance)
-	if err != nil {
-		return err
-	}
-	t.Balances, err = balanceMap.Root()
-	if err != nil {
-		return err
-	}
-	_ = sdk.SaveState(ctx, t)
-	return nil
 }
 
 // GetName return token Name of erc20 token
