@@ -9,6 +9,11 @@ Key features of `go-fvm-sdk` are...
 - unit/integration test support
 - Deploy native WASM actor on FVM!
 
+## Why choose TinyGO
+- Support most Go syntax and libraries. 
+- Smaller footprint which is great for use cases on the blockchain.
+- Nimble management of GC and Memory, which is great for contracts with  runtime constraints of tens to hundreds of milliseconds and memory constraints of a few megabytes.
+
 ## Install
 
 Install [Go](https://go.dev/doc/install)v1.17 or above and [TinyGo](https://tinygo.org/getting-started/install/)v0.25 or above.
@@ -121,7 +126,7 @@ $ lotus chain invoke <address> <method_num>
 
 - Do not use ASM code.
 - Avoid using the reflect library. If you have to, make sure that `TinyGo` supports it.
-- Use `go list` command to check actor dependency graph and packages.
+- Use `go list` command to check actor dependency issue.
 
 ```bash
 $ go list -json -deps > deps.json 
