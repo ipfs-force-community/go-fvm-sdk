@@ -25,6 +25,6 @@ func TipsetTimestamp(ctx context.Context) (uint64, error) {
 }
 
 // TipsetCid gets cid
-func TipsetCid(ctx context.Context, epoch uint64) (*cid.Cid, error) {
+func TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	return sys.TipsetCid(ctx, epoch)
 }

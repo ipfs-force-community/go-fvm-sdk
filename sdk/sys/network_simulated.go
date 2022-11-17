@@ -6,6 +6,8 @@ package sys
 import (
 	"context"
 
+	"github.com/ipfs/go-cid"
+
 	"github.com/filecoin-project/go-state-types/abi"
 )
 
@@ -32,7 +34,7 @@ func TipsetTimestamp(ctx context.Context) (uint64, error) {
 	panic(ErrorEnvValid)
 }
 
-func TipsetCid(ctx context.Context, epoch uint64) (*cid.cid, error) {
+func TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.TipsetCid(epoch)
 	}

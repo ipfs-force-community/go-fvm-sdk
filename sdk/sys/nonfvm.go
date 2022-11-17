@@ -130,6 +130,6 @@ func networkTipsetTimestamp(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func networkTipsetCid(ret uintptr, epoch uint64, retOff uintptr, retLen uint32) uint32 {
+func networkTipsetCid(ret uintptr, epoch int64, retOff uintptr, retLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }

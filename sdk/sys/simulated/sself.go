@@ -15,15 +15,15 @@ func (fvmSimulator *FvmSimulator) SelfSetRoot(id cid.Cid) error {
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) SelfCurrentBalance() (abi.TokenAmount, error) {
+func (fvmSimulator *FvmSimulator) SelfCurrentBalance() (*abi.TokenAmount, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
 	actor, ok := fvmSimulator.actorsMap[fvmSimulator.callContext.Caller]
 	if !ok {
-		return abi.TokenAmount{}, ErrorNotFound
+		return nil, ErrorNotFound
 	}
-	return actor.Balance, nil
+	return &actor.Balance, nil
 }
 
 func (fvmSimulator *FvmSimulator) SelfDestruct(addr address.Address) error {

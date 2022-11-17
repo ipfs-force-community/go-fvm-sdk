@@ -21,11 +21,7 @@ func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, err
 
 func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		actorID, err := ResolveAddress(ctx, addr)
-		if err != nil {
-			return cid.Undef, err
-		}
-		return env.GetActorCodeCid(addr, actorID)
+		return env.GetActorCodeCid(addr)
 	}
 	panic(ErrorEnvValid)
 }
@@ -60,14 +56,14 @@ func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid, addr
 
 func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.LookupAddress(ctx)
+		return env.LookupAddress(actorID)
 	}
 	panic(ErrorEnvValid)
 }
 
-func BalanceOf(_ context.Context, actorID abi.ActorID) (abi.TokenAmount, error) {
+func BalanceOf(ctx context.Context, actorID abi.ActorID) (*abi.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.BalanceOf(ctx,actorID)
+		return env.BalanceOf(actorID)
 	}
 	panic(ErrorEnvValid)
 }

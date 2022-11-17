@@ -30,6 +30,6 @@ func (fvmSimulator *FvmSimulator) Stat(id uint32) (*types.IpldStat, error) {
 	return fvmSimulator.blockStat(id)
 }
 
-func (fvmSimulator *FvmSimulator) BlockLink(id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
+func (fvmSimulator *FvmSimulator) BlockLink(id uint32, hashFun uint64, hashLen uint32) (cid.Cid, error) {
 	return fvmSimulator.blockLink(id, hashFun, hashLen)
 }
