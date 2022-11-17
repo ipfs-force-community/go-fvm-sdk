@@ -9,7 +9,7 @@ Key features of `go-fvm-sdk` are...
 - unit/integration test support
 - Deploy native WASM actor on FVM!
 
-## Why choose TinyGO
+## Why TinyGO
 - Support most Go syntax and libraries. 
 - Smaller footprint which is great for use cases on the blockchain.
 - Nimble management of GC and Memory, which is great for contracts with runtime constraints of tens to hundreds of milliseconds and memory constraints of a few megabytes.
