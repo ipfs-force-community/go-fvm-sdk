@@ -8,7 +8,6 @@ use std::path::Path;
 use xshell::Shell;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
 pub struct PatchConfig {}
 
 pub fn apply_patch(_: &PatchConfig) -> Result<()> {

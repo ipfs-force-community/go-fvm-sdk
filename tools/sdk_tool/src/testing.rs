@@ -30,7 +30,6 @@ use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
 pub struct TestConfig {
     //specify test file path
     #[clap(last = true)]

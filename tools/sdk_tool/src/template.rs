@@ -6,7 +6,6 @@ use std::fs;
 use xshell::{cmd, Shell};
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
 pub struct NewTemplateConfig {
     //must be a validate go module package name
     #[clap(last = true)]
