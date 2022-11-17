@@ -75,7 +75,7 @@ pub fn get_patch_version() -> Result<String> {
 }
 
 pub fn check_fvm_tool_install() -> Result<()> {
-    match Command::new("go-fvm-sdk-tools")
+    match Command::new("fvm_go_sdk")
         .stdout(Stdio::null())
         .arg("--help")
         .status()
@@ -83,7 +83,7 @@ pub fn check_fvm_tool_install() -> Result<()> {
         Ok(_) => Ok(()),
         Err(e) => {
             if let ErrorKind::NotFound = e.kind() {
-                Err(anyhow!("unable to found go-fvm-sdk-tools, please install this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"))
+                Err(anyhow!("unable to found fvm_go_sdk, please install this tool in https://github.com/ipfs-force-community/go-fvm-sdk/releases"))
             } else {
                 Err(anyhow!("check err {}", e))
             }

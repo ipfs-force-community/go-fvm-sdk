@@ -19,18 +19,18 @@ Install [Go](https://go.dev/doc/install)v1.17 or above and [TinyGo](https://tiny
 
 Go to [releases](https://github.com/ipfs-force-community/go-fvm-sdk/releases) and download the executables.
 
-Rename your executable to `go-fvm-sdk-tools` and add execution permission.
+Rename your executable to `fvm_go_sdk` and add execution permission.
 
 ```bash
-$ mv go-fvm-sdk-tools_vX.Y.Z_xxx go-fvm-sdk-tools
-$ chmod +x go-fvm-sdk-tools
+$ mv fvm_go_sdk_vX.Y.Z_xxx fvm_go_sdk
+$ chmod +x fvm_go_sdk
 ```
 
 ### Build from source
 
 Install [WASM tools](https://github.com/WebAssembly/binaryen) and [Rust](https://www.rust-lang.org/tools/install).
 
-Clone `go-fvm-sdk-tools` repo and make.
+Clone `fvm_go_sdk` repo and make.
 
 ```bash
 $ git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
@@ -39,16 +39,16 @@ $ make
 
 *Note: it may take a while before you finish buiding from source.*
 
-Check if `go-fvm-sdk-tools` is operational.
+Check if `fvm_go_sdk` is operational.
 
 ```bash
-$ go-fvm-sdk-tools -h
+$ fvm_go_sdk -h
 ```
 
-Once you have `go-fvm-sdk-tools` ready, `Go` and `TinyGo` need to be patched in order to have the compiled WASM contract compatible with FVM.
+Once you have `fvm_go_sdk` ready, `Go` and `TinyGo` need to be patched in order to have the compiled WASM contract compatible with FVM.
 
 ```bash
-$ go-fvm-sdk-tools patch
+$ fvm_go_sdk patch
 ```
 
 Successful patching of `go-fvm-sdk` will give the following output. And you are done with installation! 
@@ -65,10 +65,10 @@ Hunk #2 succeeded at 10 with fuzz 1.
 It is recommended that you create your first project using our template. 
 
 ```bash
-$ go-fvm-sdk-tools new -- <YOUR_ACTOR_NAME>
+$ fvm_go_sdk new -- <YOUR_ACTOR_NAME>
 ```
 
-`go-fvm-sdk-tools` will generate the following scaffolding for you.
+`fvm_go_sdk` will generate the following scaffolding for you.
 
 ```bash
 .
@@ -92,7 +92,7 @@ $ go-fvm-sdk-tools new -- <YOUR_ACTOR_NAME>
 Compile your contract. And you now have your very first contract ready to be depolyed!
 
 ```bash
-$ go-fvm-sdk-tools build
+$ fvm_go_sdk build
 ```
 
 ## Deploy your Contract

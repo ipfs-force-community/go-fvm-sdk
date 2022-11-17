@@ -55,7 +55,7 @@ jobs:
 
       - name: patch
         run: |
-          sudo go-fvm-sdk-tools patch
+          sudo fvm_go_sdk patch
 
       - name: Lint
         run: |

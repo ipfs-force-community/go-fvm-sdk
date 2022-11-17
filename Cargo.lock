@@ -1918,6 +1918,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "fvm_go_sdk"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cid",
+ "clap",
+ "colored",
+ "fil_builtin_actors_bundle",
+ "fvm",
+ "fvm_integration_tests",
+ "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
+ "hex",
+ "libsecp256k1",
+ "num-traits",
+ "parity-wasm 0.45.0",
+ "path-absolutize",
+ "rand",
+ "rand_chacha",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "wabt",
+ "walkdir",
+ "wasmparser 0.84.0",
+ "wasmprinter",
+ "wast 40.0.0",
+ "wat",
+ "xshell",
+]
+
+[[package]]
 name = "fvm_integration_tests"
 version = "0.1.0"
 source = "git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea#9c5f028ced2ce1ed4a5163c0535f3447340387ea"
@@ -2255,40 +2289,6 @@ dependencies = [
  "futures-core",
  "js-sys",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "go-fvm-sdk-tools"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "cid",
- "clap",
- "colored",
- "fil_builtin_actors_bundle",
- "fvm",
- "fvm_integration_tests",
- "fvm_ipld_blockstore 0.1.1 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
- "fvm_ipld_encoding 0.3.0 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
- "fvm_shared 3.0.0-alpha.6 (git+https://github.com/filecoin-project/ref-fvm?rev=9c5f028ced2ce1ed4a5163c0535f3447340387ea)",
- "hex",
- "libsecp256k1",
- "num-traits",
- "parity-wasm 0.45.0",
- "path-absolutize",
- "rand",
- "rand_chacha",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "wabt",
- "walkdir",
- "wasmparser 0.84.0",
- "wasmprinter",
- "wast 40.0.0",
- "wat",
- "xshell",
 ]
 
 [[package]]

@@ -24,9 +24,9 @@ enum Commands {
     /// create new template project by module name
     New(template::NewTemplateConfig),
     /// apply path for go/tinygo
-    /// if your go and tinygo install in user home directory, just run./go-fvm-sdk-tools patch
-    /// if you go and tinygo is installed in /usr/local/go, use sudo ./go-fvm-sdk-tools patch
-    /// if you are in china and need proxy, exec sudo(opt) https_proxy=<proxy> http_proxy=<> ./go-fvm-sdk-tools patch
+    /// if your go and tinygo install in user home directory, just run./fvm_go_sdk patch
+    /// if you go and tinygo is installed in /usr/local/go, use sudo ./fvm_go_sdk patch
+    /// if you are in china and need proxy, exec sudo(opt) https_proxy=<proxy> http_proxy=<> ./fvm_go_sdk patch
     /// if want to install manual or know more detail refer https://github.com/ipfs-force-community/go_tinygo_patch
     Patch(patch::PatchConfig),
 }
@@ -35,10 +35,7 @@ fn main() {
     let cli = Cli::parse();
     match &cli.command {
         Commands::Version => {
-            println!(
-                "go-fvm-sdk-tools version v0.0.1+git.{}",
-                &env!("GIT_HASH")[..7]
-            );
+            println!("fvm_go_sdk version v0.1.0+git.{}", &env!("GIT_HASH")[..7]);
         }
         Commands::Build(cfg) => {
             if let Err(e) = wasmprocess::run_process(cfg) {
