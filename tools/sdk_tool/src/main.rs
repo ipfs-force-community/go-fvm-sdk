@@ -18,7 +18,7 @@ enum Commands {
     /// version command (version git commit)
     Version,
     /// build and process wasm
-    Build(wasmprocess::BuildCLiConfig),
+    Build(wasmprocess::BuildCliConfig),
     /// test wasm on fvm
     Test(testing::TestConfig),
     /// create new template project by module name
