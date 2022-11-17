@@ -1,5 +1,5 @@
 [package]
-name = "go-fvm-sdk-tools"
+name = "fvm_go_sdk"
 version = "0.1.0"
 edition = "2021"
 

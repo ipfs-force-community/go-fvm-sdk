@@ -5,9 +5,9 @@
 1. Install [git](https://github.com/git-guides/install-git) 
 2. Install [Go](https://go.dev/doc/install) version 1.16.x/1.17.x
 3. Install [TinyGo](https://tinygo.org/getting-started/install/)
-4. Install [go-fvm-sdk](https://github.com/ipfs-force-community/go-fvm-sdk/releases); Then rename it to `go-fvm-sdk-tools`
+4. Install [go-fvm-sdk](https://github.com/ipfs-force-community/go-fvm-sdk/releases); Then rename it to `fvm_go_sdk`
 
-Add go-fvm-sdk-tools tools to your ```PATH``` environment.
+Add fvm_go_sdk tools to your ```PATH``` environment.
 ```bash
 export PATH=$PATH:<dir to go-fvm-sdk>
 ```
@@ -15,14 +15,14 @@ export PATH=$PATH:<dir to go-fvm-sdk>
 ## Patch your local environment
 
 ```bash
-go-fvm-sdk-tools patch
+fvm_go_sdk patch
 ```
 this command change your local go/tinygo std package,  this may cause other code not work properly. more details refer link [patch](https://github.com/ipfs-force-community/go_tinygo_patch)
 
 ## Create an actor project
 
 ```sh
-go-fvm-sdk-tools new -- mycounter
+fvm_go_sdk new -- mycounter
 ```
 
 If all goes well, a template actor project will be genereated for you. Write new actors at your will in the directory structure created for you. **Note: after modify contract code, you will need to re-run the generate command**
@@ -43,7 +43,7 @@ cd gen && go run main.go
 
 Compile your actor with the following command.
 ```sh
-go-fvm-sdk-tools build  # execute at project root
+fvm_go_sdk build  # execute at project root
 ```
 
 ## Test
@@ -104,5 +104,5 @@ EOF
 
 Run the test.
 ```sh
-go-fvm-sdk-tools test
+fvm_go_sdk test
 ```

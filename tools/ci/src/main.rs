@@ -76,7 +76,7 @@ fn main() {
     if what_to_run.contains(Check::COMPILE_EXAMPLE) {
         // Build examples and check they compile
         sh.change_dir("./examples/hellocontract");
-        cmd!(sh, "go-fvm-sdk-tools build")
+        cmd!(sh, "fvm_go_sdk build")
             .run()
             .expect("Please fix hellcontract example.");
     }

@@ -39,10 +39,10 @@ jobs:
       - name: Build
         run: |
           make build
-          cp target/release/go-fvm-sdk-tools target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux_amd64
+          cp target/release/fvm_go_sdk target/release/fvm_go_sdk_${{github.ref_name}}_linux_amd64
 
       - name: shasum
-        run: shasum -a 256 target/release/go-fvm-sdk-tools > target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux_amd64.sha256
+        run: shasum -a 256 target/release/fvm_go_sdk > target/release/fvm_go_sdk_${{github.ref_name}}_linux_amd64.sha256
         shell: bash
 
       - name: Release
@@ -50,8 +50,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux_amd64.sha256
-            target/release/go-fvm-sdk-tools_${{github.ref_name}}_linux_amd64
+            target/release/fvm_go_sdk_${{github.ref_name}}_linux_amd64.sha256
+            target/release/fvm_go_sdk_${{github.ref_name}}_linux_amd64
 
 
   build-macos:
@@ -92,10 +92,10 @@ jobs:
       - name: Build
         run: |
           make build
-          cp target/release/go-fvm-sdk-tools target/release/go-fvm-sdk-tools_${{github.ref_name}}_macos_11_amd64
+          cp target/release/fvm_go_sdk target/release/fvm_go_sdk_${{github.ref_name}}_macos_11_amd64
 
       - name: shasum
-        run: shasum -a 256 target/release/go-fvm-sdk-tools > target/release/go-fvm-sdk-tools_${{github.ref_name}}_macos_11_amd64.sha256
+        run: shasum -a 256 target/release/fvm_go_sdk > target/release/fvm_go_sdk_${{github.ref_name}}_macos_11_amd64.sha256
         shell: bash
 
       - name: Release
@@ -103,5 +103,5 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            target/release/go-fvm-sdk-tools_${{github.ref_name}}_macos_11_amd64.sha256
-            target/release/go-fvm-sdk-tools_${{github.ref_name}}_macos_11_amd64
+            target/release/fvm_go_sdk_${{github.ref_name}}_macos_11_amd64.sha256
+            target/release/fvm_go_sdk_${{github.ref_name}}_macos_11_amd64
