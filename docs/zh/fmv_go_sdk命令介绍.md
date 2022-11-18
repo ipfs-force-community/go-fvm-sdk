@@ -16,7 +16,7 @@ fvm_go_sdk version v0.1.0+git.6ccc890
 命令执行后，会从github中检索出项目[模版](https://github.com/ipfs-force-community/gofvm-counter), 然后自动运行生成文件，项目编译， 运行预先编辑好的测试。
 
 ```bash
-fvm_go_sdk new -- hello
+$ fvm_go_sdk new -- hello
 ```
 
 输出
