@@ -45,11 +45,11 @@ func TipsetTimestamp(_ context.Context) (uint64, error) {
 	return timestamp, nil
 }
 
-func TipsetCid(_ context.Context, epoch uint64) (*cid.Cid, error) {
+func TipsetCid(_ context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	var result uint32
-	code := networkTipsetCid(uintptr(unsafe.Pointer(&result)), epoch, bufPtr, bufLen)
+	code := networkTipsetCid(uintptr(unsafe.Pointer(&result)), int64(epoch), bufPtr, bufLen)
 	if code != 0 {
 		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected cid resolution failure: ")
 

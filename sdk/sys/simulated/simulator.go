@@ -1,7 +1,6 @@
 package simulated
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -83,7 +82,7 @@ func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) 
 	fvmSimulator.totalFilCircSupply = amount
 }
 
-func (fvmSimulator *FvmSimulator) SetTipsetCid(epoch int64, cid *cid.Cid) {
+func (fvmSimulator *FvmSimulator) SetTipsetCid(epoch abi.ChainEpoch, cid *cid.Cid) {
 	fvmSimulator.tipsetCidLk.Lock()
 	defer fvmSimulator.tipsetCidLk.Unlock()
 	fvmSimulator.tipsetCids[epoch] = cid
@@ -97,7 +96,7 @@ func (fvmSimulator *FvmSimulator) TipsetTimestamp() (uint64, error) {
 	return uint64(time.Now().Unix()), nil
 }
 
-func (fvmSimulator *FvmSimulator) TipsetCid(ctx context.Context, epoch int64) (*cid.Cid, error) {
+func (fvmSimulator *FvmSimulator) TipsetCid(epoch abi.ChainEpoch) (*cid.Cid, error) {
 	fvmSimulator.tipsetCidLk.Lock()
 	defer fvmSimulator.tipsetCidLk.Unlock()
 	if v, ok := fvmSimulator.tipsetCids[epoch]; ok {

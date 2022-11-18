@@ -50,7 +50,7 @@ func (fvmSimulator *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.C
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address, actorID abi.ActorID) (*cid.Cid, error) {
+func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
 	acstat, err := fvmSimulator.getActorWithAddress(addr)
 	if err != nil {
 		return nil, err
@@ -58,9 +58,9 @@ func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address, actorID 
 	return &acstat.Code, nil
 }
 
-func (fvmSimulator *FvmSimulator) BalanceOf(addr address.Address, actorID abi.ActorID) (abi.TokenAmount, error) {
+func (fvmSimulator *FvmSimulator) BalanceOf(actorID abi.ActorID) (*abi.TokenAmount, error) {
 	if v, ok := fvmSimulator.actorsMap[actorID]; ok {
-		return v.Balance, nil
+		return &v.Balance, nil
 	}
-	return abi.NewTokenAmount(0), ferrors.NotFound
+	return nil, ferrors.NotFound
 }

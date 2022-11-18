@@ -54,4 +54,4 @@ func networkTipsetTimestamp(ret uintptr) uint32
 //
 //go:wasm-module network
 //export tipset_cid
-func networkTipsetCid(ret uintptr, epoch uint64, ret_off uintptr, ret_len uint32) uint32
+func networkTipsetCid(ret uintptr, epoch int64, ret_off uintptr, ret_len uint32) uint32

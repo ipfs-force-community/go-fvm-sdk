@@ -16,7 +16,7 @@ func Charge(ctx context.Context, name string, compute uint64) error {
 }
 
 // Returns the amount of gas remaining.
-func AvailableGas(_ context.Context) (uint64, error) {
+func AvailableGas(ctx context.Context) (uint64, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.AvailableGas()
 	}

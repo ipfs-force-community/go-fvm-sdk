@@ -29,3 +29,5 @@ test: build code-gen
 	cd ./sdk/cases && fvm_go_sdk test
 	cd ./examples/hellocontract && fvm_go_sdk test
 	cd ./examples/erc20 && fvm_go_sdk test
+	cd ./examples/erc20/contract && go test --tags simulate
+	cd ./examples/hellocontract/contract && go test --tags simulate

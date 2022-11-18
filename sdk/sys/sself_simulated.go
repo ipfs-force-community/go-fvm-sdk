@@ -26,7 +26,7 @@ func SelfSetRoot(ctx context.Context, id cid.Cid) error {
 	panic(ErrorEnvValid)
 }
 
-func SelfCurrentBalance(ctx context.Context) (abi.TokenAmount, error) {
+func SelfCurrentBalance(ctx context.Context) (*abi.TokenAmount, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.SelfCurrentBalance()
 	}

@@ -39,9 +39,9 @@ func Stat(ctx context.Context, id uint32) (*types.IpldStat, error) {
 	panic(ErrorEnvValid)
 }
 
-func BlockLink(ctx context.Context, id uint32, hashFun uint64, hashLen uint32, cidBuf []byte) (cid.Cid, error) {
+func BlockLink(ctx context.Context, id uint32, hashFun uint64, hashLen uint32) (cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.BlockLink(id, hashFun, hashLen, cidBuf)
+		return env.BlockLink(id, hashFun, hashLen)
 	}
 	panic(ErrorEnvValid)
 }
