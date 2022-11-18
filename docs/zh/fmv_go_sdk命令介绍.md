@@ -76,7 +76,7 @@ Hunk #2 succeeded at 10 with fuzz 1.
 通常情况下只需要在项目根目录下简单的运行
 
 ```bash
-fvm_go_sdk build
+$ fvm_go_sdk build
 ```
 
 参数说明
