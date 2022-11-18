@@ -2,7 +2,7 @@
 
 1. 版本命令
 ```bash
-fvm_go_sdk version
+$ fvm_go_sdk version
 ```
 
 输出:
