@@ -56,7 +56,7 @@ passed: case counter_get_result
 由于安装方式的不同，可能需要使用sudo运行，需根据实际调整。
 
 ```bash
-fvm_go_sdk patch
+$ fvm_go_sdk patch
 ```
 
 输出：
