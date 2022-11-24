@@ -3,7 +3,7 @@ package client
 
 import (
 	"bytes"
-	"context"
+	context "context"
 	"fmt"
 
 	address "github.com/filecoin-project/go-address"
@@ -25,24 +25,23 @@ type FullNode interface {
 }
 
 type IStateClient interface {
-	Install(context.Context, []byte) (*sdkTypes.InstallReturn, error)
+	Install(context.Context, []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 
-	CreateActor(context.Context, cid.Cid) (*init8.ExecReturn, error)
+	CreateActor(context.Context, cid.Cid, ...SendOption) (*init8.ExecReturn, error)
 
-	SayHello(context.Context) (sdkTypes.CBORBytes, error)
+	SayHello(context.Context, ...SendOption) (sdkTypes.CBORBytes, error)
 }
 
 var _ IStateClient = (*StateClient)(nil)
 
 type StateClient struct {
-	node        v0.FullNode
-	fromAddress address.Address
-	actor       address.Address
-	codeCid     cid.Cid
+	node v0.FullNode
+	cfg  ClientOption
 }
 
 // Option option func
 type Option func(opt *ClientOption)
+type SendOption func(opt *ClientOption)
 
 // ClientOption option for set client config
 type ClientOption struct {
@@ -58,7 +57,14 @@ func SetFromAddressOpt(fromAddress address.Address) Option {
 	}
 }
 
-// SetActorOpt used to set exit actoraddress
+// SetFromAddrSendOpt used to set from address who send actor messages
+func SetFromAddrSendOpt(fromAddress address.Address) SendOption {
+	return func(opt *ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+// SetActorOpt used to set actor address
 func SetActorOpt(actor address.Address) Option {
 	return func(opt *ClientOption) {
 		opt.actor = actor
@@ -78,13 +84,20 @@ func NewStateClient(fullNode v0.FullNode, opts ...Option) *StateClient {
 		opt(&cfg)
 	}
 	return &StateClient{
-		node:        fullNode,
-		fromAddress: cfg.fromAddress,
-		actor:       cfg.actor,
+		node: fullNode,
+		cfg:  cfg,
 	}
 }
 
-func (c *StateClient) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
+func (c *StateClient) ChangeFromAddress(addr address.Address) {
+	c.cfg.fromAddress = addr
+}
+
+func (c *StateClient) Install(ctx context.Context, code []byte, opts ...SendOption) (*sdkTypes.InstallReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
 	})
@@ -94,9 +107,9 @@ func (c *StateClient) Install(ctx context.Context, code []byte) (*sdkTypes.Insta
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: 3,
+		Method: 4,
 		Params: params,
 	}
 
@@ -120,10 +133,14 @@ func (c *StateClient) Install(ctx context.Context, code []byte) (*sdkTypes.Insta
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.codeCid = result.CodeCid
+	c.cfg.codeCid = result.CodeCid
 	return &result, nil
 }
-func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid) (*init8.ExecReturn, error) {
+func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, opts ...SendOption) (*init8.ExecReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
 
 	params, aErr := actors.SerializeParams(&init8.ExecParams{
 		CodeCID: codeCid,
@@ -135,7 +152,7 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid) (*init8.
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
@@ -161,18 +178,22 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid) (*init8.
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.actor = result.IDAddress
+	c.cfg.actor = result.IDAddress
 	return &result, nil
 }
 
-func (c *StateClient) SayHello(ctx context.Context) (sdkTypes.CBORBytes, error) {
-	if c.actor == address.Undef {
+func (c *StateClient) SayHello(ctx context.Context, opts ...SendOption) (sdkTypes.CBORBytes, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(2),
 		Params: nil,

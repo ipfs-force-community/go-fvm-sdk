@@ -3,7 +3,7 @@ package client
 
 import (
 	"bytes"
-	"context"
+	context "context"
 	contract "erc20/contract"
 	"fmt"
 
@@ -27,40 +27,39 @@ type FullNode interface {
 }
 
 type IErc20TokenClient interface {
-	Install(context.Context, []byte) (*sdkTypes.InstallReturn, error)
+	Install(context.Context, []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 
-	CreateActor(context.Context, cid.Cid, *contract.ConstructorReq) (*init8.ExecReturn, error)
+	CreateActor(context.Context, cid.Cid, *contract.ConstructorReq, ...SendOption) (*init8.ExecReturn, error)
 
-	GetName(context.Context) (sdkTypes.CborString, error)
+	GetName(context.Context, ...SendOption) (sdkTypes.CborString, error)
 
-	GetSymbol(context.Context) (sdkTypes.CborString, error)
+	GetSymbol(context.Context, ...SendOption) (sdkTypes.CborString, error)
 
-	GetDecimal(context.Context) (typegen.CborInt, error)
+	GetDecimal(context.Context, ...SendOption) (typegen.CborInt, error)
 
-	GetTotalSupply(context.Context) (*big.Int, error)
+	GetTotalSupply(context.Context, ...SendOption) (*big.Int, error)
 
-	GetBalanceOf(context.Context, *address.Address) (*big.Int, error)
+	GetBalanceOf(context.Context, *address.Address, ...SendOption) (*big.Int, error)
 
-	Transfer(context.Context, *contract.TransferReq) error
+	Transfer(context.Context, *contract.TransferReq, ...SendOption) error
 
-	TransferFrom(context.Context, *contract.TransferFromReq) error
+	TransferFrom(context.Context, *contract.TransferFromReq, ...SendOption) error
 
-	Approval(context.Context, *contract.ApprovalReq) error
+	Approval(context.Context, *contract.ApprovalReq, ...SendOption) error
 
-	Allowance(context.Context, *contract.AllowanceReq) (*big.Int, error)
+	Allowance(context.Context, *contract.AllowanceReq, ...SendOption) (*big.Int, error)
 }
 
 var _ IErc20TokenClient = (*Erc20TokenClient)(nil)
 
 type Erc20TokenClient struct {
-	node        v0.FullNode
-	fromAddress address.Address
-	actor       address.Address
-	codeCid     cid.Cid
+	node v0.FullNode
+	cfg  ClientOption
 }
 
 // Option option func
 type Option func(opt *ClientOption)
+type SendOption func(opt *ClientOption)
 
 // ClientOption option for set client config
 type ClientOption struct {
@@ -76,7 +75,14 @@ func SetFromAddressOpt(fromAddress address.Address) Option {
 	}
 }
 
-// SetActorOpt used to set exit actoraddress
+// SetFromAddrSendOpt used to set from address who send actor messages
+func SetFromAddrSendOpt(fromAddress address.Address) SendOption {
+	return func(opt *ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+// SetActorOpt used to set actor address
 func SetActorOpt(actor address.Address) Option {
 	return func(opt *ClientOption) {
 		opt.actor = actor
@@ -96,13 +102,20 @@ func NewErc20TokenClient(fullNode v0.FullNode, opts ...Option) *Erc20TokenClient
 		opt(&cfg)
 	}
 	return &Erc20TokenClient{
-		node:        fullNode,
-		fromAddress: cfg.fromAddress,
-		actor:       cfg.actor,
+		node: fullNode,
+		cfg:  cfg,
 	}
 }
 
-func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
+func (c *Erc20TokenClient) ChangeFromAddress(addr address.Address) {
+	c.cfg.fromAddress = addr
+}
+
+func (c *Erc20TokenClient) Install(ctx context.Context, code []byte, opts ...SendOption) (*sdkTypes.InstallReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
 	})
@@ -112,9 +125,9 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*sdkTypes.
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: 3,
+		Method: 4,
 		Params: params,
 	}
 
@@ -138,10 +151,14 @@ func (c *Erc20TokenClient) Install(ctx context.Context, code []byte) (*sdkTypes.
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.codeCid = result.CodeCid
+	c.cfg.codeCid = result.CodeCid
 	return &result, nil
 }
-func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, ctorReq *contract.ConstructorReq) (*init8.ExecReturn, error) {
+func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, ctorReq *contract.ConstructorReq, opts ...SendOption) (*init8.ExecReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
 	buf := bytes.NewBufferString("")
 	if err := ctorReq.MarshalCBOR(buf); err != nil {
 		return nil, err
@@ -157,7 +174,7 @@ func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, cto
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
@@ -183,18 +200,22 @@ func (c *Erc20TokenClient) CreateActor(ctx context.Context, codeCid cid.Cid, cto
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.actor = result.IDAddress
+	c.cfg.actor = result.IDAddress
 	return &result, nil
 }
 
-func (c *Erc20TokenClient) GetName(ctx context.Context) (sdkTypes.CborString, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) GetName(ctx context.Context, opts ...SendOption) (sdkTypes.CborString, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(2),
 		Params: nil,
@@ -225,14 +246,18 @@ func (c *Erc20TokenClient) GetName(ctx context.Context) (sdkTypes.CborString, er
 
 }
 
-func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (sdkTypes.CborString, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) GetSymbol(ctx context.Context, opts ...SendOption) (sdkTypes.CborString, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(3),
 		Params: nil,
@@ -263,14 +288,18 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context) (sdkTypes.CborString, 
 
 }
 
-func (c *Erc20TokenClient) GetDecimal(ctx context.Context) (typegen.CborInt, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) GetDecimal(ctx context.Context, opts ...SendOption) (typegen.CborInt, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return 0, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(4),
 		Params: nil,
@@ -301,14 +330,18 @@ func (c *Erc20TokenClient) GetDecimal(ctx context.Context) (typegen.CborInt, err
 
 }
 
-func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context) (*big.Int, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context, opts ...SendOption) (*big.Int, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(5),
 		Params: nil,
@@ -339,8 +372,13 @@ func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context) (*big.Int, error)
 
 }
 
-func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address) (*big.Int, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address, opts ...SendOption) (*big.Int, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
@@ -349,8 +387,8 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 		return nil, err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(6),
 		Params: buf.Bytes(),
@@ -381,8 +419,13 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 
 }
 
-func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferReq) error {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferReq, opts ...SendOption) error {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -391,8 +434,8 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 		return err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(7),
 		Params: buf.Bytes(),
@@ -415,8 +458,13 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 	return nil
 }
 
-func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.TransferFromReq) error {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.TransferFromReq, opts ...SendOption) error {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -425,8 +473,8 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 		return err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(8),
 		Params: buf.Bytes(),
@@ -449,8 +497,13 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 	return nil
 }
 
-func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalReq) error {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalReq, opts ...SendOption) error {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
@@ -459,8 +512,8 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		return err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(9),
 		Params: buf.Bytes(),
@@ -483,8 +536,13 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 	return nil
 }
 
-func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq) (*big.Int, error) {
-	if c.actor == address.Undef {
+func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq, opts ...SendOption) (*big.Int, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
@@ -493,8 +551,8 @@ func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.Allowance
 		return nil, err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum(10),
 		Params: buf.Bytes(),
