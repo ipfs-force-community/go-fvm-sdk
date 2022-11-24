@@ -3,8 +3,9 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"fmt"
+
+	context "context"
 
 	contract "erc20/contract"
 

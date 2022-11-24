@@ -63,6 +63,10 @@ var defaultClientImport = []typegen.Import{
 		Name:    "ferrors",
 		PkgPath: "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors",
 	},
+	{
+		Name:    "context",
+		PkgPath: "context",
+	},
 }
 
 var funcs = map[string]interface{}{
@@ -166,15 +170,14 @@ func genClientImplemnt(w io.Writer, meta entryMeta) error {
 var _ I{{trimPackage .StateName}}Client = (*{{trimPackage .StateName}}Client)(nil)
 
 type {{trimPackage .StateName}}Client struct {
-	node        v0.FullNode
-	fromAddress address.Address
-	actor       address.Address
-	codeCid     cid.Cid
+	node v0.FullNode
+	cfg ClientOption
 }
 
 
 // Option option func
 type Option func(opt *ClientOption)
+type SendOption func(opt *ClientOption)
 
 // ClientOption option for set client config
 type ClientOption struct {
@@ -190,7 +193,14 @@ func SetFromAddressOpt(fromAddress address.Address) Option {
 	}
 }
 
-// SetActorOpt used to set exit actoraddress
+// SetFromAddrSendOpt used to set from address who send actor messages
+func SetFromAddrSendOpt(fromAddress address.Address) SendOption {
+	return func(opt *ClientOption) {
+		opt.fromAddress = fromAddress
+	}
+}
+
+// SetActorOpt used to set actor address
 func SetActorOpt(actor address.Address) Option {
 	return func(opt *ClientOption) {
 		opt.actor = actor
@@ -211,12 +221,19 @@ func New{{trimPackage .StateName}}Client(fullNode v0.FullNode, opts ...Option) *
 	}
 	return &{{trimPackage .StateName}}Client{
 		node: fullNode,
-		fromAddress: cfg.fromAddress,
-		actor:       cfg.actor,
+		cfg: cfg,
 	}
 }
 
-func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []byte) (*sdkTypes.InstallReturn, error) {
+func (c *{{trimPackage .StateName}}Client) ChangeFromAddress(addr address.Address) {
+	c.cfg.fromAddress = addr
+}
+
+func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []byte, opts ...SendOption) (*sdkTypes.InstallReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
 	params, aerr := actors.SerializeParams(&sdkTypes.InstallParams{
 		Code: code,
 	})
@@ -226,9 +243,9 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: 3,
+		Method: 4,
 		Params: params,
 	}
 
@@ -252,7 +269,7 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.codeCid = result.CodeCid
+	c.cfg.codeCid = result.CodeCid
 	return &result, nil
 }
 `
@@ -266,7 +283,11 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 }
 
 func genClientConstructor(w io.Writer, meta entryMeta) error {
-	tpl := `func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid{{if .HasParam}}, ctorReq {{.ParamsTypeName}}{{else}}{{end}}) (*init8.ExecReturn, error) {
+	tpl := `func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid{{if .HasParam}}, ctorReq {{.ParamsTypeName}}{{else}}{{end}}, opts ...SendOption) (*init8.ExecReturn, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
     {{if .HasParam}}buf := bytes.NewBufferString("")
 	if err := ctorReq.MarshalCBOR(buf); err != nil {
 		return nil, err
@@ -287,7 +308,7 @@ func genClientConstructor(w io.Writer, meta entryMeta) error {
 
 	msg := &types.Message{
 		To:     builtin.InitActorAddr,
-		From:   c.fromAddress,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: 2,
 		Params: params,
@@ -313,7 +334,7 @@ func genClientConstructor(w io.Writer, meta entryMeta) error {
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
 	}
-	c.actor = result.IDAddress
+	c.cfg.actor = result.IDAddress
 	return &result, nil
 }
 `
@@ -335,26 +356,25 @@ func genClientConstructor(w io.Writer, meta entryMeta) error {
 func genClientInterface(w io.Writer, entry entryMeta) error {
 	tpl := `
 type I{{trimPackage .StateName}}Client interface {
-	Install( context.Context,  []byte) (*sdkTypes.InstallReturn, error)
-
+	Install( context.Context,  []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 	{{range .Methods}}
     {{if ne .FuncName "Constructor"}}
 		{{if .HasParam}}
 			{{if .HasReturn}}
-						{{.FuncName}}(context.Context, {{.ParamsTypeName}}) ({{.ReturnTypeName}}, error)
+						{{.FuncName}}(context.Context, {{.ParamsTypeName}}, ...SendOption) ({{.ReturnTypeName}}, error)
 			{{else}}
-						{{.FuncName}}(context.Context, {{.ParamsTypeName}}) error
+						{{.FuncName}}(context.Context, {{.ParamsTypeName}}, ...SendOption) error
 			{{end}}
 		{{else}}
 			{{if .HasReturn}}
-				{{.FuncName}}(context.Context) ({{.ReturnTypeName}}, error)
+				{{.FuncName}}(context.Context, ...SendOption) ({{.ReturnTypeName}}, error)
 			{{else}}
-				{{.FuncName}}(context.Context, {{.ParamsTypeName}}) error
+				{{.FuncName}}(context.Context, ...SendOption) error
 			{{end}}
 		{{end}}
 	{{end}}
     {{if eq .FuncName "Constructor"}}
-		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}) (*init8.ExecReturn, error)
+		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}, ...SendOption) (*init8.ExecReturn, error)
 	{{end}}
 	{{end}}
 }
@@ -370,8 +390,13 @@ type I{{trimPackage .StateName}}Client interface {
 
 func genClientParamsReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
-func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) ({{.ReturnTypeName}}, error) {
-	if c.actor == address.Undef {
+func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}, opts ...SendOption) ({{.ReturnTypeName}}, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("unset actor address for call")
 	}
 
@@ -380,8 +405,8 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		return {{.DefaultReturn|raw}}, err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: buf.Bytes(),
@@ -425,8 +450,13 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 
 func genClientParamsNOReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
-func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}) error {
-	if c.actor == address.Undef {
+func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0 {{.ParamsTypeName}}, opts ...SendOption) error {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
 		return  fmt.Errorf("unset actor address for call")
 	}
 
@@ -435,8 +465,8 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		return  err
 	}
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: buf.Bytes(),
@@ -470,14 +500,18 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 
 func genClientNoParamsReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
-func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({{.ReturnTypeName}}, error) {
-	if c.actor == address.Undef {
+func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, opts ...SendOption) ({{.ReturnTypeName}}, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return {{.DefaultReturn|raw}}, fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: nil,
@@ -521,14 +555,18 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) ({
 
 func genClientNoParamsNoReturnMethod(w io.Writer, entry *methodMap) error {
 	tpl := `
-func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context) error {
-	if c.actor == address.Undef {
+func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, opts ...SendOption) error {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
 		return fmt.Errorf("unset actor address for call")
 	}
 
 	msg := &types.Message{
-		To:     c.actor,
-		From:   c.fromAddress,
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
 		Method: abi.MethodNum({{.MethodNum}}),
 		Params: nil,
