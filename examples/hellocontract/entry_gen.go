@@ -42,12 +42,12 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 
 	switch method {
-	case 1:
+	case 0x1:
 		// Constuctor
 		err = contract.Constructor(ctx)
 		callResult = typegen.CborBool(true)
 
-	case 2:
+	case 0xc551429c:
 
 		// no params no error but have return value
 		state := new(contract.State)

@@ -44,7 +44,7 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 	var raw *sdkTypes.ParamsRaw
 	switch method {
-	case 1:
+	case 0x1:
 		// Constuctor
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -58,35 +58,35 @@ func Invoke(blockId uint32) uint32 {
 		err = contract.Constructor(ctx, &req)
 		callResult = typegen.CborBool(true)
 
-	case 2:
+	case 0xa30674d4:
 
 		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetName()
 
-	case 3:
+	case 0x6d0c41e0:
 
 		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetSymbol()
 
-	case 4:
+	case 0x824067b:
 
 		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetDecimal()
 
-	case 5:
+	case 0xe435da43:
 
 		// no params no error but have return value
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetTotalSupply()
 
-	case 6:
+	case 0x33797708:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -103,7 +103,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.GetBalanceOf(ctx, &req)
 
-	case 7:
+	case 0x4cbf732:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -122,7 +122,7 @@ func Invoke(blockId uint32) uint32 {
 			callResult = typegen.CborBool(true)
 		}
 
-	case 8:
+	case 0xd7d4deed:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -141,7 +141,7 @@ func Invoke(blockId uint32) uint32 {
 			callResult = typegen.CborBool(true)
 		}
 
-	case 9:
+	case 0xa6d42fd:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -160,7 +160,7 @@ func Invoke(blockId uint32) uint32 {
 			callResult = typegen.CborBool(true)
 		}
 
-	case 10:
+	case 0xfaa45236:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {

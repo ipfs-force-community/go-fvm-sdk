@@ -57,18 +57,18 @@ type Erc20Token struct {
 	Allowed  cid.Cid // map[string]*big.Int //owner-spender
 }
 
-func (t *Erc20Token) Export() map[int]interface{} {
-	return map[int]interface{}{
-		1:  Constructor,
-		2:  t.GetName,
-		3:  t.GetSymbol,
-		4:  t.GetDecimal,
-		5:  t.GetTotalSupply,
-		6:  t.GetBalanceOf,
-		7:  t.Transfer,
-		8:  t.TransferFrom,
-		9:  t.Approval,
-		10: t.Allowance,
+func (t *Erc20Token) Export() []interface{} {
+	return []interface{}{
+		Constructor,
+		t.GetName,
+		t.GetSymbol,
+		t.GetDecimal,
+		t.GetTotalSupply,
+		t.GetBalanceOf,
+		t.Transfer,
+		t.TransferFrom,
+		t.Approval,
+		t.Allowance,
 	}
 }
 

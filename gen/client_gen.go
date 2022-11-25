@@ -2,6 +2,7 @@ package gen
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 	"reflect"
@@ -83,6 +84,10 @@ var funcs = map[string]interface{}{
 	"raw": func(str string) template.HTML {
 		return template.HTML(str)
 	},
+	"hex": func(methodNum uint64) string {
+		return fmt.Sprintf("0x%x", methodNum)
+	},
+	"trimPrefix": strings.TrimPrefix,
 }
 
 func GenContractClient(stateT reflect.Type, output string) error {
@@ -408,7 +413,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum({{.MethodNum}}),
+		Method: abi.MethodNum({{.MethodNum|hex}}),
 		Params: buf.Bytes(),
 	}
 
@@ -468,7 +473,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum({{.MethodNum}}),
+		Method: abi.MethodNum({{.MethodNum|hex}}),
 		Params: buf.Bytes(),
 	}
 
@@ -513,7 +518,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, op
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum({{.MethodNum}}),
+		Method: abi.MethodNum({{.MethodNum|hex}}),
 		Params: nil,
 	}
 
@@ -568,7 +573,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, op
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum({{.MethodNum}}),
+		Method: abi.MethodNum({{.MethodNum|hex}}),
 		Params: nil,
 	}
 

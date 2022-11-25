@@ -195,7 +195,7 @@ func (c *StateClient) SayHello(ctx context.Context, opts ...SendOption) (sdkType
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(2),
+		Method: abi.MethodNum(0xc551429c),
 		Params: nil,
 	}
 

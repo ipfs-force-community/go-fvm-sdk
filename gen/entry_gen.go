@@ -7,6 +7,8 @@ import (
 	"go/format"
 	"os"
 
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/frc42dispatch"
+
 	"golang.org/x/tools/imports"
 
 	"github.com/filecoin-project/go-state-types/cbor"
@@ -49,9 +51,7 @@ func GenEntry(stateT reflect.Type, output string) error {
 		return err
 	}
 
-	render, err := template.New("gen entry").Funcs(map[string]interface{}{
-		"trimPrefix": strings.TrimPrefix,
-	}).Parse(tml)
+	render, err := template.New("gen entry").Funcs(funcs).Parse(tml)
 	if err != nil {
 		return err
 	}
@@ -106,23 +106,22 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		return nil, fmt.Errorf("state must have export function")
 	}
 	returns := exportFunc.Func.Call([]reflect.Value{stateV})
-	exports, ok := returns[0].Interface().(map[int]interface{})
+	exports, ok := returns[0].Interface().([]interface{})
 	if !ok {
 		return nil, errors.New("assert Export return type fail")
 	}
 
-	var methodsMap []*methodMap
-	sortedFuncs := sortMap(exports)
+	var methodsArr []*methodMap
 	hasParam := false
 	typesToImport := []reflect.Type{stateT}
-	for _, sortedFunc := range sortedFuncs {
-		functionT := reflect.TypeOf(sortedFunc.funcT)
+	for _, actorFunc := range exports {
+		functionT := reflect.TypeOf(actorFunc)
 		if functionT.Kind() != reflect.Func {
 			return nil, fmt.Errorf("export must be function ")
 		}
 		var method = &methodMap{}
-		method.FuncT = reflect.ValueOf(sortedFunc.funcT)
-		method.MethodNum = sortedFunc.methodNum
+		method.FuncT = reflect.ValueOf(actorFunc)
+
 		//	functionT := function.Type
 
 		if functionT.NumIn() > 0 {
@@ -132,7 +131,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			}
 		}
 		if (method.HasContext == false && functionT.NumIn() > 1) || (method.HasContext == true && functionT.NumIn() > 2) {
-			return nil, fmt.Errorf("func %s can not have params more than 1", method.FuncName)
+			return nil, fmt.Errorf("func %v can not have params more than 1", method.FuncT)
 		}
 		if (method.HasContext == false && functionT.NumIn() == 1) || (method.HasContext == true && functionT.NumIn() == 2) {
 			if method.HasContext == true && functionT.NumIn() == 2 {
@@ -146,7 +145,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 
 			} else {
 				if !functionT.In(0).AssignableTo(unMarshallerT) {
-					return nil, fmt.Errorf("func %v arg type at index 1 must can be unmarshaller", method.FuncName)
+					return nil, fmt.Errorf("func %v arg type at index 1 must can be unmarshaller", method.FuncT)
 				}
 
 				method.HasParam = true
@@ -157,16 +156,16 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		}
 
 		if functionT.NumOut() > 2 {
-			return nil, fmt.Errorf("func %s can not have return value more than 2", method.FuncName)
+			return nil, fmt.Errorf("func %v can not have return value more than 2", method.FuncT)
 		}
 
 		if functionT.NumOut() == 2 {
 			if !functionT.Out(0).AssignableTo(marshallerT) {
-				return nil, fmt.Errorf("func %s return value at index 0 must be marshaller", method.FuncName)
+				return nil, fmt.Errorf("func %v return value at index 0 must be marshaller", method.FuncT)
 			}
 
 			if !functionT.Out(1).AssignableTo(errorT) {
-				return nil, fmt.Errorf("func %s return value at index 1 must be error", method.FuncName)
+				return nil, fmt.Errorf("func %v return value at index 1 must be error", method.FuncT)
 			}
 			method.HasReturn = true
 			method.HasError = true
@@ -188,7 +187,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			method.HasError = false
 		}
 
-		methodsMap = append(methodsMap, method)
+		methodsArr = append(methodsArr, method)
 
 	}
 
@@ -200,7 +199,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 	imports = dedupImports(imports)
 
 	stateName := typeName(pkg, stateT)
-	for _, m := range methodsMap {
+	for _, m := range methodsArr {
 		m.PkgName, m.FuncName = getFunctionName(m.FuncT)
 		m.StateName = stateName
 		if m.HasParam {
@@ -210,12 +209,19 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			m.ReturnTypeName = typeName(pkg, m.ReturnType)
 			m.DefaultReturn = defaultValue(pkg, m.ReturnType)
 		}
+		hashNumber, err := frc42dispatch.GenMethodNumber(m.FuncName)
+		if err != nil {
+			return nil, fmt.Errorf("function name %s not validate, may need change another", m.FuncName)
+		}
+		m.MethodNum = uint64(hashNumber)
+		fmt.Println("Method:", m.FuncName, " MethodNumber: ", hashNumber)
 	}
+
 	return &entryMeta{
 		Imports: dedupImports(imports),
 		//PkgName:   ,
 		HasParam:  hasParam,
-		Methods:   methodsMap,
+		Methods:   methodsArr,
 		StateName: stateName,
 	}, nil
 }
@@ -284,25 +290,6 @@ func resolvePkgNameByFullPath(path, defaultName string) string {
 	}
 }
 
-type sortMethod struct {
-	methodNum int
-	funcT     interface{}
-}
-
-func sortMap(v map[int]interface{}) []sortMethod {
-	var sortMethods []sortMethod
-	for index, method := range v {
-		sortMethods = append(sortMethods, sortMethod{
-			methodNum: index,
-			funcT:     method,
-		})
-	}
-	sort.Slice(sortMethods, func(i, j int) bool {
-		return sortMethods[i].methodNum < sortMethods[j].methodNum
-	})
-	return sortMethods
-}
-
 func dedupImports(imps []typegen.Import) []typegen.Import {
 	impSet := make(map[string]string, len(imps))
 	for _, imp := range imps {
@@ -346,7 +333,7 @@ type entryMeta struct {
 
 type methodMap struct {
 	StateName  string
-	MethodNum  int
+	MethodNum  uint64
 	FuncT      reflect.Value
 	PkgName    string
 	FuncName   string
@@ -396,7 +383,7 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 {{if .HasParam}}var raw *sdkTypes.ParamsRaw{{end}}
 	switch method {
-{{range .Methods}}case {{.MethodNum}}:
+{{range .Methods}}case {{.MethodNum|hex}}:
 {{if eq .MethodNum 1}}  // Constuctor
 		{{if .HasParam}}raw, err = sdk.ParamsRaw(ctx,blockId)
 						if err != nil {
