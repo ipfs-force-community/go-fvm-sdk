@@ -17,9 +17,10 @@ import (
 
 func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error) {
 	if addr.Protocol() == address.ID {
-		actid, err := address.IDFromAddress(addr)
-		return abi.ActorID(actid), err
+		actorId, err := address.IDFromAddress(addr)
+		return abi.ActorID(actorId), err
 	}
+
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	var result abi.ActorID
 	code := actorResolveAddress(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen)

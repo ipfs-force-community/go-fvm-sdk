@@ -3,14 +3,15 @@ package simulated
 import (
 	"time"
 
+	"github.com/filecoin-project/go-state-types/builtin"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs/go-cid"
 )
 
-func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Address, actor migration.Actor) {
+func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Address, actor builtin.Actor) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
@@ -32,6 +33,13 @@ func (fvmSimulator *FvmSimulator) LookupAddress(actorID abi.ActorID) (address.Ad
 func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.ActorID, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
+	if addr.Protocol() == address.ID {
+		id, err := address.IDFromAddress(addr)
+		if err != nil {
+			return 0, err
+		}
+		return abi.ActorID(id), nil
+	}
 	id, ok := fvmSimulator.addressMap[addr]
 	if !ok {
 		return 0, ferrors.NotFound
@@ -46,7 +54,7 @@ func (fvmSimulator *FvmSimulator) NewActorAddress() (address.Address, error) {
 
 // CreateActor this is api can only create builtin actor
 func (fvmSimulator *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.Cid) error {
-	fvmSimulator.SetActor(actorID, address.Address{}, migration.Actor{Code: codeCid})
+	fvmSimulator.SetActor(actorID, address.Address{}, builtin.Actor{Code: codeCid})
 	return nil
 }
 

@@ -32,12 +32,15 @@ $ chmod +x fvm_go_sdk
 ```
 
 ### Build from source
-
-Install [WASM tools](https://github.com/WebAssembly/binaryen) and [Rust](https://www.rust-lang.org/tools/install).
+ 
+Install `OpenCl`  and [Rust](https://www.rust-lang.org/tools/install).
 
 Clone `fvm_go_sdk` repo and make.
 
 ```bash
+$ sudo apt install ocl-icd-opencl-dev jq    # install dependencies
+$ cargo install cargo-edit                  # install cargo plugin, builtin-actor require
+$ rustup target add wasm32-unknown-unknown  # install wasm target
 $ git clone git@github.com:ipfs-force-community/go-fvm-sdk.git
 $ make
 ```

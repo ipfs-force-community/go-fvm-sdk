@@ -74,7 +74,7 @@ func checkMethodName(name string) error {
 		}
 
 		if rune == '_' ||
-			(0 <= rune && rune <= 9) ||
+			('0' <= rune && rune <= '9') ||
 			('a' <= rune && rune <= 'z') ||
 			('A' <= rune && rune <= 'Z') {
 			continue

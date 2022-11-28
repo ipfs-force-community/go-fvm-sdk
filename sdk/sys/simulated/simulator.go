@@ -4,25 +4,26 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
-
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Actor, error) {
+const SimulateDebug = true
+
+func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (builtin.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 	actorId, err := fvmSimulator.ResolveAddress(addr) //nolint
 	if err != nil {
-		return migration.Actor{}, err
+		return builtin.Actor{}, err
 	}
 	actor, ok := fvmSimulator.actorsMap[actorId]
 	if !ok {
-		return migration.Actor{}, ferrors.NotFound
+		return builtin.Actor{}, ferrors.NotFound
 	}
 	return actor, nil
 }

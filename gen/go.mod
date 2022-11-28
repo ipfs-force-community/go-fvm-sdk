@@ -3,7 +3,7 @@ module github.com/ipfs-force-community/go-fvm-sdk/gen
 go 1.17
 
 require (
-	github.com/filecoin-project/go-state-types v0.1.12-alpha
+	github.com/filecoin-project/go-state-types v0.9.9
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220514204315-f29c37e9c44c
 	golang.org/x/tools v0.2.0

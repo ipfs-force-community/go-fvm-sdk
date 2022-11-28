@@ -3,6 +3,8 @@ package sdk
 import (
 	"context"
 
+	"github.com/filecoin-project/go-address"
+
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 
 	"github.com/filecoin-project/go-state-types/abi"
@@ -20,6 +22,15 @@ func Caller(ctx context.Context) (abi.ActorID, error) {
 	return invocationCtx.Caller, nil
 }
 
+// CallerAddress return caller address
+func CallerAddress(ctx context.Context) (address.Address, error) {
+	invocationCtx, err := sys.VMContext(ctx)
+	if err != nil {
+		return address.Undef, err
+	}
+	return address.NewIDAddress(uint64(invocationCtx.Caller))
+}
+
 // Receiver get recevier, to address of message
 func Receiver(ctx context.Context) (abi.ActorID, error) {
 	invocationCtx, err := sys.VMContext(ctx)
@@ -27,6 +38,16 @@ func Receiver(ctx context.Context) (abi.ActorID, error) {
 		return 0, err
 	}
 	return invocationCtx.Receiver, nil
+}
+
+// ReceiverAddress return message to address
+func ReceiverAddress(ctx context.Context) (address.Address, error) {
+	invocationCtx, err := sys.VMContext(ctx)
+	if err != nil {
+		return address.Undef, err
+	}
+
+	return address.NewIDAddress(uint64(invocationCtx.Receiver))
 }
 
 // MethodNumber method number

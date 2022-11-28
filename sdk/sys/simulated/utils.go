@@ -50,6 +50,20 @@ func abs(i int64) uint64 {
 	return uint64(i)
 }
 
+var (
+	AccountCid          = mustParseCid("bafk2bzacebmfbtdj5vruje5auacrhhprcjdd6uclhukb7je7t2f6ozfcgqlu2")
+	CronCid             = mustParseCid("bafk2bzacea4gwsbeux7z4yxvpkxpco77iyxijoyqaoikofrxdewunwh3unjem")
+	InitCid             = mustParseCid("bafk2bzacebwkqd6e7gdphfzw2kdmbokdh2bly6fvzgfopxzy7quq4l67gmkks")
+	MultisigCid         = mustParseCid("bafk2bzacea5zp2g6ag5qfuro7zw6kyku2swxs57wjxncaaxbih5iqflqy4ghm")
+	PaymentchannelCid   = mustParseCid("bafk2bzaced47dbtbygmfwnyfsp5iihzhhdmnkpuyc5nlnfgc4mkkvlsgvj2do")
+	RewardCid           = mustParseCid("bafk2bzacecmcagk32pzdzfg7piobzqhlgla37x3g7jjzyndlz7mqdno2zulfi")
+	StoragemarketCid    = mustParseCid("bafk2bzacecxqgajcaednamgolc6wc3lzbjc6tz5alfrbwqez2y3c372vts6dg")
+	StorageminerCid     = mustParseCid("bafk2bzaceaqwxllfycpq6decpsnkqjdeycpysh5acubonjae7u3wciydlkvki")
+	StoragepowerCid     = mustParseCid("bafk2bzaceddmeolsokbxgcr25cuf2skrobtmmoof3dmqfpcfp33lmw63oikvm")
+	SystemCid           = mustParseCid("bafk2bzaced6kjkbv7lrb2qwq5we2hqaxc6ztch5p52g27qtjy45zdemsk4b7m")
+	VerifiedRegistryCid = mustParseCid("bafk2bzacectzxvtoselhnzsair5nv6k5vokvegnht6z2lfee4p3xexo4kg4m6")
+)
+
 var EmbeddedBuiltinActors = map[string]cid.Cid{
 	"account":          mustParseCid("bafk2bzacebmfbtdj5vruje5auacrhhprcjdd6uclhukb7je7t2f6ozfcgqlu2"),
 	"cron":             mustParseCid("bafk2bzacea4gwsbeux7z4yxvpkxpco77iyxijoyqaoikofrxdewunwh3unjem"),
@@ -62,8 +76,6 @@ var EmbeddedBuiltinActors = map[string]cid.Cid{
 	"storagepower":     mustParseCid("bafk2bzaceddmeolsokbxgcr25cuf2skrobtmmoof3dmqfpcfp33lmw63oikvm"),
 	"system":           mustParseCid("bafk2bzaced6kjkbv7lrb2qwq5we2hqaxc6ztch5p52g27qtjy45zdemsk4b7m"),
 	"verifiedregistry": mustParseCid("bafk2bzacectzxvtoselhnzsair5nv6k5vokvegnht6z2lfee4p3xexo4kg4m6"),
-	"power":            mustParseCid("bafk2bzacectzxvtoselhnzsair5nv6k5vokvegnht6z2lfee4p3xexo4kg4m6"),
-	"miner":            mustParseCid("bafk2bzacectzxvtoselhnzsair5nv6k5vokvegnht6z2lfee4p3xexo4kg4m6"),
 }
 
 func mustParseCid(c string) cid.Cid {

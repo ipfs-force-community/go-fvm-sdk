@@ -72,4 +72,6 @@ func TestCompatableWithRust(t *testing.T) {
 	check(t, "TransferFrom", abi.MethodNum(0xd7d4deed))
 	check(t, "Transfer", abi.MethodNum(0x04cbf732))
 	check(t, "Mint", abi.MethodNum(0x06f84ab2))
+	check(t, "Receive", abi.MethodNum(0xde180de3))
+	check(t, "FRC46", abi.MethodNum(0x85223bdf))
 }

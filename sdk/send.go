@@ -27,7 +27,7 @@ func Send(ctx context.Context, to address.Address, method abi.MethodNum, params 
 		paramsID = types.NoDataBlockID
 	}
 
-	send, err := sys.Send(ctx, to, uint64(method), paramsID, value)
+	send, err := sys.Send(ctx, to, method, paramsID, value)
 	if err != nil {
 		return nil, err
 	}

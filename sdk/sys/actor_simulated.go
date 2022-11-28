@@ -13,6 +13,11 @@ import (
 )
 
 func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
+	if addr.Protocol() == address.ID {
+		actorId, err := address.IDFromAddress(addr)
+		return abi.ActorID(actorId), err
+	}
+
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.ResolveAddress(addr)
 	}

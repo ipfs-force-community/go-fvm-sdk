@@ -27,7 +27,7 @@ require (
 
 require (
 	github.com/filecoin-project/go-address v0.0.6
-	github.com/filecoin-project/go-state-types v0.1.12-alpha
+	github.com/filecoin-project/go-state-types v0.9.9
 	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220412224951-92abd0e6e7ae
 	github.com/filecoin-project/venus v1.2.4
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000

@@ -10,7 +10,7 @@ replace (
 require (
 	erc20 v0.0.0-00010101000000-000000000000
 	github.com/filecoin-project/go-address v0.0.6
-	github.com/filecoin-project/go-state-types v0.1.12-alpha
+	github.com/filecoin-project/go-state-types v0.9.9
 	github.com/filecoin-project/specs-actors/v8 v8.0.1
 	github.com/filecoin-project/venus v1.6.1
 )
