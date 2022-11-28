@@ -41,15 +41,15 @@ func GenMethodNumber(name string) (abi.MethodNum, error) {
 		return 0, err
 	}
 	methodHashBytes := hasher.Sum(nil)
-	var first, end = 0, 1
-	for i := 1; i <= len(methodHashBytes); i++ {
-		if i%DIGESTCHUNKLENGTH == 0 {
-			methodId := binary.BigEndian.Uint32(methodHashBytes[first:end]) //nolint
-			if methodId >= FIRSTMETHODNUMBER {
-				return abi.MethodNum(methodId), nil
-			}
+	for i := 0; i < len(methodHashBytes); i += DIGESTCHUNKLENGTH {
+		if i+DIGESTCHUNKLENGTH > len(methodHashBytes) {
+			break
 		}
-		end++
+
+		methodId := binary.BigEndian.Uint32(methodHashBytes[i : i+DIGESTCHUNKLENGTH]) //nolint
+		if methodId >= FIRSTMETHODNUMBER {
+			return abi.MethodNum(methodId), nil
+		}
 	}
 	return 0, fmt.Errorf("unable to calculate method id, choose a another method name %s", name)
 }
