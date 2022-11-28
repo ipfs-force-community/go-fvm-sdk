@@ -217,7 +217,7 @@ func (c *Erc20TokenClient) GetName(ctx context.Context, opts ...SendOption) (sdk
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(2),
+		Method: abi.MethodNum(0xa30674d4),
 		Params: nil,
 	}
 
@@ -259,7 +259,7 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context, opts ...SendOption) (s
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(3),
+		Method: abi.MethodNum(0x6d0c41e0),
 		Params: nil,
 	}
 
@@ -301,7 +301,7 @@ func (c *Erc20TokenClient) GetDecimal(ctx context.Context, opts ...SendOption) (
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(4),
+		Method: abi.MethodNum(0x824067b),
 		Params: nil,
 	}
 
@@ -343,7 +343,7 @@ func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context, opts ...SendOptio
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(5),
+		Method: abi.MethodNum(0xe435da43),
 		Params: nil,
 	}
 
@@ -390,7 +390,7 @@ func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(6),
+		Method: abi.MethodNum(0x33797708),
 		Params: buf.Bytes(),
 	}
 
@@ -437,7 +437,7 @@ func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferRe
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(7),
+		Method: abi.MethodNum(0x4cbf732),
 		Params: buf.Bytes(),
 	}
 
@@ -476,7 +476,7 @@ func (c *Erc20TokenClient) TransferFrom(ctx context.Context, p0 *contract.Transf
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(8),
+		Method: abi.MethodNum(0xd7d4deed),
 		Params: buf.Bytes(),
 	}
 
@@ -515,7 +515,7 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(9),
+		Method: abi.MethodNum(0xa6d42fd),
 		Params: buf.Bytes(),
 	}
 
@@ -554,7 +554,7 @@ func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.Allowance
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(10),
+		Method: abi.MethodNum(0xfaa45236),
 		Params: buf.Bytes(),
 	}
 

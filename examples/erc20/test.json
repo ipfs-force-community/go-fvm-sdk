@@ -25,64 +25,64 @@
          {
            "name": "get_name",
            "send_value": 0,
-           "method_num": 2,
+           "method_num": 2735109332,
            "params":"",
            "return_data": "6556656e7573"
          },
          {
            "name": "get_sympol",
            "send_value": 0,
-           "method_num": 3,
+           "method_num": 1829519840,
            "return_data":"6156"
          },
          {
            "name": "get_decimal",
            "send_value": 0,
-           "method_num": 4,
+           "method_num": 136578683,
            "return_data":"06"
          },
          {
            "name": "get_supply",
            "send_value": 0,
-           "method_num": 5,
+           "method_num": 3828734531,
            "return_data":"47005af3107a3fff"
          },
          {
            "name": "get_balance_of_owner",
            "send_value": 0,
-           "method_num": 6,
+           "method_num": 863598344,
            "params": "550167bfc926cc3037e8237653ad3dd9d9b3c078a86b",
            "return_data":"47005af3107a3fff"
          },
          {
            "name": "transfer",
            "send_value": 0,
-           "method_num": 7,
+           "method_num": 80475954,
            "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b7420064"
          },
          {
            "name": "get_balance_of_receiver",
            "send_value": 0,
-           "method_num": 6,
+           "method_num": 863598344,
            "params": "55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
            "return_data":"420064"
          },
          {
            "name": "approval",
            "send_value": 0,
-           "method_num": 9,
+           "method_num": 174932733,
            "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b74200c8"
          },
          {
            "name": "approval_two",
            "send_value": 0,
-           "method_num": 9,
+           "method_num": 174932733,
            "params": "8255011db1109ffc3c7adb42ba324834e2a679ef7514b74200c8"
          },
          {
            "name": "get_allowance",
            "send_value": 0,
-           "method_num": 10,
+           "method_num": 4205072950,
            "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
            "return_data": "43000190"
          },
@@ -90,14 +90,14 @@
            "name": "transfer_from",
            "send_from": 1,
            "send_value": 0,
-           "method_num": 8,
+           "method_num": 3621052141,
            "params": "83550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7420032",
            "return_data": ""
          },
          {
            "name": "get_allowance_check_after_transfer)",
            "send_value": 0,
-           "method_num": 10,
+           "method_num": 4205072950,
            "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
            "return_data": "4300015e"
          },
@@ -105,7 +105,7 @@
            "name": "fail_transfer_from",
            "send_from": 0,
            "send_value": 0,
-           "method_num": 8,
+           "method_num": 3621052141,
            "params": "8355011db1109ffc3c7adb42ba324834e2a679ef7514b7550167bfc926cc3037e8237653ad3dd9d9b3c078a86b420032",
            "return_data": "",
            "expect_code": 20,

@@ -1,6 +1,6 @@
 module github.com/ipfs-force-community/go-fvm-sdk
 
-go 1.17
+go 1.18
 
 require (
 	github.com/filecoin-project/go-address v0.0.6
@@ -16,6 +16,7 @@ require (
 	github.com/multiformats/go-multihash v0.0.15
 	github.com/stretchr/testify v1.7.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
+	golang.org/x/exp v0.0.0-20221114191408-850992195362
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f
 )
 

@@ -13,10 +13,10 @@ type State struct {
 	Count uint64
 }
 
-func (e *State) Export() map[int]interface{} {
-	return map[int]interface{}{
-		1: Constructor,
-		2: e.SayHello,
+func (e *State) Export() []interface{} {
+	return []interface{}{
+		Constructor,
+		e.SayHello,
 	}
 }
 
