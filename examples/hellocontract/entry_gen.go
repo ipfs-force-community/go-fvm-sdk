@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	context "context"
@@ -59,7 +60,9 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	if err != nil {
-		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
+		exitCode := ferrors.USR_ILLEGAL_STATE
+		errors.As(err, exitCode)
+		sdk.Abort(ctx, exitCode, fmt.Sprintf("call error %s", err))
 	}
 
 	if !sdk.IsNil(callResult) {

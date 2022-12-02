@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	cbg "github.com/whyrusleeping/cbor-gen"
 	typegen "github.com/whyrusleeping/cbor-gen"
 )
 
@@ -30,6 +31,27 @@ func (cb *CborString) UnmarshalCBOR(r io.Reader) error {
 		return err
 	}
 	*cb = CborString(str)
+	return nil
+}
+
+type CborInt = typegen.CborInt
+type CborUint uint64
+
+func (cb CborUint) MarshalCBOR(w io.Writer) error {
+	cw := typegen.NewCborWriter(w)
+	return cw.WriteMajorTypeHeader(typegen.MajUnsignedInt, uint64(cb))
+}
+
+func (cb *CborUint) UnmarshalCBOR(r io.Reader) error {
+	cr := typegen.NewCborReader(r)
+	maj, extra, err := cr.ReadHeader()
+	if err != nil {
+		return err
+	}
+	if maj != cbg.MajUnsignedInt {
+		return fmt.Errorf("wrong type for uint64 field")
+	}
+	*cb = CborUint(extra)
 	return nil
 }
 

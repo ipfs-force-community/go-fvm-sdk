@@ -618,7 +618,7 @@ func (t *FakeSetBalance) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 	if err := t.Balance.MarshalCBOR(cw); err != nil {
 		return err
 	}
@@ -657,12 +657,12 @@ func (t *FakeSetBalance) UnmarshalCBOR(r io.Reader) (err error) {
 		}
 
 	}
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 
 	{
 
 		if err := t.Balance.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.Balances: %w", err)
+			return xerrors.Errorf("unmarshaling t.Balance: %w", err)
 		}
 
 	}

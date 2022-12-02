@@ -364,7 +364,7 @@ func (t *MintReturn) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 	if err := t.Balance.MarshalCBOR(cw); err != nil {
 		return err
 	}
@@ -412,12 +412,12 @@ func (t *MintReturn) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("cbor input had wrong number of fields")
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 
 	{
 
 		if err := t.Balance.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.Balances: %w", err)
+			return xerrors.Errorf("unmarshaling t.Balance: %w", err)
 		}
 
 	}
@@ -553,6 +553,110 @@ func (t *TransferParams) UnmarshalCBOR(r io.Reader) (err error) {
 	}
 
 	if _, err := io.ReadFull(cr, t.OperatorData[:]); err != nil {
+		return err
+	}
+	return nil
+}
+
+var lengthBufTransferReturn = []byte{131}
+
+func (t *TransferReturn) MarshalCBOR(w io.Writer) error {
+	if t == nil {
+		_, err := w.Write(cbg.CborNull)
+		return err
+	}
+
+	cw := cbg.NewCborWriter(w)
+
+	if _, err := cw.Write(lengthBufTransferReturn); err != nil {
+		return err
+	}
+
+	// t.FromBalance (big.Int) (struct)
+	if err := t.FromBalance.MarshalCBOR(cw); err != nil {
+		return err
+	}
+
+	// t.ToBalance (big.Int) (struct)
+	if err := t.ToBalance.MarshalCBOR(cw); err != nil {
+		return err
+	}
+
+	// t.RecipientData (types.RawBytes) (slice)
+	if len(t.RecipientData) > cbg.ByteArrayMaxLen {
+		return xerrors.Errorf("Byte array in field t.RecipientData was too long")
+	}
+
+	if err := cw.WriteMajorTypeHeader(cbg.MajByteString, uint64(len(t.RecipientData))); err != nil {
+		return err
+	}
+
+	if _, err := cw.Write(t.RecipientData[:]); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *TransferReturn) UnmarshalCBOR(r io.Reader) (err error) {
+	*t = TransferReturn{}
+
+	cr := cbg.NewCborReader(r)
+
+	maj, extra, err := cr.ReadHeader()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err == io.EOF {
+			err = io.ErrUnexpectedEOF
+		}
+	}()
+
+	if maj != cbg.MajArray {
+		return fmt.Errorf("cbor input should be of type array")
+	}
+
+	if extra != 3 {
+		return fmt.Errorf("cbor input had wrong number of fields")
+	}
+
+	// t.FromBalance (big.Int) (struct)
+
+	{
+
+		if err := t.FromBalance.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.FromBalance: %w", err)
+		}
+
+	}
+	// t.ToBalance (big.Int) (struct)
+
+	{
+
+		if err := t.ToBalance.UnmarshalCBOR(cr); err != nil {
+			return xerrors.Errorf("unmarshaling t.ToBalance: %w", err)
+		}
+
+	}
+	// t.RecipientData (types.RawBytes) (slice)
+
+	maj, extra, err = cr.ReadHeader()
+	if err != nil {
+		return err
+	}
+
+	if extra > cbg.ByteArrayMaxLen {
+		return fmt.Errorf("t.RecipientData: byte array too large (%d)", extra)
+	}
+	if maj != cbg.MajByteString {
+		return fmt.Errorf("expected byte array")
+	}
+
+	if extra > 0 {
+		t.RecipientData = make([]uint8, extra)
+	}
+
+	if _, err := io.ReadFull(cr, t.RecipientData[:]); err != nil {
 		return err
 	}
 	return nil
@@ -1060,7 +1164,7 @@ func (t *BurnReturn) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 	if err := t.Balance.MarshalCBOR(cw); err != nil {
 		return err
 	}
@@ -1090,12 +1194,12 @@ func (t *BurnReturn) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("cbor input had wrong number of fields")
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 
 	{
 
 		if err := t.Balance.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.Balances: %w", err)
+			return xerrors.Errorf("unmarshaling t.Balance: %w", err)
 		}
 
 	}
@@ -1186,7 +1290,7 @@ func (t *BurnFromReturn) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 	if err := t.Balance.MarshalCBOR(cw); err != nil {
 		return err
 	}
@@ -1221,12 +1325,12 @@ func (t *BurnFromReturn) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("cbor input had wrong number of fields")
 	}
 
-	// t.Balances (big.Int) (struct)
+	// t.Balance (big.Int) (struct)
 
 	{
 
 		if err := t.Balance.UnmarshalCBOR(cr); err != nil {
-			return xerrors.Errorf("unmarshaling t.Balances: %w", err)
+			return xerrors.Errorf("unmarshaling t.Balance: %w", err)
 		}
 
 	}

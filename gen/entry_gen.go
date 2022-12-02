@@ -114,14 +114,23 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 	var methodsArr []*methodMap
 	hasParam := false
 	typesToImport := []reflect.Type{stateT}
-	for _, actorFunc := range exports {
+	for _, actorMethod := range exports {
+		var method = &methodMap{}
+
+		actorMethodT := reflect.TypeOf(actorMethod)
+		actorFunc := actorMethod
+		if actorMethodT.Kind() == reflect.Struct {
+			methodValue := reflect.ValueOf(actorMethod)
+			method.AliasName = methodValue.FieldByName("Name").String()
+			actorFunc = methodValue.FieldByName("Func").Interface()
+		}
+
 		functionT := reflect.TypeOf(actorFunc)
 		if functionT.Kind() != reflect.Func {
 			return nil, fmt.Errorf("export must be function ")
 		}
-		var method = &methodMap{}
 		method.FuncT = reflect.ValueOf(actorFunc)
-
+		method.PkgName, method.FuncName = getFunctionName(method.FuncT)
 		//	functionT := function.Type
 
 		if functionT.NumIn() > 0 {
@@ -131,7 +140,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			}
 		}
 		if (method.HasContext == false && functionT.NumIn() > 1) || (method.HasContext == true && functionT.NumIn() > 2) {
-			return nil, fmt.Errorf("func %v can not have params more than 1", method.FuncT)
+			return nil, fmt.Errorf("func %v can not have params more than 1", method.FuncName)
 		}
 		if (method.HasContext == false && functionT.NumIn() == 1) || (method.HasContext == true && functionT.NumIn() == 2) {
 			if method.HasContext == true && functionT.NumIn() == 2 {
@@ -145,7 +154,7 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 
 			} else {
 				if !functionT.In(0).AssignableTo(unMarshallerT) {
-					return nil, fmt.Errorf("func %v arg type at index 1 must can be unmarshaller", method.FuncT)
+					return nil, fmt.Errorf("func %v arg type at index 1 must can be unmarshaller", method.FuncName)
 				}
 
 				method.HasParam = true
@@ -156,16 +165,16 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		}
 
 		if functionT.NumOut() > 2 {
-			return nil, fmt.Errorf("func %v can not have return value more than 2", method.FuncT)
+			return nil, fmt.Errorf("func %v can not have return value more than 2", method.FuncName)
 		}
 
 		if functionT.NumOut() == 2 {
 			if !functionT.Out(0).AssignableTo(marshallerT) {
-				return nil, fmt.Errorf("func %v return value at index 0 must be marshaller", method.FuncT)
+				return nil, fmt.Errorf("func %v return value at index 0 must be marshaller", method.FuncName)
 			}
 
 			if !functionT.Out(1).AssignableTo(errorT) {
-				return nil, fmt.Errorf("func %v return value at index 1 must be error", method.FuncT)
+				return nil, fmt.Errorf("func %v return value at index 1 must be error", method.FuncName)
 			}
 			method.HasReturn = true
 			method.HasError = true
@@ -200,7 +209,6 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 
 	stateName := typeName(pkg, stateT)
 	for _, m := range methodsArr {
-		m.PkgName, m.FuncName = getFunctionName(m.FuncT)
 		m.StateName = stateName
 		if m.HasParam {
 			m.ParamsTypeName = typeName(pkg, m.ParamsType)
@@ -209,7 +217,11 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 			m.ReturnTypeName = typeName(pkg, m.ReturnType)
 			m.DefaultReturn = defaultValue(pkg, m.ReturnType)
 		}
-		hashNumber, err := frc42dispatch.GenMethodNumber(m.FuncName)
+		name := m.AliasName
+		if len(name) == 0 {
+			name = m.FuncName
+		}
+		hashNumber, err := frc42dispatch.GenMethodNumber(name)
 		if err != nil {
 			return nil, fmt.Errorf("function name %s not validate, may need change another", m.FuncName)
 		}
@@ -337,6 +349,7 @@ type methodMap struct {
 	FuncT      reflect.Value
 	PkgName    string
 	FuncName   string
+	AliasName  string
 	HasError   bool
 	HasParam   bool
 	HasReturn  bool
@@ -466,7 +479,9 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	if err != nil {
-		sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("call error %s", err))
+		exitCode := ferrors.USR_ILLEGAL_STATE
+		errors.As(err, exitCode)
+		sdk.Abort(ctx, exitCode, fmt.Sprintf("call error %s", err))
 	}
 
 	if !sdk.IsNil(callResult) {

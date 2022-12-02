@@ -49,9 +49,40 @@ type Frc46Token struct {
 var _ IFrc46Token = (*Frc46Token)(nil)
 var _ IFrc46Unspecific = (*Frc46Token)(nil)
 
+type Alias struct {
+	Name string
+	Func interface{}
+}
+
 func (t *Frc46Token) Export() []interface{} {
 	return []interface{}{
-		1: Constructor,
+		Constructor,
+		Alias{
+			Name: "Name",
+			Func: t.GetName,
+		},
+		Alias{
+			Name: "Symbol",
+			Func: t.GetSymbol,
+		},
+		Alias{
+			Name: "Granularity",
+			Func: t.GetGranularity,
+		},
+		Alias{
+			Name: "TotalSupply",
+			Func: t.GetTotalSupply,
+		},
+		t.Mint,
+		t.BalanceOf,
+		t.Allowance,
+		t.Transfer,
+		t.TransferFrom,
+		t.IncreaseAllowance,
+		t.DecreaseAllowance,
+		t.RevokeAllowance,
+		t.Burn,
+		t.BurnFrom,
 	}
 }
 
@@ -78,16 +109,18 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 	return nil
 }
 
-func (t *Frc46Token) GetName(_ context.Context) string {
-	return t.Name
+func (t *Frc46Token) GetName(_ context.Context) types.CborString {
+	return types.CborString(t.Name)
 }
 
-func (t *Frc46Token) GetSymbol(_ context.Context) string {
-	return t.Symbol
+// 15026712600
+
+func (t *Frc46Token) GetSymbol(_ context.Context) types.CborString {
+	return types.CborString(t.Symbol)
 }
 
-func (t *Frc46Token) GetGranularity(_ context.Context) uint64 {
-	return t.Granularity
+func (t *Frc46Token) GetGranularity(_ context.Context) types.CborUint {
+	return types.CborUint(t.Granularity)
 }
 
 func (t *Frc46Token) GetTotalSupply(_ context.Context) *abi.TokenAmount {

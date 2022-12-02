@@ -11,9 +11,9 @@ import (
 const FRC46TOKENTYPE ReceiverType = 0x85223bdf
 
 type IFrc46Token interface {
-	GetName(context.Context) string
-	GetSymbol(context.Context) string
-	GetGranularity(context.Context) uint64
+	GetName(context.Context) types.CborString
+	GetSymbol(context.Context) types.CborString
+	GetGranularity(context.Context) types.CborUint
 	GetTotalSupply(context.Context) *abi.TokenAmount
 	BalanceOf(context.Context, *address.Address) (*abi.TokenAmount, error)
 	Allowance(context.Context, *GetAllowanceParams) (*abi.TokenAmount, error)

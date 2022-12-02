@@ -17,8 +17,8 @@ var defaultClientImport = []typegen.Import{
 		PkgPath: "github.com/filecoin-project/venus/venus-shared/actors",
 	},
 	{
-		Name:    "init8",
-		PkgPath: "github.com/filecoin-project/specs-actors/v8/actors/builtin/init",
+		Name:    "init_",
+		PkgPath: "github.com/filecoin-project/go-state-types/builtin/v9/init",
 	},
 	{
 		Name:    "types2",
@@ -288,7 +288,7 @@ func (c *{{trimPackage .StateName}}Client) Install(ctx context.Context, code []b
 }
 
 func genClientConstructor(w io.Writer, meta entryMeta) error {
-	tpl := `func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid{{if .HasParam}}, ctorReq {{.ParamsTypeName}}{{else}}{{end}}, opts ...SendOption) (*init8.ExecReturn, error) {
+	tpl := `func (c *{{trimPackage .StateName}}Client) CreateActor(ctx context.Context, codeCid cid.Cid{{if .HasParam}}, ctorReq {{.ParamsTypeName}}{{else}}{{end}}, opts ...SendOption) (*init_.ExecReturn, error) {
 	cfg_copy := c.cfg
 	for _, opt := range opts {
 		opt(&cfg_copy)
@@ -297,12 +297,12 @@ func genClientConstructor(w io.Writer, meta entryMeta) error {
 	if err := ctorReq.MarshalCBOR(buf); err != nil {
 		return nil, err
 	}
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
+	params, aErr := actors.SerializeParams(&init_.ExecParams{
 		CodeCID:           codeCid,
 		ConstructorParams: buf.Bytes(),
 	})
 	{{else}}
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
+	params, aErr := actors.SerializeParams(&init_.ExecParams{
 		CodeCID:           codeCid,
 	})
 	{{end}}
@@ -334,7 +334,7 @@ func genClientConstructor(w io.Writer, meta entryMeta) error {
 		return nil, fmt.Errorf("actor execution failed")
 	}
 
-	var result init8.ExecReturn
+	var result init_.ExecReturn
 	r := bytes.NewReader(wait.Receipt.Return)
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)
@@ -379,7 +379,7 @@ type I{{trimPackage .StateName}}Client interface {
 		{{end}}
 	{{end}}
     {{if eq .FuncName "Constructor"}}
-		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}, ...SendOption) (*init8.ExecReturn, error)
+		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}, ...SendOption) (*init_.ExecReturn, error)
 	{{end}}
 	{{end}}
 }

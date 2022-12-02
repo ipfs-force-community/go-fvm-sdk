@@ -1,6 +1,7 @@
 package frc42dispatch
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/filecoin-project/go-state-types/abi"
@@ -53,6 +54,7 @@ func check(t *testing.T, name string, value abi.MethodNum) {
 	t.Run("case:"+name, func(t *testing.T) {
 		methodNumber, err := GenMethodNumber(name)
 		assert.NoError(t, err, name)
+		println(fmt.Sprintf("Name:%s %d", name, value))
 		assert.Equal(t, value, methodNumber, name)
 	})
 }

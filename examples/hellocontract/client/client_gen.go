@@ -10,7 +10,7 @@ import (
 	abi "github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	builtin "github.com/filecoin-project/go-state-types/builtin"
-	init8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/init"
+	init_ "github.com/filecoin-project/go-state-types/builtin/v9/init"
 	actors "github.com/filecoin-project/venus/venus-shared/actors"
 	types "github.com/filecoin-project/venus/venus-shared/types"
 	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
@@ -27,7 +27,7 @@ type FullNode interface {
 type IStateClient interface {
 	Install(context.Context, []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 
-	CreateActor(context.Context, cid.Cid, ...SendOption) (*init8.ExecReturn, error)
+	CreateActor(context.Context, cid.Cid, ...SendOption) (*init_.ExecReturn, error)
 
 	SayHello(context.Context, ...SendOption) (sdkTypes.CBORBytes, error)
 }
@@ -136,13 +136,13 @@ func (c *StateClient) Install(ctx context.Context, code []byte, opts ...SendOpti
 	c.cfg.codeCid = result.CodeCid
 	return &result, nil
 }
-func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, opts ...SendOption) (*init8.ExecReturn, error) {
+func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, opts ...SendOption) (*init_.ExecReturn, error) {
 	cfg_copy := c.cfg
 	for _, opt := range opts {
 		opt(&cfg_copy)
 	}
 
-	params, aErr := actors.SerializeParams(&init8.ExecParams{
+	params, aErr := actors.SerializeParams(&init_.ExecParams{
 		CodeCID: codeCid,
 	})
 
@@ -173,7 +173,7 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, opts ...
 		return nil, fmt.Errorf("actor execution failed")
 	}
 
-	var result init8.ExecReturn
+	var result init_.ExecReturn
 	r := bytes.NewReader(wait.Receipt.Return)
 	if err := result.UnmarshalCBOR(r); err != nil {
 		return nil, fmt.Errorf("error unmarshaling return value: %w", err)

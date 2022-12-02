@@ -8,7 +8,7 @@ import (
 
 	context "context"
 
-	contract "erc20/contract"
+	contract "frc46token/contract"
 
 	address "github.com/filecoin-project/go-address"
 
@@ -59,35 +59,52 @@ func Invoke(blockId uint32) uint32 {
 		err = contract.Constructor(ctx, &req)
 		callResult = typegen.CborBool(true)
 
-	case 0xa30674d4:
+	case 0x2ea015c:
 
 		// no params no error but have return value
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
-		callResult = state.GetName()
+		callResult = state.GetName(ctx)
 
 	case 0x6d0c41e0:
 
 		// no params no error but have return value
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
-		callResult = state.GetSymbol()
+		callResult = state.GetSymbol(ctx)
 
-	case 0x824067b:
+	case 0x9ed113b6:
 
 		// no params no error but have return value
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
-		callResult = state.GetDecimal()
+		callResult = state.GetGranularity(ctx)
 
 	case 0xe435da43:
 
 		// no params no error but have return value
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
-		callResult = state.GetTotalSupply()
+		callResult = state.GetTotalSupply(ctx)
 
-	case 0x33797708:
+	case 0x6f84ab2:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.MintParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Mint(ctx, &req)
+
+	case 0x8710e1ac:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -100,66 +117,9 @@ func Invoke(blockId uint32) uint32 {
 		}
 
 		// have params/return/error
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
-		callResult, err = state.GetBalanceOf(ctx, &req)
-
-	case 0x4cbf732:
-
-		raw, err = sdk.ParamsRaw(ctx, blockId)
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
-		}
-		var req contract.TransferReq
-		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
-		}
-
-		// have params/error but no return val
-		state := new(contract.Erc20Token)
-		sdk.LoadState(ctx, state)
-		if err = state.Transfer(ctx, &req); err == nil {
-			callResult = typegen.CborBool(true)
-		}
-
-	case 0xd7d4deed:
-
-		raw, err = sdk.ParamsRaw(ctx, blockId)
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
-		}
-		var req contract.TransferFromReq
-		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
-		}
-
-		// have params/error but no return val
-		state := new(contract.Erc20Token)
-		sdk.LoadState(ctx, state)
-		if err = state.TransferFrom(ctx, &req); err == nil {
-			callResult = typegen.CborBool(true)
-		}
-
-	case 0xa6d42fd:
-
-		raw, err = sdk.ParamsRaw(ctx, blockId)
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
-		}
-		var req contract.ApprovalReq
-		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
-		}
-
-		// have params/error but no return val
-		state := new(contract.Erc20Token)
-		sdk.LoadState(ctx, state)
-		if err = state.Approval(ctx, &req); err == nil {
-			callResult = typegen.CborBool(true)
-		}
+		callResult, err = state.BalanceOf(ctx, &req)
 
 	case 0xfaa45236:
 
@@ -167,16 +127,135 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
 		}
-		var req contract.AllowanceReq
+		var req contract.GetAllowanceParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
 		}
 
 		// have params/return/error
-		state := new(contract.Erc20Token)
+		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Allowance(ctx, &req)
+
+	case 0x4cbf732:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.TransferParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Transfer(ctx, &req)
+
+	case 0xd7d4deed:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.TransferFromParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.TransferFrom(ctx, &req)
+
+	case 0x69ecb918:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.IncreaseAllowanceParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.IncreaseAllowance(ctx, &req)
+
+	case 0x5b286f21:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.DecreaseAllowanceParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.DecreaseAllowance(ctx, &req)
+
+	case 0xa4d840b1:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.RevokeAllowanceParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.RevokeAllowance(ctx, &req)
+
+	case 0x5584159a:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.BurnParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Burn(ctx, &req)
+
+	case 0xb19a37a2:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.BurnFromParams
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+		}
+
+		// have params/return/error
+		state := new(contract.Frc46Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.BurnFrom(ctx, &req)
 
 	default:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")

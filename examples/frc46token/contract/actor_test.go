@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
@@ -17,6 +18,30 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestX(t *testing.T) {
+	println(hex.EncodeToString(sdk.MustCborMarshal(&ConstructorReq{
+		Name:        "Venus",
+		Symbol:      "V",
+		Granularity: 1,
+		Supply:      abi.NewTokenAmount(100000),
+	})))
+	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborString("Venus"))))
+	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborString("V"))))
+	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborUint(1))))
+	println(hex.EncodeToString(sdk.MustCborMarshal(newAmount(100000))))
+	addr1, _ := address.NewFromString("f1m674sjwmga36qi3wkowt3wozwpahrkdlvd4tpci")
+	println(hex.EncodeToString(sdk.MustCborMarshal(&MintParams{
+		InitialOwner: addr1,
+		Amount:       abi.NewTokenAmount(100),
+	})))
+	println(hex.EncodeToString(sdk.MustCborMarshal(newAmount(100100))))
+}
+
+func newAmount(vv int64) *abi.TokenAmount {
+	v := abi.NewTokenAmount(vv)
+	return &v
+}
 
 var supply int64 = 100000
 
@@ -188,6 +213,13 @@ func TestFrc46TokenTransfer(t *testing.T) {
 	t.Run("success transfer zero", func(t *testing.T) {
 		simulator, _, toAddr, _ := setup(t, abi.NewTokenAmount(1000), 1)
 
+		simulator.ExpectSend(simulated.SendMock{
+			To:     toAddr,
+			Method: RECEIVER_HOOK_METHOD_NUM,
+			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 1, 2, 1, 64, 64, 64},
+			Value:  big.Zero(),
+			Out:    types.SendResult{},
+		})
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		_, err := newState.Transfer(simulator.Context, &TransferParams{
@@ -685,6 +717,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(90), ret.Balance.Uint64())
 		assert.Equal(t, uint64(90), ret.Allowance.Uint64())
+		assert.Equal(t, uint64(supply-10), newState.Supply.Uint64())
 	})
 
 	t.Run("success burn from zero", func(t *testing.T) {
@@ -747,5 +780,109 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 
 		_, err = newState.BurnFrom(ctx, &BurnFromParams{Owner: toAddr, Amount: abi.NewTokenAmount(1)})
 		assert.EqualError(t, err, "t01 attempted to utilise 1 of allowance 0 set by t02 19")
+	})
+}
+
+func TestFrc46Token_Mint(t *testing.T) {
+	t.Run("success mint", func(t *testing.T) {
+		simulator, fromAddr, toAddr, _ := setup(t, abi.NewTokenAmount(100), 1)
+		fromId, err := simulator.ResolveAddress(fromAddr)
+		assert.NoError(t, err)
+		var newState Frc46Token
+		sdk.LoadState(simulator.Context, &newState)
+		ctx := simulator.Context
+		simulator.SetCallContext(&types.InvocationContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
+		})
+
+		simulator.ExpectSend(simulated.SendMock{
+			To:     toAddr,
+			Method: RECEIVER_HOOK_METHOD_NUM,
+			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 0, 2, 1, 66, 0, 100, 64, 64},
+			Value:  abi.NewTokenAmount(0),
+			Out: types.SendResult{
+				ExitCode: ferrors.OK,
+			},
+		})
+		ret, err := newState.Mint(ctx, &MintParams{
+			InitialOwner: toAddr,
+			Amount:       abi.NewTokenAmount(100),
+			OperatorData: nil,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, uint64(supply+100), newState.Supply.Uint64())
+		assert.Equal(t, uint64(supply+100), ret.Supply.Uint64())
+		assert.Equal(t, uint64(100), ret.Balance.Uint64())
+	})
+
+	t.Run("success mint zero", func(t *testing.T) {
+		simulator, fromAddr, toAddr, _ := setup(t, abi.NewTokenAmount(100), 1)
+		fromId, err := simulator.ResolveAddress(fromAddr)
+		assert.NoError(t, err)
+		var newState Frc46Token
+		sdk.LoadState(simulator.Context, &newState)
+		ctx := simulator.Context
+		simulator.SetCallContext(&types.InvocationContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
+		})
+
+		simulator.ExpectSend(simulated.SendMock{
+			To:     toAddr,
+			Method: RECEIVER_HOOK_METHOD_NUM,
+			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 0, 2, 1, 64, 64, 64},
+			Value:  abi.NewTokenAmount(0),
+			Out: types.SendResult{
+				ExitCode: ferrors.OK,
+			},
+		})
+		ret, err := newState.Mint(ctx, &MintParams{
+			InitialOwner: toAddr,
+			Amount:       abi.NewTokenAmount(0),
+			OperatorData: nil,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, uint64(supply), newState.Supply.Uint64())
+		assert.Equal(t, uint64(supply), ret.Supply.Uint64())
+		assert.Equal(t, uint64(0), ret.Balance.Uint64())
+	})
+	t.Run("fail granularity", func(t *testing.T) {
+		simulator, fromAddr, toAddr, _ := setup(t, abi.NewTokenAmount(100), 9)
+		fromId, err := simulator.ResolveAddress(fromAddr)
+		assert.NoError(t, err)
+		var newState Frc46Token
+		sdk.LoadState(simulator.Context, &newState)
+		ctx := simulator.Context
+		simulator.SetCallContext(&types.InvocationContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
+		})
+
+		_, err = newState.Mint(ctx, &MintParams{
+			InitialOwner: toAddr,
+			Amount:       abi.NewTokenAmount(100),
+			OperatorData: nil,
+		})
+		assert.EqualError(t, err, "amount 100 for mint must be a multiple of 9 16")
+
+		simulator.ExpectSend(simulated.SendMock{
+			To:     toAddr,
+			Method: RECEIVER_HOOK_METHOD_NUM,
+			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 0, 2, 1, 66, 0, 18, 64, 64},
+			Value:  abi.NewTokenAmount(0),
+			Out: types.SendResult{
+				ExitCode: ferrors.OK,
+			},
+		})
+		ret, err := newState.Mint(ctx, &MintParams{
+			InitialOwner: toAddr,
+			Amount:       abi.NewTokenAmount(18),
+			OperatorData: nil,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, uint64(supply+18), newState.Supply.Uint64())
+		assert.Equal(t, uint64(supply+18), ret.Supply.Uint64())
+		assert.Equal(t, uint64(18), ret.Balance.Uint64())
 	})
 }
