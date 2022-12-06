@@ -164,7 +164,7 @@ func (m *Map) CollectKeys() (out []string, err error) {
 	return
 }
 
-// CollectKeys collects all the keys from the map into a slice of strings.
+// IsEmpty check whether this map is empty
 func (m *Map) IsEmpty() bool {
 	return len(m.root.Pointers) == 0
 }

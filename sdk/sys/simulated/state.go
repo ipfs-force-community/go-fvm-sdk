@@ -40,6 +40,12 @@ func (s *block) stat() BlockStat {
 
 type blocks []block
 
+// CreateEmptySimulator new context of simulated
+func CreateEmptySimulator() (*FvmSimulator, context.Context) {
+	fsm := NewFvmSimulator(&types.MessageContext{}, &types.NetworkContext{}, big.Zero())
+	return fsm, fsm.Context
+}
+
 // CreateSimulateEnv new context of simulated
 func CreateSimulateEnv(callContext *types.MessageContext, networkContext *types.NetworkContext, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
 	fsm := NewFvmSimulator(callContext, networkContext, totalFilCircSupply)

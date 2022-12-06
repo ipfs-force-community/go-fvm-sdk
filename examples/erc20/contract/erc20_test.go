@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"bytes"
+	"encoding/hex"
 	"testing"
 
 	"github.com/filecoin-project/go-state-types/builtin"
@@ -17,7 +19,17 @@ import (
 )
 
 func TestErc20TokenGetter(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	r := &ConstructorReq{
+		Name:        "Venus",
+		Symbol:      "V",
+		Decimals:    6,
+		TotalSupply: abi.NewTokenAmount(99999999999999),
+	}
+	buf := bytes.NewBufferString("")
+	r.MarshalCBOR(buf)
+	println(hex.EncodeToString(buf.Bytes()))
+
+	simulator, ctx := simulated.CreateEmptySimulator()
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
 	simulator.SetActor(abi.ActorID(1), addr, builtin.Actor{})
@@ -51,7 +63,7 @@ func TestErc20TokenGetter(t *testing.T) {
 }
 
 func TestErc20TokenGetBalanceOf(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateEmptySimulator()
 	actor := abi.ActorID(1)
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
@@ -75,7 +87,7 @@ func TestErc20TokenGetBalanceOf(t *testing.T) {
 
 func TestErc20TokenTransfer(t *testing.T) {
 	setup := func(t *testing.T, fromInitBalance abi.TokenAmount) (*simulated.FvmSimulator, address.Address, address.Address) {
-		simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+		simulator, ctx := simulated.CreateEmptySimulator()
 		fromActor := abi.ActorID(1)
 		fromAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
@@ -151,7 +163,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 
 func TestApprovalAndTransfer(t *testing.T) {
 	setup := func(t *testing.T, fromInitBalance abi.TokenAmount) (*simulated.FvmSimulator, address.Address, address.Address, address.Address) {
-		simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+		simulator, ctx := simulated.CreateEmptySimulator()
 		fromActor := abi.ActorID(1)
 		fromAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)

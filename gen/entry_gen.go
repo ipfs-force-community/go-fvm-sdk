@@ -396,7 +396,7 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 {{if .HasParam}}var raw *sdkTypes.ParamsRaw{{end}}
 	switch method {
-{{range .Methods}}case {{.MethodNum|hex}}:
+{{range .Methods}}case {{.MethodNum|hex}}://{{.MethodNum}}  function name:{{.FuncName}}  alias name:{{.AliasName}}
 {{if eq .MethodNum 1}}  // Constuctor
 		{{if .HasParam}}raw, err = sdk.ParamsRaw(ctx,blockId)
 						if err != nil {
@@ -405,7 +405,7 @@ func Invoke(blockId uint32) uint32 {
 						var req {{trimPrefix .ParamsTypeName "*"}}
 						err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 						if err != nil {
-							sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+							sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 						}
 						err = {{.PkgName}}.{{.FuncName}}({{if .HasContext}} ctx, {{end}}&req)
 						callResult = typegen.CborBool(true)
@@ -420,7 +420,7 @@ func Invoke(blockId uint32) uint32 {
 								var req {{trimPrefix .ParamsTypeName "*"}}
 								err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 								if err != nil {
-									sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+									sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 								}
        		 {{if .HasError}}
 					 {{if .HasReturn}} // have params/return/error
@@ -485,7 +485,7 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	if !sdk.IsNil(callResult) {
-		buf := bytes.NewBufferString("")
+		buf := 	bytes.NewBuffer(nil)
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {
 			sdk.Abort(ctx,ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))

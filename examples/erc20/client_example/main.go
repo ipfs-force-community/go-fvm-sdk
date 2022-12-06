@@ -64,7 +64,6 @@ func main() {
 		Symbol:      "TC",
 		Decimals:    8,
 		TotalSupply: abi.NewTokenAmount(100),
-		MintAddr:    addr,
 	})
 	if err != nil {
 		log.Fatalln(err)

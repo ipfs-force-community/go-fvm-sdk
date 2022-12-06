@@ -13,6 +13,7 @@ use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
 use fvm_ipld_encoding::{Cbor, RawBytes};
+use fvm_shared::address;
 use fvm_shared::address::Address;
 use fvm_shared::bigint::BigInt;
 use fvm_shared::bigint::Zero;
@@ -28,7 +29,6 @@ use std::env::current_dir;
 use std::fs;
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
-use fvm_shared::address;
 
 #[derive(Parser, Debug)]
 pub struct TestConfig {

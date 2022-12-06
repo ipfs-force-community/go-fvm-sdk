@@ -30,7 +30,7 @@ func (fvmSimulator *FvmSimulator) SelfDestruct(addr address.Address) error {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
-	actorId, ok := fvmSimulator.addressMap[addr] //nolint
+	actorId, ok := fvmSimulator.addressMap[addr]
 	if !ok {
 		return ErrorNotFound
 	}

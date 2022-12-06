@@ -52,6 +52,135 @@
           "send_value": 0,
           "method_num": 114981429,
           "return_data":"4400018704"
+        },
+        {
+          "name": "balance_of",
+          "method_num": 2266030508,
+          "params": "550167bfc926cc3037e8237653ad3dd9d9b3c078a86b",
+          "return_data": "4400018704"
+        },
+        {
+          "name": "transfer",
+          "method_num": 80475954,
+          "params": "8355011db1109ffc3c7adb42ba324834e2a679ef7514b742000a40",
+          "return_data": "8344000186fa42000a40",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "increase allowance ",
+          "method_num": 1777121560,
+          "params": "825501ebb79040939a58c0442bb6531f797618e48f4433420014",
+          "return_data": "420014",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "decrease allowance ",
+          "method_num": 1529376545,
+          "params": "825501ebb79040939a58c0442bb6531f797618e48f4433420005",
+          "return_data": "42000f",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        }, {
+          "name": "decrease too much allowance ",
+          "method_num": 1529376545,
+          "params": "825501ebb79040939a58c0442bb6531f797618e48f4433420019",
+          "return_data": "40",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "increase allowance ",
+          "method_num": 1777121560,
+          "params": "825501ebb79040939a58c0442bb6531f797618e48f4433420014",
+          "return_data": "420014",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "get allowance",
+          "method_num": 4205072950,
+          "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b5501ebb79040939a58c0442bb6531f797618e48f4433",
+          "return_data": "420014",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "transfer from",
+          "method_num": 3621052141,
+          "params": "84550167bfc926cc3037e8237653ad3dd9d9b3c078a86b55011db1109ffc3c7adb42ba324834e2a679ef7514b742000540",
+          "return_data": "8444000186f542000f42000f40",
+          "send_from": 2,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "revoke",
+          "method_num": 2765635761,
+          "params": "815501ebb79040939a58c0442bb6531f797618e48f4433",
+          "return_data": "42000f",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        }
+      ]
+    },
+    {
+      "name": "burn",
+      "binary": "frc46token.wasm",
+      "constructor": "846556656e757361560144000186a0",
+      "cases": [
+        {
+          "name": "mint",
+          "send_value": 0,
+          "method_num": 116935346,
+          "params": "83550167bfc926cc3037e8237653ad3dd9d9b3c078a86b42006440",
+          "return_data":""
+        },
+        {
+          "name": "burn",
+          "method_num": 1434719642,
+          "params": "81420014",
+          "return_data": "8144000186f0",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "increase allowance ",
+          "method_num": 1777121560,
+          "params": "825501ebb79040939a58c0442bb6531f797618e48f4433420014",
+          "return_data": "420014",
+          "send_from": 0,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
+        },
+        {
+          "name": "burn_from",
+          "method_num": 2979674018,
+          "params": "82550167bfc926cc3037e8237653ad3dd9d9b3c078a86b420005",
+          "return_data": "8244000186eb42000f",
+          "send_from": 2,
+          "send_value": 0,
+          "expect_code": 0,
+          "expect_message":""
         }
       ]
     }

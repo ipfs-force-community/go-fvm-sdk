@@ -13,6 +13,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys"
 )
 
+// IsAccountAddress use check whether specific address is  action type
 func IsAccountAddress(ctx context.Context, addr address.Address) bool {
 	codeCid, err := GetActorCodeCid(ctx, addr)
 	if err != nil {
@@ -27,6 +28,7 @@ func IsAccountAddress(ctx context.Context, addr address.Address) bool {
 	return actorTytp == types.Account
 }
 
+// ResolveOrInitAddress get actor id from address, if not found create one
 func ResolveOrInitAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
 	actorId, err := sys.ResolveAddress(ctx, addr)
 	if err == nil {
@@ -38,6 +40,7 @@ func ResolveOrInitAddress(ctx context.Context, addr address.Address) (abi.ActorI
 	return 0, err
 }
 
+// InitializeAccount create an account actor for address
 func InitializeAccount(ctx context.Context, addr address.Address) (abi.ActorID, error) {
 	_, err := Send(ctx, addr, 0, nil, big.Zero())
 	if err != nil {
@@ -46,22 +49,23 @@ func InitializeAccount(ctx context.Context, addr address.Address) (abi.ActorID, 
 	return sys.ResolveAddress(ctx, addr)
 }
 
+// SameAddress check if two address is the same actor
 func SameAddress(ctx context.Context, addrA, addrB address.Address) bool {
 	protocolA := addrA.Protocol()
 	protocolB := addrB.Protocol()
 	if protocolA == protocolB {
 		return addrA == addrB
-	} else {
-		// attempt to resolve both to ActorID
-		idA, err := ResolveAddress(ctx, addrA)
-		if err != nil {
-			return false
-		}
-
-		idB, err := ResolveAddress(ctx, addrB)
-		if err != nil {
-			return false
-		}
-		return idA == idB
 	}
+
+	// attempt to resolve both to ActorID
+	idA, err := ResolveAddress(ctx, addrA)
+	if err != nil {
+		return false
+	}
+
+	idB, err := ResolveAddress(ctx, addrB)
+	if err != nil {
+		return false
+	}
+	return idA == idB
 }

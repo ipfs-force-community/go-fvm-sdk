@@ -17,7 +17,7 @@ const SimulateDebug = true
 func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (builtin.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
-	actorId, err := fvmSimulator.ResolveAddress(addr) //nolint
+	actorId, err := fvmSimulator.ResolveAddress(addr)
 	if err != nil {
 		return builtin.Actor{}, err
 	}
@@ -46,8 +46,13 @@ func (fvmSimulator *FvmSimulator) GetCodeCidForType(actorT types.ActorType) (cid
 	return EmbeddedBuiltinActors[actstr], nil
 }
 
-func (fvmSimulator *FvmSimulator) Exit(code uint32, data []byte, msg string) {
-	panic(fmt.Sprintf("%d:%sfvmSimulator", code, msg))
+func (fvmSimulator *FvmSimulator) Exit(code ferrors.ExitCode, data []byte, msg string) {
+	panic(fmt.Sprintf("%d:%v %s", code, data, msg))
+}
+
+func (fvmSimulator *FvmSimulator) ExitWithId(code ferrors.ExitCode, blkId types.BlockID, msg string) {
+	data := fvmSimulator.blocks[int(blkId)].data
+	fvmSimulator.Exit(code, data, msg)
 }
 
 func (fvmSimulator *FvmSimulator) Enabled() (bool, error) {

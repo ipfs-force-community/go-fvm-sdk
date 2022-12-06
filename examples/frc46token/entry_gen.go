@@ -45,7 +45,7 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 	var raw *sdkTypes.ParamsRaw
 	switch method {
-	case 0x1:
+	case 0x1: //1  function name:Constructor  alias name:
 		// Constuctor
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -54,40 +54,40 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.ConstructorReq
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 		err = contract.Constructor(ctx, &req)
 		callResult = typegen.CborBool(true)
 
-	case 0x2ea015c:
+	case 0x2ea015c: //48890204  function name:GetName  alias name:Name
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetName(ctx)
 
-	case 0x7adab63e:
+	case 0x7adab63e: //2061153854  function name:GetSymbol  alias name:Symbol
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetSymbol(ctx)
 
-	case 0xeaa64da5:
+	case 0xeaa64da5: //3936767397  function name:GetGranularity  alias name:Granularity
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetGranularity(ctx)
 
-	case 0x6da7a35:
+	case 0x6da7a35: //114981429  function name:GetTotalSupply  alias name:TotalSupply
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetTotalSupply(ctx)
 
-	case 0x6f84ab2:
+	case 0x6f84ab2: //116935346  function name:Mint  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -96,7 +96,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.MintParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -104,7 +104,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Mint(ctx, &req)
 
-	case 0x8710e1ac:
+	case 0x8710e1ac: //2266030508  function name:BalanceOf  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -113,7 +113,7 @@ func Invoke(blockId uint32) uint32 {
 		var req address.Address
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -121,7 +121,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.BalanceOf(ctx, &req)
 
-	case 0xfaa45236:
+	case 0xfaa45236: //4205072950  function name:Allowance  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -130,7 +130,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.GetAllowanceParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -138,7 +138,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Allowance(ctx, &req)
 
-	case 0x4cbf732:
+	case 0x4cbf732: //80475954  function name:Transfer  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -147,7 +147,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.TransferParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -155,7 +155,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Transfer(ctx, &req)
 
-	case 0xd7d4deed:
+	case 0xd7d4deed: //3621052141  function name:TransferFrom  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -164,7 +164,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.TransferFromParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -172,7 +172,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.TransferFrom(ctx, &req)
 
-	case 0x69ecb918:
+	case 0x69ecb918: //1777121560  function name:IncreaseAllowance  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -181,7 +181,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.IncreaseAllowanceParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -189,7 +189,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.IncreaseAllowance(ctx, &req)
 
-	case 0x5b286f21:
+	case 0x5b286f21: //1529376545  function name:DecreaseAllowance  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -198,7 +198,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.DecreaseAllowanceParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -206,7 +206,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.DecreaseAllowance(ctx, &req)
 
-	case 0xa4d840b1:
+	case 0xa4d840b1: //2765635761  function name:RevokeAllowance  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -215,7 +215,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.RevokeAllowanceParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -223,7 +223,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.RevokeAllowance(ctx, &req)
 
-	case 0x5584159a:
+	case 0x5584159a: //1434719642  function name:Burn  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -232,7 +232,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.BurnParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -240,7 +240,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult, err = state.Burn(ctx, &req)
 
-	case 0xb19a37a2:
+	case 0xb19a37a2: //2979674018  function name:BurnFrom  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -249,7 +249,7 @@ func Invoke(blockId uint32) uint32 {
 		var req contract.BurnFromParams
 		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
 		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to unmarshal params raw")
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
 		}
 
 		// have params/return/error
@@ -268,7 +268,7 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	if !sdk.IsNil(callResult) {
-		buf := bytes.NewBufferString("")
+		buf := bytes.NewBuffer(nil)
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))

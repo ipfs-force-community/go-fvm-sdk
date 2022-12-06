@@ -31,6 +31,9 @@ issues:
       linters:
         - errcheck
   exclude-use-default: false
+  exclude:
+    - "\\w+Id should be \\w+ID"
+
 linters-settings:
   goconst:
     min-occurrences: 6

@@ -85,9 +85,6 @@ func ipldLink(ret uintptr, id uint32, hashFun uint64, hashLen uint32, cid uintpt
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func networkBaseFee(ret uintptr) uint32 {
-	panic("ignore this error, just implement nonfvm for ide working")
-}
 func networkTotalFilCircSupply(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
@@ -99,7 +96,7 @@ func getBeaconRandomness(ret uintptr, tag int64, epoch int64, entropyOff uintptr
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
-func sysSend(ret uintptr, recipientOff uintptr, recipientLen uint32, method uint64, params uint32, valueHI uint64, valueLow uint64, gas_limit uint64, flag uint64) uint32 {
+func sysSend(ret uintptr, recipientOff uintptr, recipientLen uint32, method uint64, params uint32, valueHI uint64, valueLow uint64, gasLimit uint64, flag uint64) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
@@ -128,14 +125,15 @@ func debugStoreArtifact(nameOff uintptr, nameLen uint32, dataOff uintptr, dataLe
 func gasAvailable(ret uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func networkTipsetTimestamp(ret uintptr) uint32 {
-	panic("ignore this error, just implement nonfvm for ide working")
-}
 
 func networkTipsetCid(ret uintptr, epoch int64, retOff uintptr, retLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 
 func networkContext(ret uintptr) uint32 {
+	panic("ignore this error, just implement nonfvm for ide working")
+}
+
+func emitEvent(evtPtr uintptr, evtLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }

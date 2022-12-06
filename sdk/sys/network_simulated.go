@@ -27,9 +27,9 @@ func TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	panic(ErrorEnvValid)
 }
 
-func NetworkContext(_ context.Context) (*types.NetworkContext, error) {
+func NetworkContext(ctx context.Context) (*types.NetworkContext, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.NetworkContext(epoch)
+		return env.NetworkContext()
 	}
 	panic(ErrorEnvValid)
 }

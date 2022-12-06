@@ -17,7 +17,7 @@ func Caller(ctx context.Context) (abi.ActorID, error) {
 	return msgCtx.Caller, nil
 }
 
-// Origin get caller, from address of message
+// Origin get origin direct caller
 func Origin(ctx context.Context) (abi.ActorID, error) {
 	msgCtx, err := sys.VMMessageContext(ctx)
 	if err != nil {
@@ -53,7 +53,7 @@ func ValueReceived(ctx context.Context) (abi.TokenAmount, error) {
 	return msgCtx.ValueReceived, nil
 }
 
-// ValueReceived the amount was transferred in message
+// MsgGasPremium gaspremium in message
 func MsgGasPremium(ctx context.Context) (abi.TokenAmount, error) {
 	msgCtx, err := sys.VMMessageContext(ctx)
 	if err != nil {

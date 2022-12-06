@@ -43,12 +43,12 @@ func Invoke(blockId uint32) uint32 {
 	var callResult cbor.Marshaler
 
 	switch method {
-	case 0x1:
+	case 0x1: //1  function name:Constructor  alias name:
 		// Constuctor
 		err = contract.Constructor(ctx)
 		callResult = typegen.CborBool(true)
 
-	case 0xc551429c:
+	case 0xc551429c: //3310437020  function name:SayHello  alias name:
 
 		// no params no error but have return value
 		state := new(contract.State)
@@ -66,7 +66,7 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	if !sdk.IsNil(callResult) {
-		buf := bytes.NewBufferString("")
+		buf := bytes.NewBuffer(nil)
 		err = callResult.MarshalCBOR(buf)
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))

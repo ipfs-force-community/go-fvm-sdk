@@ -46,7 +46,7 @@ func GenMethodNumber(name string) (abi.MethodNum, error) {
 			break
 		}
 
-		methodId := binary.BigEndian.Uint32(methodHashBytes[i : i+DIGESTCHUNKLENGTH]) //nolint
+		methodId := binary.BigEndian.Uint32(methodHashBytes[i : i+DIGESTCHUNKLENGTH])
 		if methodId >= FIRSTMETHODNUMBER {
 			return abi.MethodNum(methodId), nil
 		}

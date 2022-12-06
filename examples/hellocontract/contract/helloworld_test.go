@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/sys/simulated"
-	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
 func TestSayHello(t *testing.T) {
-	_, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	_, ctx := simulated.CreateEmptySimulator()
 	{
 		//save state
 		helloState := &State{

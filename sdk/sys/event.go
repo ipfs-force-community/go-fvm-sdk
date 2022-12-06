@@ -5,13 +5,14 @@ package sys
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func EmitEvent(evt types.ActorEvent) error {
+func EmitEvent(_ context.Context, evt types.ActorEvent) error {
 	buf := bytes.NewBuffer(nil)
 	err := evt.MarshalCBOR(buf)
 	if err != nil {
@@ -23,6 +24,5 @@ func EmitEvent(evt types.ActorEvent) error {
 	if code != 0 {
 		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to get debug-enabled")
 	}
-
 	return nil
 }

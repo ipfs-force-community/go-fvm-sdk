@@ -29,7 +29,7 @@ func VMMessageContext(_ context.Context) (*types.MessageContext, error) {
 	}, nil
 }
 
-// Exit exit actor, panic to stop actor instead of return error
+// Exit abort actor, panic to stop actor instead of return error
 func Exit(ctx context.Context, code ferrors.ExitCode, data []byte, msg string) {
 	blkId := types.NoDataBlockID
 	if len(data) == 0 {
@@ -40,6 +40,15 @@ func Exit(ctx context.Context, code ferrors.ExitCode, data []byte, msg string) {
 		}
 	}
 
+	strPtr, strLen := GetStringPointerAndLen(msg)
+	exitCode := vmExit(uint32(code), blkId, strPtr, strLen)
+	if exitCode != 0 {
+		panic("fail to exit " + strconv.Itoa(int(exitCode)))
+	}
+}
+
+// ExitWithBlkId exit actor, panic to stop actor instead of return error
+func ExitWithBlkId(ctx context.Context, code ferrors.ExitCode, blkId types.BlockID, msg string) {
 	strPtr, strLen := GetStringPointerAndLen(msg)
 	exitCode := vmExit(uint32(code), blkId, strPtr, strLen)
 	if exitCode != 0 {

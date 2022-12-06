@@ -77,7 +77,6 @@ type ConstructorReq struct {
 	Symbol      string
 	Decimals    uint8
 	TotalSupply abi.TokenAmount
-	MintAddr    address.Address
 }
 
 func Constructor(ctx context.Context, req *ConstructorReq) error {
@@ -100,12 +99,12 @@ func Constructor(ctx context.Context, req *ConstructorReq) error {
 		return err
 	}
 
-	mintActId, err := sdk.ResolveAddress(ctx, req.MintAddr)
+	originId, err := sdk.Origin(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = emptyMap.Put(types.ActorKey(mintActId), &req.TotalSupply)
+	err = emptyMap.Put(types.ActorKey(originId), &req.TotalSupply)
 	if err != nil {
 		return err
 	}

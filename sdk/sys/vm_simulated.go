@@ -25,3 +25,12 @@ func Exit(ctx context.Context, code ferrors.ExitCode, data []byte, msg string) {
 	}
 	panic(ErrorEnvValid)
 }
+
+// Exit exit actor, panic to stop actor instead of return error
+func ExitWithBlkId(ctx context.Context, code ferrors.ExitCode, blkId types.BlockID, msg string) {
+	if env, ok := tryGetSimulator(ctx); ok {
+		env.ExitWithId(code, blkId, msg)
+		return
+	}
+	panic(ErrorEnvValid)
+}

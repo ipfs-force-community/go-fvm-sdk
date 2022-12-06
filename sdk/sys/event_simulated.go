@@ -3,11 +3,16 @@
 
 package sys
 
-import "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+import (
+	"context"
 
-func EmitEvent(evt types.ActorEvent) error {
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+)
+
+func EmitEvent(ctx context.Context, evt types.ActorEvent) error {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.AppendEvent(evt)
+		env.AppendEvent(evt)
+		return nil
 	}
 	panic(ErrorEnvValid)
 }

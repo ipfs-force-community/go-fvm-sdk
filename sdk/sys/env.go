@@ -16,6 +16,6 @@ var (
 )
 
 func tryGetSimulator(ctx context.Context) (*simulated.FvmSimulator, bool) {
-	env, ok := ctx.Value(types.SimulatedEnvkey).(*simulated.FvmSimulator) //nolint:govet
-	return env, ok                                                        //nolint:govet
+	env, ok := ctx.Value(types.SimulatedEnvkey).(*simulated.FvmSimulator)
+	return env, ok
 }

@@ -19,7 +19,7 @@ var _ = cid.Undef
 var _ = math.E
 var _ = sort.Sort
 
-var lengthBufFrc46Token = []byte{134}
+var lengthBufFrc46Token = []byte{135}
 
 func (t *Frc46Token) MarshalCBOR(w io.Writer) error {
 	if t == nil {
@@ -63,6 +63,12 @@ func (t *Frc46Token) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
+	// t.Owner (abi.ActorID) (uint64)
+
+	if err := cw.WriteMajorTypeHeader(cbg.MajUnsignedInt, uint64(t.Owner)); err != nil {
+		return err
+	}
+
 	// t.Supply (big.Int) (struct)
 	if err := t.Supply.MarshalCBOR(cw); err != nil {
 		return err
@@ -102,7 +108,7 @@ func (t *Frc46Token) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("cbor input should be of type array")
 	}
 
-	if extra != 6 {
+	if extra != 7 {
 		return fmt.Errorf("cbor input had wrong number of fields")
 	}
 
@@ -138,6 +144,20 @@ func (t *Frc46Token) UnmarshalCBOR(r io.Reader) (err error) {
 			return fmt.Errorf("wrong type for uint64 field")
 		}
 		t.Granularity = uint64(extra)
+
+	}
+	// t.Owner (abi.ActorID) (uint64)
+
+	{
+
+		maj, extra, err = cr.ReadHeader()
+		if err != nil {
+			return err
+		}
+		if maj != cbg.MajUnsignedInt {
+			return fmt.Errorf("wrong type for uint64 field")
+		}
+		t.Owner = abi.ActorID(extra)
 
 	}
 	// t.Supply (big.Int) (struct)

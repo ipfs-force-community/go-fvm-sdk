@@ -1,7 +1,6 @@
 package contract
 
 import (
-	"encoding/hex"
 	"testing"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
@@ -19,34 +18,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestX(t *testing.T) {
-	println(hex.EncodeToString(sdk.MustCborMarshal(&ConstructorReq{
-		Name:        "Venus",
-		Symbol:      "V",
-		Granularity: 1,
-		Supply:      abi.NewTokenAmount(100000),
-	})))
-	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborString("Venus"))))
-	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborString("V"))))
-	println(hex.EncodeToString(sdk.MustCborMarshal(types.CborUint(1))))
-	println(hex.EncodeToString(sdk.MustCborMarshal(newAmount(100000))))
-	addr1, _ := address.NewFromString("f1m674sjwmga36qi3wkowt3wozwpahrkdlvd4tpci")
-	println(hex.EncodeToString(sdk.MustCborMarshal(&MintParams{
-		InitialOwner: addr1,
-		Amount:       abi.NewTokenAmount(100),
-	})))
-	println(hex.EncodeToString(sdk.MustCborMarshal(newAmount(100100))))
-}
-
-func newAmount(vv int64) *abi.TokenAmount {
-	v := abi.NewTokenAmount(vv)
-	return &v
-}
-
 var supply int64 = 100000
 
 func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*simulated.FvmSimulator, address.Address, address.Address, address.Address) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateEmptySimulator()
 	fromActor := abi.ActorID(1)
 	fromAddr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
@@ -62,7 +37,7 @@ func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*
 	assert.NoError(t, err)
 	simulator.SetActor(toActor, toAddr, builtin.Actor{Code: simulated.AccountCid})
 
-	balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
+	balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), DEFAULTHAMTBITWIDTH)
 	assert.NoError(t, err)
 	emptyRoot, err := balanceMap.Root()
 	assert.NoError(t, err)
@@ -70,8 +45,8 @@ func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*
 	balanceRoot, err := balanceMap.Root()
 	assert.Nil(t, err)
 
-	erc20State := &Frc46Token{Name: "Ep Coin", Symbol: "EP", Granularity: granularity, Supply: abi.NewTokenAmount(supply), Balances: balanceRoot, Allowances: emptyRoot}
-	_ = sdk.SaveState(ctx, erc20State) //Save state
+	frc46State := &Frc46Token{Name: "Ep Coin", Symbol: "EP", Granularity: granularity, Supply: abi.NewTokenAmount(supply), Balances: balanceRoot, Allowances: emptyRoot, Owner: fromActor}
+	_ = sdk.SaveState(ctx, frc46State) //Save state
 
 	// set info of context
 	simulator.SetMessageContext(&types.MessageContext{
@@ -81,7 +56,7 @@ func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*
 }
 
 func TestFrc46TokenGetter(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateEmptySimulator()
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
 	simulator.SetActor(abi.ActorID(1), addr, builtin.Actor{})
@@ -104,15 +79,15 @@ func TestFrc46TokenGetter(t *testing.T) {
 	newFrc46State := &Frc46Token{}
 	sdk.LoadState(ctx, newFrc46State)
 	t.Run("get name", func(t *testing.T) {
-		assert.Equal(t, "EP Coin", newFrc46State.GetName(ctx))
+		assert.Equal(t, "EP Coin", string(newFrc46State.GetName(ctx)))
 	})
 
 	t.Run("get symbol", func(t *testing.T) {
-		assert.Equal(t, "EP", newFrc46State.GetSymbol(ctx))
+		assert.Equal(t, "EP", string(newFrc46State.GetSymbol(ctx)))
 	})
 
 	t.Run("get granularity", func(t *testing.T) {
-		assert.Equal(t, uint64(1), newFrc46State.GetGranularity(ctx))
+		assert.Equal(t, uint64(1), uint64(newFrc46State.GetGranularity(ctx)))
 	})
 
 	t.Run("get supply", func(t *testing.T) {
@@ -120,14 +95,14 @@ func TestFrc46TokenGetter(t *testing.T) {
 	})
 }
 
-func TestErc20TokenGetBalanceOf(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+func TestTokenGetBalanceOf(t *testing.T) {
+	simulator, ctx := simulated.CreateEmptySimulator()
 	actor := abi.ActorID(1)
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
 	simulator.SetActor(actor, addr, builtin.Actor{})
 
-	balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
+	balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), DEFAULTHAMTBITWIDTH)
 	assert.Nil(t, err)
 	emptyRoot, err := balanceMap.Root()
 
@@ -135,17 +110,17 @@ func TestErc20TokenGetBalanceOf(t *testing.T) {
 	balanceRoot, err := balanceMap.Root()
 	assert.Nil(t, err)
 
-	erc20State := &Frc46Token{Name: "Ep Coin", Symbol: "EP", Granularity: 1, Supply: abi.NewTokenAmount(100000), Balances: balanceRoot, Allowances: emptyRoot}
-	sdk.SaveState(ctx, erc20State) //Save state
+	frc46State := &Frc46Token{Name: "Ep Coin", Symbol: "EP", Granularity: 1, Supply: abi.NewTokenAmount(100000), Balances: balanceRoot, Allowances: emptyRoot}
+	sdk.SaveState(ctx, frc46State) //Save state
 
-	got, err := erc20State.BalanceOf(ctx, &addr)
+	got, err := frc46State.BalanceOf(ctx, &addr)
 	assert.Nil(t, err)
 	assert.Equal(t, got.Uint64(), uint64(100))
 
 	t.Run("got zero for not found address", func(t *testing.T) {
 		addr2, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		got, err = erc20State.BalanceOf(ctx, &addr2)
+		got, err = frc46State.BalanceOf(ctx, &addr2)
 		assert.Nil(t, err)
 		assert.Equal(t, got.Uint64(), uint64(0))
 	})
@@ -810,6 +785,38 @@ func TestFrc46Token_Mint(t *testing.T) {
 		assert.Equal(t, uint64(supply+100), newState.Supply.Uint64())
 		assert.Equal(t, uint64(supply+100), ret.Supply.Uint64())
 		assert.Equal(t, uint64(100), ret.Balance.Uint64())
+	})
+
+	t.Run("self mint", func(t *testing.T) {
+		simulator, fromAddr, _, _ := setup(t, abi.NewTokenAmount(100), 1)
+		fromId, err := simulator.ResolveAddress(fromAddr)
+		assert.NoError(t, err)
+		var newState Frc46Token
+		sdk.LoadState(simulator.Context, &newState)
+		ctx := simulator.Context
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
+		})
+
+		simulator.ExpectSend(simulated.SendMock{
+			To:     fromAddr,
+			Method: RECEIVERHOOKMETHODNUM,
+			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 0, 1, 1, 66, 0, 100, 64, 64},
+			Value:  abi.NewTokenAmount(0),
+			Out: types.SendResult{
+				ExitCode: ferrors.OK,
+			},
+		})
+		ret, err := newState.Mint(ctx, &MintParams{
+			InitialOwner: fromAddr,
+			Amount:       abi.NewTokenAmount(100),
+			OperatorData: nil,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, uint64(supply+100), newState.Supply.Uint64())
+		assert.Equal(t, uint64(supply+100), ret.Supply.Uint64())
+		assert.Equal(t, uint64(200), ret.Balance.Uint64())
 	})
 
 	t.Run("success mint zero", func(t *testing.T) {

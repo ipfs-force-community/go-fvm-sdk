@@ -39,25 +39,25 @@ fn main() {
         }
         Commands::Build(cfg) => {
             if let Err(e) = wasmprocess::run_process(cfg) {
-                println!("run build command fail {}", e);
+                println!("run build command fail {e}");
                 std::process::exit(1);
             }
         }
         Commands::Test(cfg) => {
             if let Err(e) = testing::run_testing(cfg) {
-                println!("run test command fail {}", e);
+                println!("run test command fail {e}");
                 std::process::exit(1);
             }
         }
         Commands::New(cfg) => {
             if let Err(e) = template::new_template_project(cfg) {
-                println!("run new template command fail {}", e);
+                println!("run new template command fail {e}");
                 std::process::exit(1);
             }
         }
         Commands::Patch(cfg) => {
             if let Err(e) = patch::apply_patch(cfg) {
-                println!("apply patch command fail {}", e);
+                println!("apply patch command fail {e}");
                 std::process::exit(1);
             }
         }
