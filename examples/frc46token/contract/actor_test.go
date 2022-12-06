@@ -46,7 +46,7 @@ func newAmount(vv int64) *abi.TokenAmount {
 var supply int64 = 100000
 
 func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*simulated.FvmSimulator, address.Address, address.Address, address.Address) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
 	fromActor := abi.ActorID(1)
 	fromAddr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
@@ -74,14 +74,14 @@ func setup(t *testing.T, fromInitBalance abi.TokenAmount, granularity uint64) (*
 	_ = sdk.SaveState(ctx, erc20State) //Save state
 
 	// set info of context
-	simulator.SetCallContext(&types.InvocationContext{
+	simulator.SetMessageContext(&types.MessageContext{
 		Caller: fromActor,
 	})
 	return simulator, fromAddr, approvalAddr, toAddr
 }
 
 func TestFrc46TokenGetter(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
 	simulator.SetActor(abi.ActorID(1), addr, builtin.Actor{})
@@ -121,7 +121,7 @@ func TestFrc46TokenGetter(t *testing.T) {
 }
 
 func TestErc20TokenGetBalanceOf(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateSimulateEnv(&types.MessageContext{}, &types.NetworkContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
 	actor := abi.ActorID(1)
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
@@ -156,7 +156,7 @@ func TestFrc46TokenTransfer(t *testing.T) {
 		simulator, fromAddr, toAddr, _ := setup(t, abi.NewTokenAmount(1000), 1)
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 1, 2, 1, 66, 0, 100, 64, 64},
 			Value:  big.Zero(),
 			Out:    types.SendResult{},
@@ -185,7 +185,7 @@ func TestFrc46TokenTransfer(t *testing.T) {
 		simulator, fromAddr, toAddr, _ := setup(t, abi.NewTokenAmount(1000), 5)
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 1, 2, 1, 66, 0, 100, 64, 64},
 			Value:  big.Zero(),
 			Out:    types.SendResult{},
@@ -215,7 +215,7 @@ func TestFrc46TokenTransfer(t *testing.T) {
 
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 1, 2, 1, 64, 64, 64},
 			Value:  big.Zero(),
 			Out:    types.SendResult{},
@@ -265,7 +265,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		newState := &Frc46Token{}
 		sdk.LoadState(simulator.Context, newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -276,13 +276,13 @@ func TestApprovalAndTransfer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(100), amount.Uint64())
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 1, 3, 1, 66, 0, 10, 64, 64},
 			Value:  zero,
 			Out: types.SendResult{
@@ -309,7 +309,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		newState := &Frc46Token{}
 		sdk.LoadState(simulator.Context, newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -320,13 +320,13 @@ func TestApprovalAndTransfer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(100), amount.Uint64())
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 1, 3, 1, 66, 0, 10, 64, 64},
 			Value:  zero,
 			Out: types.SendResult{
@@ -351,7 +351,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -373,7 +373,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -384,13 +384,13 @@ func TestApprovalAndTransfer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(0), amount.Uint64())
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 1, 3, 1, 64, 64, 64},
 			Value:  zero,
 			Out: types.SendResult{
@@ -413,17 +413,13 @@ func TestApprovalAndTransfer(t *testing.T) {
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
 
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           approvalId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
 		})
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 1, 3, 1, 64, 64, 64},
 			Value:  zero,
 			Out: types.SendResult{
@@ -448,7 +444,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -459,7 +455,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(100), amount.Uint64())
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
@@ -481,7 +477,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -492,7 +488,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(100), amount.Uint64())
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
@@ -512,7 +508,7 @@ func TestApprovalAndTransfer(t *testing.T) {
 		sdk.LoadState(simulator.Context, newState)
 		ctx := simulator.Context
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
@@ -533,7 +529,7 @@ func TestFrc46Token_In_DecreaseAllowance(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -607,7 +603,7 @@ func TestFrc46Token_RevokeAllowance(t *testing.T) {
 	var newState Frc46Token
 	sdk.LoadState(simulator.Context, &newState)
 	ctx := simulator.Context
-	simulator.SetCallContext(&types.InvocationContext{
+	simulator.SetMessageContext(&types.MessageContext{
 		ValueReceived: abi.NewTokenAmount(0),
 		Caller:        fromId,
 	})
@@ -644,7 +640,7 @@ func TestFrc46Token_Burn(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -662,7 +658,7 @@ func TestFrc46Token_Burn(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -678,7 +674,7 @@ func TestFrc46Token_Burn(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -698,7 +694,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -709,7 +705,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
@@ -727,7 +723,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -747,7 +743,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -758,7 +754,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        approvalId,
 		})
@@ -773,7 +769,7 @@ func TestFrc46Token_BurnFrom(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -791,14 +787,14 @@ func TestFrc46Token_Mint(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
 
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 0, 2, 1, 66, 0, 100, 64, 64},
 			Value:  abi.NewTokenAmount(0),
 			Out: types.SendResult{
@@ -823,14 +819,14 @@ func TestFrc46Token_Mint(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
 
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 71, 134, 0, 2, 1, 64, 64, 64},
 			Value:  abi.NewTokenAmount(0),
 			Out: types.SendResult{
@@ -854,7 +850,7 @@ func TestFrc46Token_Mint(t *testing.T) {
 		var newState Frc46Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			ValueReceived: abi.NewTokenAmount(0),
 			Caller:        fromId,
 		})
@@ -868,7 +864,7 @@ func TestFrc46Token_Mint(t *testing.T) {
 
 		simulator.ExpectSend(simulated.SendMock{
 			To:     toAddr,
-			Method: RECEIVER_HOOK_METHOD_NUM,
+			Method: RECEIVERHOOKMETHODNUM,
 			Params: []byte{130, 26, 133, 34, 59, 223, 73, 134, 0, 2, 1, 66, 0, 18, 64, 64},
 			Value:  abi.NewTokenAmount(0),
 			Out: types.SendResult{

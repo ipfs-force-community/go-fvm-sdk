@@ -3,16 +3,6 @@
 
 package sys
 
-// Gets the base fee for the current epoch.
-// /
-// # Errors
-// /
-// None
-//
-//go:wasm-module network
-//export base_fee
-func networkBaseFee(ret uintptr) uint32
-
 // Gets the circulating supply.
 // /
 // # Errors
@@ -22,16 +12,6 @@ func networkBaseFee(ret uintptr) uint32
 //go:wasm-module network
 //export total_fil_circ_supply
 func networkTotalFilCircSupply(ret uintptr) uint32
-
-// / Gets the current tipset's timestamp
-// /
-// / # Errors
-// /
-// / None
-//
-//go:wasm-module network
-//export tipset_timestamp
-func networkTipsetTimestamp(ret uintptr) uint32
 
 // / Retrieves a tipset's CID within the last finality, if available
 // /
@@ -55,3 +35,13 @@ func networkTipsetTimestamp(ret uintptr) uint32
 //go:wasm-module network
 //export tipset_cid
 func networkTipsetCid(ret uintptr, epoch int64, ret_off uintptr, ret_len uint32) uint32
+
+/// Returns the details about the network.
+///
+/// # Errors
+///
+/// None
+
+//go:wasm-module network
+//export context
+func networkContext(ret uintptr) uint32

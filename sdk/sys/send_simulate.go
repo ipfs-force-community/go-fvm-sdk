@@ -12,7 +12,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func Send(ctx context.Context, to address.Address, method abi.MethodNum, params uint32, value abi.TokenAmount) (*types.SendResult, error) {
+func Send(ctx context.Context, to address.Address, method abi.MethodNum, params uint32, value abi.TokenAmount, gasLimit uint64, flag uint64) (*types.SendResult, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.Send(to, method, params, value)
 	}

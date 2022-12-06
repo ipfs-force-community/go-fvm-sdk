@@ -66,21 +66,21 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult = state.GetName(ctx)
 
-	case 0x6d0c41e0:
+	case 0x7adab63e:
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetSymbol(ctx)
 
-	case 0x9ed113b6:
+	case 0xeaa64da5:
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
 		sdk.LoadState(ctx, state)
 		callResult = state.GetGranularity(ctx)
 
-	case 0xe435da43:
+	case 0x6da7a35:
 
 		// no params no error but have return value
 		state := new(contract.Frc46Token)
@@ -263,7 +263,7 @@ func Invoke(blockId uint32) uint32 {
 
 	if err != nil {
 		exitCode := ferrors.USR_ILLEGAL_STATE
-		errors.As(err, exitCode)
+		errors.As(err, &exitCode)
 		sdk.Abort(ctx, exitCode, fmt.Sprintf("call error %s", err))
 	}
 

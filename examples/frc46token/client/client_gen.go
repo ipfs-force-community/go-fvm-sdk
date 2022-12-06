@@ -268,7 +268,7 @@ func (c *Frc46TokenClient) GetSymbol(ctx context.Context, opts ...SendOption) (s
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(0x6d0c41e0),
+		Method: abi.MethodNum(0x7adab63e),
 		Params: nil,
 	}
 
@@ -310,7 +310,7 @@ func (c *Frc46TokenClient) GetGranularity(ctx context.Context, opts ...SendOptio
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(0x9ed113b6),
+		Method: abi.MethodNum(0xeaa64da5),
 		Params: nil,
 	}
 
@@ -352,7 +352,7 @@ func (c *Frc46TokenClient) GetTotalSupply(ctx context.Context, opts ...SendOptio
 		To:     cfg_copy.actor,
 		From:   cfg_copy.fromAddress,
 		Value:  big.Zero(),
-		Method: abi.MethodNum(0xe435da43),
+		Method: abi.MethodNum(0x6da7a35),
 		Params: nil,
 	}
 

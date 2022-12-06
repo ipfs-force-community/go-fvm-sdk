@@ -12,8 +12,31 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-// Send sends a message to another actor.
-func Send(ctx context.Context, to address.Address, method abi.MethodNum, params types.RawBytes, value abi.TokenAmount) (*types.Receipt, error) {
+type SendCfg struct {
+	Flags    types.SendFlags //default 0 means nothing, 1 means readonly
+	GasLimit uint64          //default 0 means no limit
+}
+
+type SendOption func(cfg SendCfg)
+
+func WithGasLimit(gasLimit uint64) SendOption {
+	return func(cfg SendCfg) {
+		cfg.GasLimit = gasLimit
+	}
+}
+
+func WithReadonly() SendOption {
+	return func(cfg SendCfg) {
+		cfg.Flags = types.ReadonlyFlag
+	}
+}
+
+func Send(ctx context.Context, to address.Address, method abi.MethodNum, params types.RawBytes, value abi.TokenAmount, opts ...SendOption) (*types.Receipt, error) {
+	cfg := SendCfg{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
 	var (
 		paramsID uint32
 		err      error
@@ -27,7 +50,7 @@ func Send(ctx context.Context, to address.Address, method abi.MethodNum, params 
 		paramsID = types.NoDataBlockID
 	}
 
-	send, err := sys.Send(ctx, to, method, paramsID, value)
+	send, err := sys.Send(ctx, to, method, paramsID, value, cfg.GasLimit, cfg.Flags)
 	if err != nil {
 		return nil, err
 	}

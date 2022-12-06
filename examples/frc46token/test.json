@@ -36,12 +36,6 @@
           "return_data":"6156"
         },
         {
-          "name": "get_decimal",
-          "send_value": 0,
-          "method_num": 136578683,
-          "return_data":"06"
-        },
-        {
           "name": "get_supply",
           "send_value": 0,
           "method_num": 114981429,

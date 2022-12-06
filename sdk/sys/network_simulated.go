@@ -6,18 +6,11 @@ package sys
 import (
 	"context"
 
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 
 	"github.com/filecoin-project/go-state-types/abi"
 )
-
-// BaseFee gets the base fee for the current epoch.
-func BaseFee(ctx context.Context) (abi.TokenAmount, error) {
-	if env, ok := tryGetSimulator(ctx); ok {
-		return env.BaseFee()
-	}
-	panic(ErrorEnvValid)
-}
 
 // TotalFilCircSupply gets the circulating supply.
 func TotalFilCircSupply(ctx context.Context) (abi.TokenAmount, error) {
@@ -27,16 +20,16 @@ func TotalFilCircSupply(ctx context.Context) (abi.TokenAmount, error) {
 	panic(ErrorEnvValid)
 }
 
-func TipsetTimestamp(ctx context.Context) (uint64, error) {
+func TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.TipsetTimestamp()
+		return env.TipsetCid(epoch)
 	}
 	panic(ErrorEnvValid)
 }
 
-func TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
+func NetworkContext(_ context.Context) (*types.NetworkContext, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.TipsetCid(epoch)
+		return env.NetworkContext(epoch)
 	}
 	panic(ErrorEnvValid)
 }

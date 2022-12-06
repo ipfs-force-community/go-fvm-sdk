@@ -46,7 +46,7 @@ func (fvmSimulator *FvmSimulator) GetCodeCidForType(actorT types.ActorType) (cid
 	return EmbeddedBuiltinActors[actstr], nil
 }
 
-func (fvmSimulator *FvmSimulator) Abort(code uint32, msg string) {
+func (fvmSimulator *FvmSimulator) Exit(code uint32, data []byte, msg string) {
 	panic(fmt.Sprintf("%d:%sfvmSimulator", code, msg))
 }
 
@@ -63,20 +63,20 @@ func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data string) error 
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) SetCallContext(callContext *types.InvocationContext) {
-	fvmSimulator.callContext = callContext
+func (fvmSimulator *FvmSimulator) SetMessageContext(messageCtx *types.MessageContext) {
+	fvmSimulator.messageCtx = messageCtx
 }
 
-func (fvmSimulator *FvmSimulator) VMContext() (*types.InvocationContext, error) {
-	return fvmSimulator.callContext, nil
+func (fvmSimulator *FvmSimulator) VMMessageContext() (*types.MessageContext, error) {
+	return fvmSimulator.messageCtx, nil
 }
 
-func (fvmSimulator *FvmSimulator) SetBaseFee(ta abi.TokenAmount) {
-	fvmSimulator.baseFee = ta
+func (fvmSimulator *FvmSimulator) SetNetworkContext(networkContext *types.NetworkContext) {
+	fvmSimulator.networkCtx = networkContext
 }
 
-func (fvmSimulator *FvmSimulator) BaseFee() (abi.TokenAmount, error) {
-	return fvmSimulator.baseFee, nil
+func (fvmSimulator *FvmSimulator) NetworkContext() (*types.NetworkContext, error) {
+	return fvmSimulator.networkCtx, nil
 }
 
 func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) {

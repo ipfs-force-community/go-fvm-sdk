@@ -45,9 +45,9 @@ func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, er
 	panic(ErrorEnvValid)
 }
 
-func NewActorAddress(ctx context.Context) (address.Address, error) {
+func NextActorAddress(ctx context.Context) (address.Address, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.NewActorAddress()
+		return env.NextActorAddress()
 	}
 	panic(ErrorEnvValid)
 }

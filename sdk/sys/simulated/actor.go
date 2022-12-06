@@ -47,7 +47,7 @@ func (fvmSimulator *FvmSimulator) ResolveAddress(addr address.Address) (abi.Acto
 	return id, nil
 }
 
-func (fvmSimulator *FvmSimulator) NewActorAddress() (address.Address, error) {
+func (fvmSimulator *FvmSimulator) NextActorAddress() (address.Address, error) {
 	seed := time.Now().String()
 	return address.NewActorAddress([]byte(seed))
 }

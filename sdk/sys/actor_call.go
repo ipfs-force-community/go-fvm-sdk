@@ -78,8 +78,8 @@ func actorGetCodeCidForType(ret uintptr, typ int32, obuf_off uintptr, obuf_len u
 // **Privledged:** May only be called by the init actor.
 //
 //go:wasm-module actor
-//export new_actor_address
-func actorNewActorAddress(ret uintptr, obuf_off uintptr, obuf_len uint32) uint32
+//export next_actor_address
+func actorNextActorAddress(ret uintptr, obuf_off uintptr, obuf_len uint32) uint32
 
 // Creates a new actor of the specified type in the state tree, under
 // the provided address.

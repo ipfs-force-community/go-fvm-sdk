@@ -14,16 +14,6 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-// BaseFee gets the base fee for the current epoch.
-func BaseFee(_ context.Context) (abi.TokenAmount, error) {
-	result := new(fvmTokenAmount)
-	code := networkBaseFee(uintptr(unsafe.Pointer(result)))
-	if code != 0 {
-		return abi.TokenAmount{}, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to get base fee")
-	}
-	return *result.TokenAmount(), nil
-}
-
 // TotalFilCircSupply gets the circulating supply.
 func TotalFilCircSupply(_ context.Context) (abi.TokenAmount, error) {
 	result := new(fvmTokenAmount)
@@ -33,16 +23,6 @@ func TotalFilCircSupply(_ context.Context) (abi.TokenAmount, error) {
 	}
 
 	return *result.TokenAmount(), nil
-}
-
-func TipsetTimestamp(_ context.Context) (uint64, error) {
-	var timestamp uint64
-	code := networkTipsetTimestamp(uintptr(unsafe.Pointer(&timestamp)))
-	if code != 0 {
-		return 0, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to get timestamp")
-	}
-
-	return timestamp, nil
 }
 
 func TipsetCid(_ context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
@@ -63,4 +43,18 @@ func TipsetCid(_ context.Context, epoch abi.ChainEpoch) (*cid.Cid, error) {
 	} else {
 		return nil, nil
 	}
+}
+
+func NetworkContext(_ context.Context) (*types.NetworkContext, error) {
+	var result networkContext_
+	code := networkContext(uintptr(unsafe.Pointer(&result)))
+	if code != 0 {
+		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unable to get invocation context")
+	}
+	return &types.NetworkContext{
+		Epoch:          result.Epoch,
+		Timestamp:      result.Timestamp,
+		BaseFee:        *result.BaseFee.TokenAmount(),
+		NetworkVersion: result.NetworkVersion,
+	}, nil
 }

@@ -61,7 +61,7 @@ func Invoke(blockId uint32) uint32 {
 
 	if err != nil {
 		exitCode := ferrors.USR_ILLEGAL_STATE
-		errors.As(err, exitCode)
+		errors.As(err, &exitCode)
 		sdk.Abort(ctx, exitCode, fmt.Sprintf("call error %s", err))
 	}
 

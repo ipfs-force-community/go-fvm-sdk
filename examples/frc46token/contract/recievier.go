@@ -18,7 +18,7 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-var RECEIVER_HOOK_METHOD_NUM abi.MethodNum = 0xde180de3
+var RECEIVERHOOKMETHODNUM abi.MethodNum = 0xde180de3 //3726118371
 
 // UniversalReceiverParams parameters for universal receiver
 // Actual payload varies with asset type
@@ -87,13 +87,13 @@ func (hook *ReceiverHook) Call(ctx context.Context) error {
 		return fmt.Errorf("error encoding to ipld %w", ferrors.USR_SERIALIZATION)
 	}
 
-	receipt, err := sdk.Send(ctx, hook.ToAddr, RECEIVER_HOOK_METHOD_NUM, buf.Bytes(), big.Zero())
+	receipt, err := sdk.Send(ctx, hook.ToAddr, RECEIVERHOOKMETHODNUM, buf.Bytes(), big.Zero())
 	if err != nil {
 		return err
 	}
 
 	if receipt.ExitCode != ferrors.OK {
-		return fmt.Errorf("receiver hook error to %s: exit_code=%w, return_data=%v", hook.ToAddr, ferrors.ExitCode(receipt.ExitCode), receipt.ReturnData)
+		return fmt.Errorf("receiver hook error to %s: exit_code=%w, method_num=%d, return_data=%v", hook.ToAddr, ferrors.ExitCode(receipt.ExitCode), RECEIVERHOOKMETHODNUM, receipt.ReturnData)
 	}
 	hook.ResultData.SetRecipientData(receipt.ReturnData)
 	return nil

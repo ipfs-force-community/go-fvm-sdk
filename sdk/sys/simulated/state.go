@@ -41,8 +41,8 @@ func (s *block) stat() BlockStat {
 type blocks []block
 
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
-	fsm := NewFvmSimulator(callContext, baseFee, totalFilCircSupply)
+func CreateSimulateEnv(callContext *types.MessageContext, networkContext *types.NetworkContext, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
+	fsm := NewFvmSimulator(callContext, networkContext, totalFilCircSupply)
 	return fsm, fsm.Context
 }
 
@@ -58,20 +58,20 @@ type FvmSimulator struct {
 	// address->actorid
 	addressMap map[address.Address]abi.ActorID
 
-	callContext        *types.InvocationContext
+	messageCtx         *types.MessageContext
+	networkCtx         *types.NetworkContext
 	rootCid            cid.Cid
 	tipsetCidLk        sync.Mutex
 	tipsetCids         map[abi.ChainEpoch]*cid.Cid
-	baseFee            abi.TokenAmount
 	totalFilCircSupply abi.TokenAmount
 	sendList           []SendMock
+	events             []types.ActorEvent
 }
 
-func NewFvmSimulator(callContext *types.InvocationContext, baseFee abi.TokenAmount, totalFilCircSupply abi.TokenAmount) *FvmSimulator {
+func NewFvmSimulator(callContext *types.MessageContext, networkContext *types.NetworkContext, totalFilCircSupply abi.TokenAmount) *FvmSimulator {
 	fsm := &FvmSimulator{
 		blockid:            1,
-		callContext:        callContext,
-		baseFee:            baseFee,
+		messageCtx:         callContext,
 		totalFilCircSupply: totalFilCircSupply,
 		actorsMap:          make(map[abi.ActorID]builtin.Actor),
 		addressMap:         make(map[address.Address]abi.ActorID),

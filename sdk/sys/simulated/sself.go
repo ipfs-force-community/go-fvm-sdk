@@ -19,7 +19,7 @@ func (fvmSimulator *FvmSimulator) SelfCurrentBalance() (*abi.TokenAmount, error)
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
-	actor, ok := fvmSimulator.actorsMap[fvmSimulator.callContext.Caller]
+	actor, ok := fvmSimulator.actorsMap[fvmSimulator.messageCtx.Caller]
 	if !ok {
 		return nil, ErrorNotFound
 	}
