@@ -9,12 +9,14 @@ import (
 )
 
 func TestSetSend(t *testing.T) {
+	data := []byte{1, 1, 1, 1, 1, 1, 1}
 	sendmockcase := make([]SendMock, 0)
-	sendmockcase = append(sendmockcase, SendMock{address.Undef, 1, 1, big.NewInt(1), types.Send{}})
+	sendmockcase = append(sendmockcase, SendMock{address.Undef, 1, data, big.NewInt(1), types.SendResult{}})
 	defaultfsm := FvmSimulator{}
-	defaultfsm.SetSend(sendmockcase...)
-	_, ok := defaultfsm.sendMatch(address.Undef, 1, 1, big.NewInt(1))
-	if ok != true {
+	blkId := defaultfsm.blockCreate(types.DAGCbor, data)
+	defaultfsm.ExpectSend(sendmockcase...)
+	_, err := defaultfsm.sendMatch(address.Undef, 1, blkId, big.NewInt(1))
+	if err != nil {
 		t.Errorf("match is failed")
 	}
 }

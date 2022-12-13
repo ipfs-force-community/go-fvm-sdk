@@ -17,9 +17,10 @@ import (
 
 func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error) {
 	if addr.Protocol() == address.ID {
-		actid, err := address.IDFromAddress(addr)
-		return abi.ActorID(actid), err
+		actorId, err := address.IDFromAddress(addr)
+		return abi.ActorID(actorId), err
 	}
+
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(addr.Bytes())
 	var result abi.ActorID
 	code := actorResolveAddress(uintptr(unsafe.Pointer(&result)), addrBufPtr, addrBufLen)
@@ -40,7 +41,7 @@ func LookupAddress(_ context.Context, actorID abi.ActorID) (address.Address, err
 	//
 	addr, err := address.NewFromBytes(buf[:addrLen])
 	if err != nil {
-		Abort(context.Background(), uint32(ferrors.NotFound), fmt.Sprintf("%v", buf[:addrLen]))
+		Exit(context.Background(), ferrors.USR_ILLEGAL_STATE, nil, fmt.Sprintf("%v", buf[:addrLen]))
 	}
 	return addr, err
 }
@@ -93,12 +94,12 @@ func GetCodeCidForType(_ context.Context, actorT types.ActorType) (cid.Cid, erro
 	return result, nil
 }
 
-func NewActorAddress(_ context.Context) (address.Address, error) {
+func NextActorAddress(_ context.Context) (address.Address, error) {
 	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 
 	var addrLen uint32
-	code := actorNewActorAddress(uintptr(unsafe.Pointer(&addrLen)), bufPtr, bufLen)
+	code := actorNextActorAddress(uintptr(unsafe.Pointer(&addrLen)), bufPtr, bufLen)
 	if code != 0 {
 		return address.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to create a new actor address ")
 	}

@@ -12,3 +12,8 @@ func TestNewSysCallError(t *testing.T) {
 	err := NewSysCallError(6, "this is error:")
 	assert.True(t, errors.Is(err, NotFound))
 }
+
+func TestExitCodeAs(t *testing.T) {
+	err := NewSysCallError(6, "this is error:")
+	assert.True(t, errors.Is(err, NotFound))
+}

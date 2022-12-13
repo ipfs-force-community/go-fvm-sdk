@@ -28,10 +28,10 @@ func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, e
 	return sys.LookupAddress(ctx, actorID)
 }
 
-// NewActorAddress generates a new actor address for an actor deployed
+// NextctorAddress generates a new actor address for an actor deployed
 // by the calling actor.
-func NewActorAddress(ctx context.Context) (address.Address, error) {
-	return sys.NewActorAddress(ctx)
+func NextctorAddress(ctx context.Context) (address.Address, error) {
+	return sys.NextActorAddress(ctx)
 }
 
 // CreateActor Creates a new actor of the specified type in the state tree, under

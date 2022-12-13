@@ -19,6 +19,8 @@ func main() {
 		types.AggregateSealVerifyProofAndInfos{},
 		types.ReplicaUpdateInfo{},
 		types.InstallParams{},
+		types.ActorEvent{},
+		types.Entry{},
 		types.InstallReturn{}); err != nil {
 		log.Fatalf("gen for ../types: %s", err)
 	}

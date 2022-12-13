@@ -14,20 +14,32 @@ import (
 	"github.com/filecoin-project/go-state-types/big"
 )
 
-type invocationContext struct {
-	/// The value that was received.
-	ValueReceived fvmTokenAmount
+type networkContext_ struct {
+	/// The current epoch.
+	Epoch abi.ChainEpoch
+	/// The current time (seconds since the unix epoch).
+	Timestamp uint64
+	/// The current base-fee.
+	BaseFee fvmTokenAmount
+	/// The network version.
+	NetworkVersion uint32
+}
+
+type messageContext struct {
+	/// The current call's origin actor ID.
+	Origin abi.ActorID
 	/// The caller's actor ID.
 	Caller abi.ActorID
 	/// The receiver's actor ID (i.e. ourselves).
 	Receiver abi.ActorID
-
 	/// The method number from the message.
 	MethodNumber abi.MethodNum
-	/// The current epoch.
-	NetworkCurrEpoch abi.ChainEpoch
-	/// The network version.
-	NetworkVersion uint32
+	/// The value that was received.
+	ValueReceived fvmTokenAmount
+	/// The current gas premium
+	GasPremium fvmTokenAmount
+	/// Flags pertaining to the currently executing actor's invocation context.
+	Flags uint64
 }
 
 // fvmTokenAmount use this amount to receive value from fvm

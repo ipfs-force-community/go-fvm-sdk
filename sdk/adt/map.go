@@ -132,10 +132,8 @@ func (m *Map) TryDelete(k abi.Keyer) (bool, error) {
 
 // Delete removes the value at `k` from the hamt store, expecting it to exist.
 func (m *Map) Delete(k abi.Keyer) error {
-	if found, err := m.root.Delete(m.store.Context(), k.Key()); err != nil {
+	if _, err := m.root.Delete(m.store.Context(), k.Key()); err != nil {
 		return fmt.Errorf("failed to delete key %v in node %v: %v", k.Key(), m.root, err)
-	} else if !found {
-		return fmt.Errorf("no such key %v to delete in node %v", k.Key(), m.root)
 	}
 	return nil
 }
@@ -164,6 +162,11 @@ func (m *Map) CollectKeys() (out []string, err error) {
 		return nil
 	})
 	return
+}
+
+// IsEmpty check whether this map is empty
+func (m *Map) IsEmpty() bool {
+	return len(m.root.Pointers) == 0
 }
 
 // Pop retrieves the value for `k` into the 'out' unmarshaler (if non-nil), and removes the entry.

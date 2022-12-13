@@ -151,10 +151,7 @@ impl<'a> GoFvmBinProcessor<'a> {
             .wait_with_output()
             .expect("unable to get output");
         if !output.status.success() {
-            return Err(anyhow!(format!(
-                "run tinygo command failed err {:?}",
-                output
-            )));
+            return Err(anyhow!(format!("run tinygo command failed err {output:?}")));
         }
 
         io::stdout().write_all(&output.stdout).unwrap();

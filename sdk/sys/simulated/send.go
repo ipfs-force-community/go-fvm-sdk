@@ -9,29 +9,18 @@ import (
 )
 
 type SendMock struct {
-	to     address.Address
-	method uint64
-	params uint32
-	value  big.Int
-	out    types.Send
+	To     address.Address
+	Method abi.MethodNum
+	Params []byte
+	Value  big.Int
+	Out    types.SendResult
 }
 
-func (fvmSimulator *FvmSimulator) Send(to address.Address, method uint64, params uint32, value abi.TokenAmount) (*types.Send, error) {
-	send, ok := fvmSimulator.sendMatch(to, method, params, value)
-	if ok {
-		return send, nil
-	}
-	return nil, ErrorKeyMatchFail
+func (fvmSimulator *FvmSimulator) Send(to address.Address, method abi.MethodNum, params uint32, value abi.TokenAmount) (*types.SendResult, error) {
+	return fvmSimulator.sendMatch(to, method, params, value)
 }
 
-func (fvmSimulator *FvmSimulator) SetSend(mock ...SendMock) {
-	temp := make([]SendMock, 0)
-	for _, v := range mock {
-		_, ok := fvmSimulator.sendMatch(v.to, v.method, v.params, v.value)
-		if !ok {
-			temp = append(temp, v)
-		}
-	}
-	fvmSimulator.sendList = append(fvmSimulator.sendList, temp...)
+func (fvmSimulator *FvmSimulator) ExpectSend(mock ...SendMock) {
+	fvmSimulator.sendList = append(fvmSimulator.sendList, mock...)
 
 }

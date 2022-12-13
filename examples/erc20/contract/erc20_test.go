@@ -1,12 +1,15 @@
 package contract
 
 import (
+	"bytes"
+	"encoding/hex"
 	"testing"
+
+	"github.com/filecoin-project/go-state-types/builtin"
 
 	"github.com/filecoin-project/go-address"
 
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
@@ -16,10 +19,20 @@ import (
 )
 
 func TestErc20TokenGetter(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	r := &ConstructorReq{
+		Name:        "Venus",
+		Symbol:      "V",
+		Decimals:    6,
+		TotalSupply: abi.NewTokenAmount(99999999999999),
+	}
+	buf := bytes.NewBufferString("")
+	r.MarshalCBOR(buf)
+	println(hex.EncodeToString(buf.Bytes()))
+
+	simulator, ctx := simulated.CreateEmptySimulator()
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
-	simulator.SetActor(abi.ActorID(1), addr, migration.Actor{})
+	simulator.SetActor(abi.ActorID(1), addr, builtin.Actor{})
 
 	empMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 	assert.Nil(t, err)
@@ -28,29 +41,33 @@ func TestErc20TokenGetter(t *testing.T) {
 
 	erc20State := &Erc20Token{Name: "EP Coin", Symbol: "EP", Decimals: 8, TotalSupply: abi.NewTokenAmount(100000), Balances: emptyBalance, Allowed: emptyBalance}
 
+	_ = sdk.SaveState(ctx, erc20State)
+	newErc20State := &Erc20Token{}
+	sdk.LoadState(ctx, newErc20State)
+
 	t.Run("get name", func(t *testing.T) {
-		assert.Equal(t, erc20State.Name, "EP Coin")
+		assert.Equal(t, string(newErc20State.GetName()), "EP Coin")
 	})
 
 	t.Run("get symbol", func(t *testing.T) {
-		assert.Equal(t, erc20State.Symbol, "EP")
+		assert.Equal(t, string(newErc20State.GetSymbol()), "EP")
 	})
 
 	t.Run("get decimals", func(t *testing.T) {
-		assert.Equal(t, erc20State.Decimals, uint8(8))
+		assert.Equal(t, uint8(newErc20State.GetDecimal()), uint8(8))
 	})
 
 	t.Run("get supply", func(t *testing.T) {
-		assert.Equal(t, erc20State.TotalSupply.Uint64(), uint64(100000))
+		assert.Equal(t, newErc20State.GetTotalSupply().Uint64(), uint64(100000))
 	})
 }
 
 func TestErc20TokenGetBalanceOf(t *testing.T) {
-	simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+	simulator, ctx := simulated.CreateEmptySimulator()
 	actor := abi.ActorID(1)
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)
-	simulator.SetActor(actor, addr, migration.Actor{})
+	simulator.SetActor(actor, addr, builtin.Actor{})
 
 	balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 	assert.Nil(t, err)
@@ -70,16 +87,16 @@ func TestErc20TokenGetBalanceOf(t *testing.T) {
 
 func TestErc20TokenTransfer(t *testing.T) {
 	setup := func(t *testing.T, fromInitBalance abi.TokenAmount) (*simulated.FvmSimulator, address.Address, address.Address) {
-		simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+		simulator, ctx := simulated.CreateEmptySimulator()
 		fromActor := abi.ActorID(1)
 		fromAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		simulator.SetActor(fromActor, fromAddr, migration.Actor{})
+		simulator.SetActor(fromActor, fromAddr, builtin.Actor{})
 
 		toActor := abi.ActorID(2)
 		toAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		simulator.SetActor(toActor, toAddr, migration.Actor{})
+		simulator.SetActor(toActor, toAddr, builtin.Actor{})
 
 		balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 		assert.NoError(t, err)
@@ -93,7 +110,7 @@ func TestErc20TokenTransfer(t *testing.T) {
 		_ = sdk.SaveState(ctx, erc20State) //Save state
 
 		// set info of context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			Caller: fromActor,
 		})
 		return simulator, fromAddr, toAddr
@@ -146,21 +163,21 @@ func TestErc20TokenTransfer(t *testing.T) {
 
 func TestApprovalAndTransfer(t *testing.T) {
 	setup := func(t *testing.T, fromInitBalance abi.TokenAmount) (*simulated.FvmSimulator, address.Address, address.Address, address.Address) {
-		simulator, ctx := simulated.CreateSimulateEnv(&types.InvocationContext{}, abi.NewTokenAmount(1), abi.NewTokenAmount(1))
+		simulator, ctx := simulated.CreateEmptySimulator()
 		fromActor := abi.ActorID(1)
 		fromAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		simulator.SetActor(fromActor, fromAddr, migration.Actor{})
+		simulator.SetActor(fromActor, fromAddr, builtin.Actor{Code: simulated.AccountCid})
 
 		approvalActor := abi.ActorID(2)
 		approvalAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		simulator.SetActor(approvalActor, approvalAddr, migration.Actor{})
+		simulator.SetActor(approvalActor, approvalAddr, builtin.Actor{Code: simulated.AccountCid})
 
 		toActor := abi.ActorID(3)
 		toAddr, err := simulated.NewF1Address()
 		assert.NoError(t, err)
-		simulator.SetActor(toActor, toAddr, migration.Actor{})
+		simulator.SetActor(toActor, toAddr, builtin.Actor{})
 
 		balanceMap, err := adt.MakeEmptyMap(adt.AdtStore(ctx), adt.BalanceTableBitwidth)
 		assert.NoError(t, err)
@@ -174,13 +191,39 @@ func TestApprovalAndTransfer(t *testing.T) {
 		_ = sdk.SaveState(ctx, erc20State) //Save state
 
 		// set info of context
-		simulator.SetCallContext(&types.InvocationContext{
+		simulator.SetMessageContext(&types.MessageContext{
 			Caller: fromActor,
 		})
 		return simulator, fromAddr, approvalAddr, toAddr
 	}
 
 	t.Run("success approval and transfer", func(t *testing.T) {
+		simulator, fromAddr, approvalAddr, toAddr := setup(t, abi.NewTokenAmount(1000))
+		fromId, err := simulator.ResolveAddress(fromAddr)
+		assert.NoError(t, err)
+		approvalId, err := simulator.ResolveAddress(approvalAddr)
+		assert.NoError(t, err)
+		var newState Erc20Token
+		sdk.LoadState(simulator.Context, &newState)
+		ctx := simulator.Context
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
+		})
+		assert.NoError(t, newState.Approval(ctx, &ApprovalReq{
+			SpenderAddr:  approvalAddr,
+			NewAllowance: abi.NewTokenAmount(100),
+		}))
+
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
+		})
+		assert.NoError(t, newState.TransferFrom(ctx, &TransferFromReq{
+			OwnerAddr:      fromAddr,
+			ReceiverAddr:   toAddr,
+			TransferAmount: abi.NewTokenAmount(10),
+		}), "send value must bigger than zero")
 
 	})
 
@@ -191,13 +234,9 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Erc20Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           fromId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
 		})
 		assert.EqualError(t, newState.Approval(ctx, &ApprovalReq{
 			SpenderAddr:  approvalAddr,
@@ -214,26 +253,18 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Erc20Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           fromId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
 		})
 		assert.NoError(t, newState.Approval(ctx, &ApprovalReq{
 			SpenderAddr:  approvalAddr,
 			NewAllowance: abi.NewTokenAmount(100),
 		}))
 
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           approvalId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
 		})
 		assert.EqualError(t, newState.TransferFrom(ctx, &TransferFromReq{
 			OwnerAddr:      fromAddr,
@@ -250,13 +281,9 @@ func TestApprovalAndTransfer(t *testing.T) {
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
 
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           approvalId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
 		})
 		assert.EqualError(t, newState.TransferFrom(ctx, &TransferFromReq{
 			OwnerAddr:      fromAddr,
@@ -274,26 +301,18 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Erc20Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           fromId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
 		})
 		assert.NoError(t, newState.Approval(ctx, &ApprovalReq{
 			SpenderAddr:  approvalAddr,
 			NewAllowance: abi.NewTokenAmount(100),
 		}))
 
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           approvalId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
 		})
 		assert.EqualError(t, newState.TransferFrom(ctx, &TransferFromReq{
 			OwnerAddr:      fromAddr,
@@ -311,26 +330,18 @@ func TestApprovalAndTransfer(t *testing.T) {
 		var newState Erc20Token
 		sdk.LoadState(simulator.Context, &newState)
 		ctx := simulator.Context
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           fromId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        fromId,
 		})
 		assert.NoError(t, newState.Approval(ctx, &ApprovalReq{
 			SpenderAddr:  approvalAddr,
 			NewAllowance: abi.NewTokenAmount(100),
 		}))
 
-		simulator.SetCallContext(&types.InvocationContext{
-			ValueReceived:    abi.NewTokenAmount(0),
-			Caller:           approvalId,
-			Receiver:         0,
-			MethodNumber:     0,
-			NetworkCurrEpoch: 0,
-			NetworkVersion:   0,
+		simulator.SetMessageContext(&types.MessageContext{
+			ValueReceived: abi.NewTokenAmount(0),
+			Caller:        approvalId,
 		})
 		assert.EqualError(t, newState.TransferFrom(ctx, &TransferFromReq{
 			OwnerAddr:      fromAddr,

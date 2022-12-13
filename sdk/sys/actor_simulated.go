@@ -13,6 +13,11 @@ import (
 )
 
 func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, error) {
+	if addr.Protocol() == address.ID {
+		actorId, err := address.IDFromAddress(addr)
+		return abi.ActorID(actorId), err
+	}
+
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.ResolveAddress(addr)
 	}
@@ -40,9 +45,9 @@ func GetCodeCidForType(ctx context.Context, actorT types.ActorType) (cid.Cid, er
 	panic(ErrorEnvValid)
 }
 
-func NewActorAddress(ctx context.Context) (address.Address, error) {
+func NextActorAddress(ctx context.Context) (address.Address, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.NewActorAddress()
+		return env.NextActorAddress()
 	}
 	panic(ErrorEnvValid)
 }

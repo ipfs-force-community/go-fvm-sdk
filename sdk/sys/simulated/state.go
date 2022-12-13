@@ -2,14 +2,17 @@
 package simulated
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"sync"
+
+	"github.com/filecoin-project/go-state-types/builtin"
 
 	"github.com/filecoin-project/go-state-types/abi"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/big"
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 	mh "github.com/multiformats/go-multihash"
@@ -37,9 +40,15 @@ func (s *block) stat() BlockStat {
 
 type blocks []block
 
+// CreateEmptySimulator new context of simulated
+func CreateEmptySimulator() (*FvmSimulator, context.Context) {
+	fsm := NewFvmSimulator(&types.MessageContext{}, &types.NetworkContext{}, big.Zero())
+	return fsm, fsm.Context
+}
+
 // CreateSimulateEnv new context of simulated
-func CreateSimulateEnv(callContext *types.InvocationContext, baseFee big.Int, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
-	fsm := NewFvmSimulator(callContext, baseFee, totalFilCircSupply)
+func CreateSimulateEnv(callContext *types.MessageContext, networkContext *types.NetworkContext, totalFilCircSupply big.Int) (*FvmSimulator, context.Context) {
+	fsm := NewFvmSimulator(callContext, networkContext, totalFilCircSupply)
 	return fsm, fsm.Context
 }
 
@@ -51,55 +60,59 @@ type FvmSimulator struct {
 	ipld        sync.Map
 	actorLk     sync.Mutex
 	// actorid->ActorState
-	actorsMap map[abi.ActorID]migration.Actor
+	actorsMap map[abi.ActorID]builtin.Actor
 	// address->actorid
 	addressMap map[address.Address]abi.ActorID
 
-	callContext        *types.InvocationContext
+	messageCtx         *types.MessageContext
+	networkCtx         *types.NetworkContext
 	rootCid            cid.Cid
 	tipsetCidLk        sync.Mutex
 	tipsetCids         map[abi.ChainEpoch]*cid.Cid
-	baseFee            abi.TokenAmount
 	totalFilCircSupply abi.TokenAmount
 	sendList           []SendMock
+	events             []types.ActorEvent
 }
 
-func NewFvmSimulator(callContext *types.InvocationContext, baseFee abi.TokenAmount, totalFilCircSupply abi.TokenAmount) *FvmSimulator {
+func NewFvmSimulator(callContext *types.MessageContext, networkContext *types.NetworkContext, totalFilCircSupply abi.TokenAmount) *FvmSimulator {
 	fsm := &FvmSimulator{
 		blockid:            1,
-		callContext:        callContext,
-		baseFee:            baseFee,
+		messageCtx:         callContext,
 		totalFilCircSupply: totalFilCircSupply,
-		actorsMap:          make(map[abi.ActorID]migration.Actor),
+		actorsMap:          make(map[abi.ActorID]builtin.Actor),
 		addressMap:         make(map[address.Address]abi.ActorID),
 	}
 	fsm.Context = context.WithValue(context.Background(), types.SimulatedEnvkey, fsm)
 	return fsm
 }
 
-func (fvmSimulator *FvmSimulator) sendMatch(to address.Address, method uint64, params uint32, value big.Int) (*types.Send, bool) {
-	for i, v := range fvmSimulator.sendList {
-		if to != v.to {
-			continue
-		}
-		if method != v.method {
-			continue
-		}
-		if params != v.params {
-			continue
-		}
-		if !value.Equals(v.value) {
-			continue
-		}
-		if i == len(fvmSimulator.sendList)-1 {
-			fvmSimulator.sendList = fvmSimulator.sendList[0 : i-1]
-		} else {
-			fvmSimulator.sendList = append(fvmSimulator.sendList[:i], fvmSimulator.sendList[i+1:]...)
-		}
-
-		return &v.out, true
+func (fvmSimulator *FvmSimulator) sendMatch(to address.Address, method abi.MethodNum, paramsId uint32, value big.Int) (*types.SendResult, error) {
+	rawParams, err := fvmSimulator.getBlock(paramsId)
+	if err != nil {
+		return nil, err
 	}
-	return nil, false
+
+	if len(fvmSimulator.sendList) == 0 {
+		return nil, fmt.Errorf("no expect send for(to: %s method: %d params %v value %s", to, method, rawParams, value)
+	}
+	send := fvmSimulator.sendList[0]
+
+	if to != send.To {
+		return nil, fmt.Errorf("send to not match expect: %s actual %s", send.To, to)
+	}
+	if method != send.Method {
+		return nil, fmt.Errorf("send method not match expect: %d actual %d", send.Method, method)
+	}
+	if !bytes.Equal(rawParams.data, send.Params) {
+		return nil, fmt.Errorf("send to not match expect: %v actual %v", send.Params, rawParams.data)
+	}
+
+	if !value.Equals(send.Value) {
+		return nil, fmt.Errorf("send value not match expect: %s actual %s", send.Value, value)
+	}
+
+	fvmSimulator.sendList = fvmSimulator.sendList[1:]
+	return &send.Out, nil
 }
 
 func (fvmSimulator *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hashlen uint32) (blkCid cid.Cid, err error) {
@@ -183,7 +196,7 @@ func (fvmSimulator *FvmSimulator) getBlock(blockID uint32) (block, error) {
 }
 
 // nolint
-func (fvmSimulator *FvmSimulator) putActor(actorID abi.ActorID, actor migration.Actor) error {
+func (fvmSimulator *FvmSimulator) putActor(actorID abi.ActorID, actor builtin.Actor) error {
 	_, err := fvmSimulator.getActorWithActorid(actorID)
 	if err == nil {
 		return ErrorKeyExists
@@ -193,7 +206,7 @@ func (fvmSimulator *FvmSimulator) putActor(actorID abi.ActorID, actor migration.
 }
 
 // nolint
-func (fvmSimulator *FvmSimulator) getActorWithActorid(actorID abi.ActorID) (migration.Actor, error) {
+func (fvmSimulator *FvmSimulator) getActorWithActorid(actorID abi.ActorID) (builtin.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
@@ -201,21 +214,27 @@ func (fvmSimulator *FvmSimulator) getActorWithActorid(actorID abi.ActorID) (migr
 	if ok {
 		return actor, nil
 	}
-	return migration.Actor{}, ErrorNotFound
+	return builtin.Actor{}, ErrorNotFound
 }
 
 // nolint
-func (fvmSimulator *FvmSimulator) getActorWithAddress(addr address.Address) (migration.Actor, error) {
+func (fvmSimulator *FvmSimulator) getActorWithAddress(addr address.Address) (builtin.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
 	actorId, ok := fvmSimulator.addressMap[addr]
-	if ok {
-		return migration.Actor{}, ErrorNotFound
+	if !ok {
+		if SimulateDebug {
+			for addr, _ := range fvmSimulator.addressMap {
+				fmt.Println("Has:", addr)
+			}
+			fmt.Println("not found", addr)
+		}
+		return builtin.Actor{}, ErrorNotFound
 	}
 	as, ok := fvmSimulator.actorsMap[actorId]
 	if !ok {
-		return migration.Actor{}, ErrorNotFound
+		return builtin.Actor{}, ErrorNotFound
 	}
 	return as, nil
 }

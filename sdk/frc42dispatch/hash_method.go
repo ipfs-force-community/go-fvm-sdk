@@ -46,7 +46,7 @@ func GenMethodNumber(name string) (abi.MethodNum, error) {
 			break
 		}
 
-		methodId := binary.BigEndian.Uint32(methodHashBytes[i : i+DIGESTCHUNKLENGTH]) //nolint
+		methodId := binary.BigEndian.Uint32(methodHashBytes[i : i+DIGESTCHUNKLENGTH])
 		if methodId >= FIRSTMETHODNUMBER {
 			return abi.MethodNum(methodId), nil
 		}
@@ -74,7 +74,7 @@ func checkMethodName(name string) error {
 		}
 
 		if rune == '_' ||
-			(0 <= rune && rune <= 9) ||
+			('0' <= rune && rune <= '9') ||
 			('a' <= rune && rune <= 'z') ||
 			('A' <= rune && rune <= 'Z') {
 			continue

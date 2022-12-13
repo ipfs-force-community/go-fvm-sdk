@@ -12,8 +12,36 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-// Send sends a message to another actor.
-func Send(ctx context.Context, to address.Address, method abi.MethodNum, params types.RawBytes, value abi.TokenAmount) (*types.Receipt, error) {
+// SendCfg used to pass addition send params for send calls
+type SendCfg struct {
+	Flags    types.SendFlags //default 0 means nothing, 1 means readonly
+	GasLimit uint64          //default 0 means no limit
+}
+
+// SendOption options for set send params
+type SendOption func(cfg SendCfg)
+
+// WithGasLimit used to set gas limit for send call
+func WithGasLimit(gasLimit uint64) SendOption {
+	return func(cfg SendCfg) {
+		cfg.GasLimit = gasLimit
+	}
+}
+
+// WithReadonly used to set readonly mode for send call
+func WithReadonly() SendOption {
+	return func(cfg SendCfg) {
+		cfg.Flags = types.ReadonlyFlag
+	}
+}
+
+// Send call another actor
+func Send(ctx context.Context, to address.Address, method abi.MethodNum, params types.RawBytes, value abi.TokenAmount, opts ...SendOption) (*types.Receipt, error) {
+	cfg := SendCfg{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
 	var (
 		paramsID uint32
 		err      error
@@ -27,14 +55,13 @@ func Send(ctx context.Context, to address.Address, method abi.MethodNum, params 
 		paramsID = types.NoDataBlockID
 	}
 
-	send, err := sys.Send(ctx, to, uint64(method), paramsID, value)
+	send, err := sys.Send(ctx, to, method, paramsID, value, cfg.GasLimit, cfg.Flags)
 	if err != nil {
 		return nil, err
 	}
 
 	var returnData types.RawBytes
-	var exitCode = ferrors.ExitCode(send.ExitCode)
-	if exitCode == ferrors.OK && send.ReturnID != types.NoDataBlockID {
+	if send.ExitCode == ferrors.OK && send.ReturnID != types.NoDataBlockID {
 		ipldStat, err := sys.Stat(ctx, send.ReturnID)
 		if err != nil {
 			return nil, fmt.Errorf("return id ipld-stat: %w", err)

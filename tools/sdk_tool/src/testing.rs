@@ -5,7 +5,7 @@ use colored::*;
 use fvm::executor::ApplyFailure;
 use fvm::executor::ApplyRet;
 use fvm::executor::{ApplyKind, Executor};
-use fvm::init_actor::INIT_ACTOR_ADDR;
+use fvm::init_actor::INIT_ACTOR_ID;
 use fvm::machine::Machine;
 use fvm_integration_tests::bundle;
 use fvm_integration_tests::dummy::DummyExterns;
@@ -13,6 +13,7 @@ use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
 use fvm_ipld_encoding::{Cbor, RawBytes};
+use fvm_shared::address;
 use fvm_shared::address::Address;
 use fvm_shared::bigint::BigInt;
 use fvm_shared::bigint::Zero;
@@ -160,6 +161,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
 
     let mut executor = tester.executor.expect("unable to get executor");
 
+    let init_actor_addr = address::Address::new_id(INIT_ACTOR_ID);
     //install
     // Send message
     let install_return: InstallReturn = {
@@ -169,7 +171,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
         .marshal_cbor()?;
         let install_message = Message {
             from: accounts[contract_case.owner_account].1,
-            to: INIT_ACTOR_ADDR,
+            to: init_actor_addr,
             gas_limit: 1000000000000,
             method_num: 4,
             value: TokenAmount::zero(),
@@ -201,7 +203,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
 
         let create_message = Message {
             from: accounts[contract_case.owner_account].1,
-            to: INIT_ACTOR_ADDR,
+            to: init_actor_addr,
             gas_limit: 1000000000000,
             method_num: 2,
             value: TokenAmount::zero(),
@@ -222,11 +224,12 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
     //invoke
     println!("actor cid {}", create_return.id_address);
     for wasm_case in &contract_case.cases {
-        let from_addr = accounts[wasm_case.send_from].1;
-        let actor = executor.state_tree().get_actor(&from_addr)?.unwrap();
+        let from = accounts[wasm_case.send_from];
+
+        let actor = executor.state_tree().get_actor(from.0)?.unwrap();
         let send_value = BigInt::from(wasm_case.send_value);
         let message = Message {
-            from: from_addr,
+            from: from.1,
             sequence: actor.sequence,
             to: create_return.id_address,
             gas_limit: 1000000000000,
@@ -344,7 +347,7 @@ pub fn new_tester(
     let bs = MemoryBlockstore::default();
     let bundle_root = bundle::import_bundle(&bs, actors_v10::BUNDLE_CAR).unwrap();
     let mut tester =
-        Tester::new(NetworkVersion::V18, StateTreeVersion::V4, bundle_root, bs).unwrap();
+        Tester::new(NetworkVersion::V18, StateTreeVersion::V5, bundle_root, bs).unwrap();
     let mut accounts: Vec<Account> = vec![];
     for init_account in accounts_cfg {
         let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;

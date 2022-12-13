@@ -4,25 +4,26 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/filecoin-project/go-state-types/builtin/v9/migration"
-
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 	"github.com/ipfs/go-cid"
 )
 
-func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (migration.Actor, error) {
+const SimulateDebug = true
+
+func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (builtin.Actor, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
-	actorId, err := fvmSimulator.ResolveAddress(addr) //nolint
+	actorId, err := fvmSimulator.ResolveAddress(addr)
 	if err != nil {
-		return migration.Actor{}, err
+		return builtin.Actor{}, err
 	}
 	actor, ok := fvmSimulator.actorsMap[actorId]
 	if !ok {
-		return migration.Actor{}, ferrors.NotFound
+		return builtin.Actor{}, ferrors.NotFound
 	}
 	return actor, nil
 }
@@ -45,8 +46,13 @@ func (fvmSimulator *FvmSimulator) GetCodeCidForType(actorT types.ActorType) (cid
 	return EmbeddedBuiltinActors[actstr], nil
 }
 
-func (fvmSimulator *FvmSimulator) Abort(code uint32, msg string) {
-	panic(fmt.Sprintf("%d:%sfvmSimulator", code, msg))
+func (fvmSimulator *FvmSimulator) Exit(code ferrors.ExitCode, data []byte, msg string) {
+	panic(fmt.Sprintf("%d:%v %s", code, data, msg))
+}
+
+func (fvmSimulator *FvmSimulator) ExitWithId(code ferrors.ExitCode, blkId types.BlockID, msg string) {
+	data := fvmSimulator.blocks[int(blkId)].data
+	fvmSimulator.Exit(code, data, msg)
 }
 
 func (fvmSimulator *FvmSimulator) Enabled() (bool, error) {
@@ -62,20 +68,20 @@ func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data string) error 
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) SetCallContext(callContext *types.InvocationContext) {
-	fvmSimulator.callContext = callContext
+func (fvmSimulator *FvmSimulator) SetMessageContext(messageCtx *types.MessageContext) {
+	fvmSimulator.messageCtx = messageCtx
 }
 
-func (fvmSimulator *FvmSimulator) VMContext() (*types.InvocationContext, error) {
-	return fvmSimulator.callContext, nil
+func (fvmSimulator *FvmSimulator) VMMessageContext() (*types.MessageContext, error) {
+	return fvmSimulator.messageCtx, nil
 }
 
-func (fvmSimulator *FvmSimulator) SetBaseFee(ta abi.TokenAmount) {
-	fvmSimulator.baseFee = ta
+func (fvmSimulator *FvmSimulator) SetNetworkContext(networkContext *types.NetworkContext) {
+	fvmSimulator.networkCtx = networkContext
 }
 
-func (fvmSimulator *FvmSimulator) BaseFee() (abi.TokenAmount, error) {
-	return fvmSimulator.baseFee, nil
+func (fvmSimulator *FvmSimulator) NetworkContext() (*types.NetworkContext, error) {
+	return fvmSimulator.networkCtx, nil
 }
 
 func (fvmSimulator *FvmSimulator) SetTotalFilCircSupply(amount abi.TokenAmount) {

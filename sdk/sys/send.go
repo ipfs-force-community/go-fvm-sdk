@@ -15,11 +15,11 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func Send(_ context.Context, to address.Address, method uint64, params uint32, value abi.TokenAmount) (*types.Send, error) {
+func Send(_ context.Context, to address.Address, method abi.MethodNum, params uint32, value abi.TokenAmount, gasLimit uint64, flag uint64) (*types.SendResult, error) {
 	fvmTokenAmount := FromBig(&value)
-	send := new(types.Send)
+	send := new(types.SendResult)
 	addrBufPtr, addrBufLen := GetSlicePointerAndLen(to.Bytes())
-	code := sysSend(uintptr(unsafe.Pointer(send)), addrBufPtr, addrBufLen, method, params, fvmTokenAmount.Hi, fvmTokenAmount.Lo)
+	code := sysSend(uintptr(unsafe.Pointer(send)), addrBufPtr, addrBufLen, uint64(method), params, fvmTokenAmount.Hi, fvmTokenAmount.Lo, gasLimit, flag)
 	if code != 0 {
 		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to send")
 	}

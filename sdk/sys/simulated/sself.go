@@ -19,7 +19,7 @@ func (fvmSimulator *FvmSimulator) SelfCurrentBalance() (*abi.TokenAmount, error)
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
-	actor, ok := fvmSimulator.actorsMap[fvmSimulator.callContext.Caller]
+	actor, ok := fvmSimulator.actorsMap[fvmSimulator.messageCtx.Caller]
 	if !ok {
 		return nil, ErrorNotFound
 	}
@@ -30,7 +30,7 @@ func (fvmSimulator *FvmSimulator) SelfDestruct(addr address.Address) error {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 
-	actorId, ok := fvmSimulator.addressMap[addr] //nolint
+	actorId, ok := fvmSimulator.addressMap[addr]
 	if !ok {
 		return ErrorNotFound
 	}

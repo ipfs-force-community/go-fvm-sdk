@@ -8,12 +8,13 @@ package sys
 // /
 // # Arguments
 // /
-// - `recipient_off` and `recipient_len` specify the location and length of the recipient's
-//   address (in wasm memory).
-// - `method` is the method number to invoke.
-// - `params` is the IPLD block handle of the method parameters.
-// - `value_hi` are the "high" bits of the token value to send (little-endian) in attoFIL.
-// - `value_lo` are the "high" bits of the token value to send (little-endian) in attoFIL.
+//   - `recipient_off` and `recipient_len` specify the location and length of the recipient's
+//     address (in wasm memory).
+//   - `method` is the method number to invoke.
+//   - `params` is the IPLD block handle of the method parameters.
+//   - `value_hi` are the "high" bits of the token value to send (little-endian) in attoFIL.
+//   - `value_lo` are the "high" bits of the token value to send (little-endian) in attoFIL.
+//
 // /
 // **NOTE**: This syscall will transfer `(value_hi << 64) | (value_lo)` attoFIL to the
 // recipient.
@@ -34,4 +35,4 @@ package sys
 //
 //go:wasm-module send
 //export send
-func sysSend(ret uintptr, recipient_off uintptr, recipient_len uint32, method uint64, params uint32, value_hi uint64, value_lo uint64) uint32
+func sysSend(ret uintptr, recipient_off uintptr, recipient_len uint32, method uint64, params uint32, value_hi uint64, value_lo uint64, gas_limit uint64, flags uint64) uint32

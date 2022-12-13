@@ -20,7 +20,7 @@
     {
       "name": "erc20",
       "binary": "erc20.wasm",
-      "constructor": "856556656e757361560647005af3107a3fff550167bfc926cc3037e8237653ad3dd9d9b3c078a86b",
+      "constructor": "846556656e757361560647005af3107a3fff",
        "cases": [
          {
            "name": "get_name",

@@ -9,9 +9,10 @@ import (
 	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
 )
 
-func VMContext(ctx context.Context) (*types.InvocationContext, error) {
+func EmitEvent(ctx context.Context, evt types.ActorEvent) error {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.VMContext()
+		env.AppendEvent(evt)
+		return nil
 	}
 	panic(ErrorEnvValid)
 }

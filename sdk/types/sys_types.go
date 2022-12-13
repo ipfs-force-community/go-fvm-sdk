@@ -3,6 +3,7 @@ package types
 import (
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors"
 )
 
 const (
@@ -33,8 +34,8 @@ type ResolveAddress struct {
 	Value    uint64
 }
 
-type Send struct {
-	ExitCode uint32
+type SendResult struct {
+	ExitCode ferrors.ExitCode
 	ReturnID BlockID
 }
 
