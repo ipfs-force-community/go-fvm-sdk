@@ -121,8 +121,9 @@ func getEntryPackageMeta(pkg string, stateT reflect.Type) (*entryMeta, error) {
 		actorFunc := actorMethod
 		if actorMethodT.Kind() == reflect.Struct {
 			methodValue := reflect.ValueOf(actorMethod)
-			method.AliasName = methodValue.FieldByName("Name").String()
+			method.AliasName = methodValue.FieldByName("Alias").String()
 			actorFunc = methodValue.FieldByName("Func").Interface()
+			method.Readonly = methodValue.FieldByName("Readonly").Bool()
 		}
 
 		functionT := reflect.TypeOf(actorFunc)
@@ -350,6 +351,7 @@ type methodMap struct {
 	PkgName    string
 	FuncName   string
 	AliasName  string
+	Readonly   bool
 	HasError   bool
 	HasParam   bool
 	HasReturn  bool

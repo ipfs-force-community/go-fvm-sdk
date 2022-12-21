@@ -60,15 +60,33 @@ type Erc20Token struct {
 func (t *Erc20Token) Export() []interface{} {
 	return []interface{}{
 		Constructor,
-		t.GetName,
-		t.GetSymbol,
-		t.GetDecimal,
-		t.GetTotalSupply,
-		t.GetBalanceOf,
+		sdk.MethodInfo{
+			Func:     t.GetName,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.GetSymbol,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.GetDecimal,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.GetTotalSupply,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.BalanceOf,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.Allowance,
+			Readonly: true,
+		},
 		t.Transfer,
 		t.TransferFrom,
 		t.Approval,
-		t.Allowance,
 	}
 }
 
@@ -154,11 +172,11 @@ func (t *Erc20Token) GetTotalSupply() *abi.TokenAmount {
 }
 
 /*
-GetBalanceOf sender by ID.
+BalanceOf sender by ID.
 
 * `args[0]` - the ID of user.
 */
-func (t *Erc20Token) GetBalanceOf(ctx context.Context, addr *address.Address) (*big.Int, error) {
+func (t *Erc20Token) BalanceOf(ctx context.Context, addr *address.Address) (*big.Int, error) {
 	senderId, err := sdk.ResolveAddress(ctx, *addr)
 	if err != nil {
 		return nil, err

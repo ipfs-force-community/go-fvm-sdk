@@ -65,6 +65,18 @@ var defaultClientImport = []typegen.Import{
 		PkgPath: "github.com/ipfs-force-community/go-fvm-sdk/sdk/ferrors",
 	},
 	{
+		Name:    "blockstore",
+		PkgPath: "github.com/filecoin-project/venus/venus-shared/blockstore",
+	},
+	{
+		Name:    "blocks",
+		PkgPath: "github.com/ipfs/go-block-format",
+	},
+	{
+		Name:    "cbornode",
+		PkgPath: "github.com/ipfs/go-ipld-cbor",
+	},
+	{
 		Name:    "context",
 		PkgPath: "context",
 	},
@@ -121,6 +133,13 @@ func GenContractClient(stateT reflect.Type, output string) error {
 			//skip constructor function, because this only called by init actor
 			continue
 		}
+
+		if method.Readonly {
+			if err = genOffChainReadMethod(buf, method); err != nil {
+				return err
+			}
+			continue
+		}
 		if method.HasReturn {
 			if method.HasParam {
 				if err = genClientParamsReturnMethod(buf, method); err != nil {
@@ -157,6 +176,10 @@ v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
+	ChainReadObj(context.Context, cid.Cid) ([]byte, error)
+	ChainHasObj(context.Context, cid.Cid) (bool, error)
+	ChainPutObj(context.Context, blocks.Block) error
+
 	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *types.MessageSendSpec) (*types.SignedMessage, error)
 	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64) (*types.MsgLookup, error)
 }
@@ -176,7 +199,8 @@ var _ I{{trimPackage .StateName}}Client = (*{{trimPackage .StateName}}Client)(ni
 
 type {{trimPackage .StateName}}Client struct {
 	node v0.FullNode
-	cfg ClientOption
+	bs   cbornode.IpldStore
+	cfg  ClientOption
 }
 
 
@@ -224,9 +248,12 @@ func New{{trimPackage .StateName}}Client(fullNode v0.FullNode, opts ...Option) *
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+	apiBlockStore := blockstore.NewAPIBlockstore(fullNode)
+	cstore := cbornode.NewCborStore(apiBlockStore)
 	return &{{trimPackage .StateName}}Client{
 		node: fullNode,
-		cfg: cfg,
+		cfg:  cfg,
+		bs:   cstore,
 	}
 }
 
@@ -363,24 +390,12 @@ func genClientInterface(w io.Writer, entry entryMeta) error {
 type I{{trimPackage .StateName}}Client interface {
 	Install( context.Context,  []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 	{{range .Methods}}
-    {{if ne .FuncName "Constructor"}}
-		{{if .HasParam}}
-			{{if .HasReturn}}
-						{{.FuncName}}(context.Context, {{.ParamsTypeName}}, ...SendOption) ({{.ReturnTypeName}}, error)
-			{{else}}
-						{{.FuncName}}(context.Context, {{.ParamsTypeName}}, ...SendOption) error
-			{{end}}
-		{{else}}
-			{{if .HasReturn}}
-				{{.FuncName}}(context.Context, ...SendOption) ({{.ReturnTypeName}}, error)
-			{{else}}
-				{{.FuncName}}(context.Context, ...SendOption) error
-			{{end}}
+		{{if ne .FuncName "Constructor"}}
+			{{.FuncName}}(context.Context{{if .HasParam}}, {{.ParamsTypeName}}{{end}}, ...SendOption) {{if .HasReturn}}({{.ReturnTypeName}}, error){{else}}error{{end}}
 		{{end}}
-	{{end}}
-    {{if eq .FuncName "Constructor"}}
-		CreateActor( context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}, ...SendOption) (*init_.ExecReturn, error)
-	{{end}}
+		{{if eq .FuncName "Constructor"}}
+			CreateActor(context.Context,  cid.Cid{{if .HasParam}}, {{.ParamsTypeName}}{{else}}{{end}}, ...SendOption) (*init_.ExecReturn, error)
+		{{end}}
 	{{end}}
 }
 `
@@ -402,7 +417,7 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, p0
 	}
 
 	if c.cfg.actor == address.Undef {
-		return {{.DefaultReturn|raw}}, fmt.Errorf("unset actor address for call")
+		return {{.DefaultReturn|raw}}, fmt.Errorf("need config actor address for call")
 	}
 
 	buf := bytes.NewBufferString("")
@@ -592,6 +607,41 @@ func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context, op
 		return fmt.Errorf("actor execution failed")
 	}
 	return nil
+}
+`
+
+	render, err := template.New("gen client interface").Funcs(funcs).Parse(tpl)
+	if err != nil {
+		return err
+	}
+
+	return render.Execute(w, entry)
+}
+
+func genOffChainReadMethod(w io.Writer, entry *methodMap) error {
+	tpl := `
+func (c *{{trimPackage .StateName}}Client) {{.FuncName}}(ctx context.Context{{if .HasParam}}, p0 {{.ParamsTypeName}}{{end}}, opts ...SendOption) {{if .HasReturn}}({{.ReturnTypeName}}, error){{else}}error{{end}} {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
+		return {{if .HasReturn}}{{.DefaultReturn|raw}}, {{end}}fmt.Errorf("unset actor address for call")
+	}
+
+		act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
+	if err != nil {
+		return {{if .HasReturn}}{{.DefaultReturn|raw}}, {{end}}err
+	}
+
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.{{trimPackage .StateName}}{}
+	err = adtStore.Get(ctx, act.Head, &actState)
+	if err != nil {
+		return {{if .HasReturn}}{{.DefaultReturn|raw}}, {{end}}err
+	}
+
+	return actState.{{.FuncName}}({{if .HasContext}}ctx{{end}}{{if .HasParam}}, p0{{end}}){{if not .HasError}}, nil{{end}}
 }
 `
 

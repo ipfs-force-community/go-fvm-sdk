@@ -12,14 +12,21 @@ import (
 	builtin "github.com/filecoin-project/go-state-types/builtin"
 	init_ "github.com/filecoin-project/go-state-types/builtin/v9/init"
 	actors "github.com/filecoin-project/venus/venus-shared/actors"
+	blockstore "github.com/filecoin-project/venus/venus-shared/blockstore"
 	types "github.com/filecoin-project/venus/venus-shared/types"
 	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	blocks "github.com/ipfs/go-block-format"
 	cid "github.com/ipfs/go-cid"
+	cbornode "github.com/ipfs/go-ipld-cbor"
 
 	v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
+	ChainReadObj(context.Context, cid.Cid) ([]byte, error)
+	ChainHasObj(context.Context, cid.Cid) (bool, error)
+	ChainPutObj(context.Context, blocks.Block) error
+
 	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *types.MessageSendSpec) (*types.SignedMessage, error)
 	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64) (*types.MsgLookup, error)
 }
@@ -36,6 +43,7 @@ var _ IStateClient = (*StateClient)(nil)
 
 type StateClient struct {
 	node v0.FullNode
+	bs   cbornode.IpldStore
 	cfg  ClientOption
 }
 
@@ -83,9 +91,12 @@ func NewStateClient(fullNode v0.FullNode, opts ...Option) *StateClient {
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+	apiBlockStore := blockstore.NewAPIBlockstore(fullNode)
+	cstore := cbornode.NewCborStore(apiBlockStore)
 	return &StateClient{
 		node: fullNode,
 		cfg:  cfg,
+		bs:   cstore,
 	}
 }
 

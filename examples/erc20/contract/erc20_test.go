@@ -80,7 +80,7 @@ func TestErc20TokenGetBalanceOf(t *testing.T) {
 	erc20State := &Erc20Token{Name: "Ep Coin", Symbol: "EP", Decimals: 8, TotalSupply: abi.NewTokenAmount(100000), Balances: balanceRoot, Allowed: emptyRoot}
 	sdk.SaveState(ctx, erc20State) //Save state
 
-	got, err := erc20State.GetBalanceOf(ctx, &addr)
+	got, err := erc20State.BalanceOf(ctx, &addr)
 	assert.Nil(t, err)
 	assert.Equal(t, got.Uint64(), uint64(100))
 }
@@ -127,11 +127,11 @@ func TestErc20TokenTransfer(t *testing.T) {
 			TransferAmount: abi.NewTokenAmount(100),
 		}))
 
-		fromBalance, err := newState.GetBalanceOf(simulator.Context, &fromAddr)
+		fromBalance, err := newState.BalanceOf(simulator.Context, &fromAddr)
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(900), fromBalance.Uint64())
 
-		toBalance, err := newState.GetBalanceOf(simulator.Context, &toAddr)
+		toBalance, err := newState.BalanceOf(simulator.Context, &toAddr)
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(100), toBalance.Uint64())
 	})
