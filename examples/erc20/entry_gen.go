@@ -87,7 +87,7 @@ func Invoke(blockId uint32) uint32 {
 		sdk.LoadState(ctx, state)
 		callResult = state.GetTotalSupply()
 
-	case 0x33797708: //863598344  function name:GetBalanceOf  alias name:
+	case 0x8710e1ac: //2266030508  function name:BalanceOf  alias name:
 
 		raw, err = sdk.ParamsRaw(ctx, blockId)
 		if err != nil {
@@ -102,7 +102,24 @@ func Invoke(blockId uint32) uint32 {
 		// have params/return/error
 		state := new(contract.Erc20Token)
 		sdk.LoadState(ctx, state)
-		callResult, err = state.GetBalanceOf(ctx, &req)
+		callResult, err = state.BalanceOf(ctx, &req)
+
+	case 0xfaa45236: //4205072950  function name:Allowance  alias name:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.AllowanceReq
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
+		}
+
+		// have params/return/error
+		state := new(contract.Erc20Token)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Allowance(ctx, &req)
 
 	case 0x4cbf732: //80475954  function name:Transfer  alias name:
 
@@ -160,23 +177,6 @@ func Invoke(blockId uint32) uint32 {
 		if err = state.Approval(ctx, &req); err == nil {
 			callResult = typegen.CborBool(true)
 		}
-
-	case 0xfaa45236: //4205072950  function name:Allowance  alias name:
-
-		raw, err = sdk.ParamsRaw(ctx, blockId)
-		if err != nil {
-			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
-		}
-		var req contract.AllowanceReq
-		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
-		if err != nil {
-			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
-		}
-
-		// have params/return/error
-		state := new(contract.Erc20Token)
-		sdk.LoadState(ctx, state)
-		callResult, err = state.Allowance(ctx, &req)
 
 	default:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")

@@ -65,6 +65,7 @@ func LoadState(ctx context.Context, state cbor.Unmarshaler) {
 	}
 }
 
+// LoadStateFromCid load actor state by message cid
 func LoadStateFromCid(ctx context.Context, cid cid.Cid, state cbor.Unmarshaler) { // nolint
 	data, err := Get(ctx, cid)
 	if err != nil {
@@ -86,9 +87,20 @@ func unpackEFace(obj interface{}) *eface {
 	return (*eface)(unsafe.Pointer(&obj))
 }
 
+// IsNil check whether interface is nil
 func IsNil(obj interface{}) bool { // nolint
 	if obj == nil {
 		return true
 	}
 	return unpackEFace(obj).data == nil
+}
+
+// MethodInfo used to mark actor export function.
+type MethodInfo struct {
+	// use alias name instead of function name
+	Alias string
+	// function gen tool get method params and return  by this field
+	Func interface{}
+	// indicate whether this method is a readonly function,  not need to send message when invoke this query state
+	Readonly bool
 }

@@ -35,7 +35,7 @@ func TestHashMethodName(t *testing.T) {
 	})
 
 	t.Run("bad method namne", func(t *testing.T) {
-		_, err := GenMethodNumber("Bad!Method!Name!")
+		_, err := GenMethodNumber("Bad!Method!Alias!")
 		assert.Error(t, err)
 	})
 
@@ -54,7 +54,7 @@ func check(t *testing.T, name string, value abi.MethodNum) {
 	t.Run("case:"+name, func(t *testing.T) {
 		methodNumber, err := GenMethodNumber(name)
 		assert.NoError(t, err, name)
-		println(fmt.Sprintf("Name:%s %d", name, value))
+		println(fmt.Sprintf("Alias:%s %d", name, value))
 		assert.Equal(t, value, methodNumber, name)
 	})
 }
@@ -62,7 +62,7 @@ func check(t *testing.T, name string, value abi.MethodNum) {
 func TestCompatableWithRust(t *testing.T) {
 	check(t, "Method", abi.MethodNum(0xa20642fc))
 	// this case from https://github.com/filecoin-project/filecoin-actor-utils/blob/main/frc42_dispatch/macros/tests/build-success.rs
-	check(t, "Name", abi.MethodNum(0x02ea015c))
+	check(t, "Alias", abi.MethodNum(0x02ea015c))
 	check(t, "Symbol", abi.MethodNum(0x7adab63e))
 	check(t, "TotalSupply", abi.MethodNum(0x06da7a35))
 	check(t, "BalanceOf", abi.MethodNum(0x8710e1ac))

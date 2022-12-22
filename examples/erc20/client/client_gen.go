@@ -13,15 +13,23 @@ import (
 	builtin "github.com/filecoin-project/go-state-types/builtin"
 	init_ "github.com/filecoin-project/go-state-types/builtin/v9/init"
 	actors "github.com/filecoin-project/venus/venus-shared/actors"
+	blockstore "github.com/filecoin-project/venus/venus-shared/blockstore"
 	types "github.com/filecoin-project/venus/venus-shared/types"
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/adt"
 	sdkTypes "github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+	blocks "github.com/ipfs/go-block-format"
 	cid "github.com/ipfs/go-cid"
+	cbornode "github.com/ipfs/go-ipld-cbor"
 	typegen "github.com/whyrusleeping/cbor-gen"
 
 	v0 "github.com/filecoin-project/venus/venus-shared/api/chain/v0"
 )
 
 type FullNode interface {
+	ChainReadObj(context.Context, cid.Cid) ([]byte, error)
+	ChainHasObj(context.Context, cid.Cid) (bool, error)
+	ChainPutObj(context.Context, blocks.Block) error
+
 	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *types.MessageSendSpec) (*types.SignedMessage, error)
 	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64) (*types.MsgLookup, error)
 }
@@ -39,21 +47,22 @@ type IErc20TokenClient interface {
 
 	GetTotalSupply(context.Context, ...SendOption) (*big.Int, error)
 
-	GetBalanceOf(context.Context, *address.Address, ...SendOption) (*big.Int, error)
+	BalanceOf(context.Context, *address.Address, ...SendOption) (*big.Int, error)
+
+	Allowance(context.Context, *contract.AllowanceReq, ...SendOption) (*big.Int, error)
 
 	Transfer(context.Context, *contract.TransferReq, ...SendOption) error
 
 	TransferFrom(context.Context, *contract.TransferFromReq, ...SendOption) error
 
 	Approval(context.Context, *contract.ApprovalReq, ...SendOption) error
-
-	Allowance(context.Context, *contract.AllowanceReq, ...SendOption) (*big.Int, error)
 }
 
 var _ IErc20TokenClient = (*Erc20TokenClient)(nil)
 
 type Erc20TokenClient struct {
 	node v0.FullNode
+	bs   cbornode.IpldStore
 	cfg  ClientOption
 }
 
@@ -101,9 +110,12 @@ func NewErc20TokenClient(fullNode v0.FullNode, opts ...Option) *Erc20TokenClient
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+	apiBlockStore := blockstore.NewAPIBlockstore(fullNode)
+	cstore := cbornode.NewCborStore(apiBlockStore)
 	return &Erc20TokenClient{
 		node: fullNode,
 		cfg:  cfg,
+		bs:   cstore,
 	}
 }
 
@@ -213,37 +225,19 @@ func (c *Erc20TokenClient) GetName(ctx context.Context, opts ...SendOption) (sdk
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0xa30674d4),
-		Params: nil,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
 	if err != nil {
-		return "", fmt.Errorf("failed to push message: %w", err)
+		return "", err
 	}
 
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
 	if err != nil {
-		return "", fmt.Errorf("error waiting for message: %w", err)
+		return "", err
 	}
 
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return "", fmt.Errorf("actor execution failed")
-	}
-	if len(wait.Receipt.Return) == 0 {
-		return "", fmt.Errorf("expect get result for call")
-	}
-
-	result := new(sdkTypes.CborString)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return *result, nil
-
+	return actState.GetName(), nil
 }
 
 func (c *Erc20TokenClient) GetSymbol(ctx context.Context, opts ...SendOption) (sdkTypes.CborString, error) {
@@ -255,37 +249,19 @@ func (c *Erc20TokenClient) GetSymbol(ctx context.Context, opts ...SendOption) (s
 		return "", fmt.Errorf("unset actor address for call")
 	}
 
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0x6d0c41e0),
-		Params: nil,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
 	if err != nil {
-		return "", fmt.Errorf("failed to push message: %w", err)
+		return "", err
 	}
 
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
 	if err != nil {
-		return "", fmt.Errorf("error waiting for message: %w", err)
+		return "", err
 	}
 
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return "", fmt.Errorf("actor execution failed")
-	}
-	if len(wait.Receipt.Return) == 0 {
-		return "", fmt.Errorf("expect get result for call")
-	}
-
-	result := new(sdkTypes.CborString)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return *result, nil
-
+	return actState.GetSymbol(), nil
 }
 
 func (c *Erc20TokenClient) GetDecimal(ctx context.Context, opts ...SendOption) (typegen.CborInt, error) {
@@ -297,37 +273,19 @@ func (c *Erc20TokenClient) GetDecimal(ctx context.Context, opts ...SendOption) (
 		return 0, fmt.Errorf("unset actor address for call")
 	}
 
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0x824067b),
-		Params: nil,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
 	if err != nil {
-		return 0, fmt.Errorf("failed to push message: %w", err)
+		return 0, err
 	}
 
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
 	if err != nil {
-		return 0, fmt.Errorf("error waiting for message: %w", err)
+		return 0, err
 	}
 
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return 0, fmt.Errorf("actor execution failed")
-	}
-	if len(wait.Receipt.Return) == 0 {
-		return 0, fmt.Errorf("expect get result for call")
-	}
-
-	result := new(typegen.CborInt)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return *result, nil
-
+	return actState.GetDecimal(), nil
 }
 
 func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context, opts ...SendOption) (*big.Int, error) {
@@ -339,84 +297,67 @@ func (c *Erc20TokenClient) GetTotalSupply(ctx context.Context, opts ...SendOptio
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0xe435da43),
-		Params: nil,
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
 	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
+		return nil, err
 	}
 
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
 	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
+		return nil, err
 	}
 
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
-	}
-	if len(wait.Receipt.Return) == 0 {
-		return nil, fmt.Errorf("expect get result for call")
-	}
-
-	result := new(big.Int)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return result, nil
-
+	return actState.GetTotalSupply(), nil
 }
 
-func (c *Erc20TokenClient) GetBalanceOf(ctx context.Context, p0 *address.Address, opts ...SendOption) (*big.Int, error) {
+func (c *Erc20TokenClient) BalanceOf(ctx context.Context, p0 *address.Address, opts ...SendOption) (*big.Int, error) {
 	cfg_copy := c.cfg
 	for _, opt := range opts {
 		opt(&cfg_copy)
 	}
-
 	if c.cfg.actor == address.Undef {
 		return nil, fmt.Errorf("unset actor address for call")
 	}
 
-	buf := bytes.NewBufferString("")
-	if err := p0.MarshalCBOR(buf); err != nil {
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
+	if err != nil {
 		return nil, err
 	}
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0x33797708),
-		Params: buf.Bytes(),
-	}
 
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
 	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
+		return nil, err
 	}
 
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	return actState.BalanceOf(ctx, p0)
+}
+
+func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq, opts ...SendOption) (*big.Int, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+	if c.cfg.actor == address.Undef {
+		return nil, fmt.Errorf("unset actor address for call")
+	}
+
+	act, err := c.node.StateGetActor(ctx, cfg_copy.actor, types.EmptyTSK)
 	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
+		return nil, err
 	}
 
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
+	adtStore := adt.AdtStore(ctx)
+	actState := contract.Erc20Token{}
+	err = adtStore.Get(ctx, act.Head, &actState)
+	if err != nil {
+		return nil, err
 	}
-	if len(wait.Receipt.Return) == 0 {
-		return nil, fmt.Errorf("expect get result for call")
-	}
 
-	result := new(big.Int)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return result, nil
-
+	return actState.Allowance(ctx, p0)
 }
 
 func (c *Erc20TokenClient) Transfer(ctx context.Context, p0 *contract.TransferReq, opts ...SendOption) error {
@@ -534,51 +475,4 @@ func (c *Erc20TokenClient) Approval(ctx context.Context, p0 *contract.ApprovalRe
 		return fmt.Errorf("actor execution failed")
 	}
 	return nil
-}
-
-func (c *Erc20TokenClient) Allowance(ctx context.Context, p0 *contract.AllowanceReq, opts ...SendOption) (*big.Int, error) {
-	cfg_copy := c.cfg
-	for _, opt := range opts {
-		opt(&cfg_copy)
-	}
-
-	if c.cfg.actor == address.Undef {
-		return nil, fmt.Errorf("unset actor address for call")
-	}
-
-	buf := bytes.NewBufferString("")
-	if err := p0.MarshalCBOR(buf); err != nil {
-		return nil, err
-	}
-	msg := &types.Message{
-		To:     cfg_copy.actor,
-		From:   cfg_copy.fromAddress,
-		Value:  big.Zero(),
-		Method: abi.MethodNum(0xfaa45236),
-		Params: buf.Bytes(),
-	}
-
-	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to push message: %w", err)
-	}
-
-	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
-	if err != nil {
-		return nil, fmt.Errorf("error waiting for message: %w", err)
-	}
-
-	// check it executed successfully
-	if wait.Receipt.ExitCode != 0 {
-		return nil, fmt.Errorf("actor execution failed")
-	}
-	if len(wait.Receipt.Return) == 0 {
-		return nil, fmt.Errorf("expect get result for call")
-	}
-
-	result := new(big.Int)
-	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
-
-	return result, nil
-
 }

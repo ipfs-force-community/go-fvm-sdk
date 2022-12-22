@@ -50,7 +50,7 @@
          {
            "name": "get_balance_of_owner",
            "send_value": 0,
-           "method_num": 863598344,
+           "method_num": 2266030508,
            "params": "550167bfc926cc3037e8237653ad3dd9d9b3c078a86b",
            "return_data":"47005af3107a3fff"
          },
@@ -63,7 +63,7 @@
          {
            "name": "get_balance_of_receiver",
            "send_value": 0,
-           "method_num": 863598344,
+           "method_num": 2266030508,
            "params": "55011db1109ffc3c7adb42ba324834e2a679ef7514b7",
            "return_data":"420064"
          },

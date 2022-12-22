@@ -5,6 +5,7 @@ endif
 
 build-example:
 	cd examples/erc20/client_example && go build
+	cd examples/frc46token/client_example && go build
 	cd examples/hellocontract/client_example && go build
 
 install:build
@@ -17,6 +18,8 @@ code-gen:
 	cd ./examples/hellocontract && fvm_go_sdk build
 	cd ./examples/erc20/gen && go run main.go
 	cd ./examples/erc20 && fvm_go_sdk build
+	cd ./examples/frc46token/gen && go run main.go
+	cd ./examples/frc46token && fvm_go_sdk build
 
 clean:
 	rm -rf ./bin/*
@@ -30,4 +33,6 @@ test: build code-gen
 	cd ./examples/hellocontract && fvm_go_sdk test
 	cd ./examples/erc20 && fvm_go_sdk test
 	cd ./examples/erc20/contract && go test --tags simulate
+	cd ./examples/frc46token && fvm_go_sdk test
+	cd ./examples/frc46token/contract && go test --tags simulate
 	cd ./examples/hellocontract/contract && go test --tags simulate

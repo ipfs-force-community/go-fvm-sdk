@@ -49,33 +49,38 @@ type Frc46Token struct {
 var _ IFrc46Token = (*Frc46Token)(nil)
 var _ IFrc46Unspecific = (*Frc46Token)(nil)
 
-type Alias struct {
-	Name string
-	Func interface{}
-}
-
 func (t *Frc46Token) Export() []interface{} {
 	return []interface{}{
 		Constructor,
-		Alias{
-			Name: "Name",
-			Func: t.GetName,
+		sdk.MethodInfo{
+			Alias:    "Name",
+			Func:     t.GetName,
+			Readonly: true,
 		},
-		Alias{
-			Name: "Symbol",
-			Func: t.GetSymbol,
+		sdk.MethodInfo{
+			Alias:    "Symbol",
+			Func:     t.GetSymbol,
+			Readonly: true,
 		},
-		Alias{
-			Name: "Granularity",
-			Func: t.GetGranularity,
+		sdk.MethodInfo{
+			Alias:    "Granularity",
+			Func:     t.GetGranularity,
+			Readonly: true,
 		},
-		Alias{
-			Name: "TotalSupply",
-			Func: t.GetTotalSupply,
+		sdk.MethodInfo{
+			Alias:    "TotalSupply",
+			Func:     t.GetTotalSupply,
+			Readonly: true,
 		},
 		t.Mint,
-		t.BalanceOf,
-		t.Allowance,
+		sdk.MethodInfo{
+			Func:     t.BalanceOf,
+			Readonly: true,
+		},
+		sdk.MethodInfo{
+			Func:     t.Allowance,
+			Readonly: true,
+		},
 		t.Transfer,
 		t.TransferFrom,
 		t.IncreaseAllowance,
