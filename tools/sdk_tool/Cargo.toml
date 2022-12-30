@@ -28,6 +28,9 @@ xshell = "0.2"
 walkdir = "2"
 regex = "1"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
+frc42_dispatch = "2.0.0"
+frc42_hasher = "1.2.0"
+blake2b_simd = "1.0.0"
 
 actors-v10 = { package = "fil_builtin_actors_bundle", git = "https://github.com/filecoin-project/builtin-actors", branch = "next", features = ["m2-native"] }
 fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm",rev="fa791e9726443c526800f0e90334137bdd80edcf",  features = ["m2-native"]}

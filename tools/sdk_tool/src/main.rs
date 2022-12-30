@@ -1,3 +1,4 @@
+mod frc42;
 mod patch;
 mod template;
 mod testing;
@@ -23,6 +24,8 @@ enum Commands {
     Test(testing::TestConfig),
     /// create new template project by module name
     New(template::NewTemplateConfig),
+    /// calculate method number by name
+    Frc42(frc42::Frc42Config),
     /// apply path for go/tinygo
     /// if your go and tinygo install in user home directory, just run./fvm_go_sdk patch
     /// if you go and tinygo is installed in /usr/local/go, use sudo ./fvm_go_sdk patch
@@ -52,6 +55,12 @@ fn main() {
         Commands::New(cfg) => {
             if let Err(e) = template::new_template_project(cfg) {
                 println!("run new template command fail {e}");
+                std::process::exit(1);
+            }
+        }
+        Commands::Frc42(cfg) => {
+            if let Err(e) = frc42::compute_frc46(cfg) {
+                println!("run frc42 command fail {e}");
                 std::process::exit(1);
             }
         }
