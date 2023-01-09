@@ -27,7 +27,6 @@ pub fn get_tinygo_env() -> Result<HashMap<String, String>> {
         Ok(output) => Ok(HashMap::from_iter(
             String::from_utf8(output.stdout)?
                 .split('\n')
-                .into_iter()
                 .map(|v| v.trim())
                 .filter(|v| !v.is_empty())
                 .map(|v| {
