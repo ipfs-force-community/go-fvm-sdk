@@ -18,6 +18,11 @@ func (e ExitCode) Is(code error) bool {
 	return e == code
 }
 
+// IsSuccess check exitcode is okay
+func (e ExitCode) IsSuccess() bool {
+	return e == OK
+}
+
 // IsSystemError Returns true if the error code is in the range of exit codes reserved for the VM (including Ok).
 func (e ExitCode) IsSystemError() bool {
 	return uint32(e) < FIRST_USER_EXIT_CODE
@@ -99,6 +104,11 @@ func (e ErrorNumber) Error() string {
 }
 
 func (e ErrorNumber) String() string {
+	return enToString(uint32(e))
+}
+
+// Stringer used to format value
+func (e ErrorNumber) Stringer() string {
 	return enToString(uint32(e))
 }
 
@@ -184,7 +194,7 @@ func NewSysCallError(code ErrorNumber, msg string) SysCallError {
 
 // Error return error message for fvm error number
 func (e SysCallError) Error() string {
-	return fmt.Sprintf("%s (%d)%s", e.message, e.code, e.code)
+	return fmt.Sprintf("%s (%d) %s", e.message, e.code, e.code)
 }
 
 // Unwrap return inner error code

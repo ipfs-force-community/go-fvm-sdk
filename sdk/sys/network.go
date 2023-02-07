@@ -56,5 +56,6 @@ func NetworkContext(_ context.Context) (*types.NetworkContext, error) {
 		Timestamp:      result.Timestamp,
 		BaseFee:        *result.BaseFee.TokenAmount(),
 		NetworkVersion: result.NetworkVersion,
+		ChainId:        result.ChainId,
 	}, nil
 }

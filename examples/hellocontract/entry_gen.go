@@ -71,7 +71,7 @@ func Invoke(blockId uint32) uint32 {
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("marshal resp fail %s", err))
 		}
-		id, err := sdk.PutBlock(ctx, sdkTypes.DAGCbor, buf.Bytes())
+		id, err := sdk.PutBlock(ctx, sdkTypes.DAGCBOR, buf.Bytes())
 		if err != nil {
 			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to store return value: %v", err))
 		}

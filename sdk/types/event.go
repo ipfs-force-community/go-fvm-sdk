@@ -1,6 +1,6 @@
 package types
 
-type Flags uint8
+type Flags uint64
 
 const (
 	FLAGINDEXEDKEY   = 0b00000001
@@ -14,11 +14,13 @@ type Entry struct {
 	Flags Flags
 	/// The key of this event.
 	Key string
+	/// The value's codec. Must be IPLDRAW (0x55) for now according to FIP-0049.
+	Codec Codec
 	/// Any DAG-CBOR encodeable type.
 	Value RawBytes
 }
 
 // ActorEvent An event as originally emitted by the actor.
 type ActorEvent struct {
-	Entries []Entry
+	Entries []*Entry
 }

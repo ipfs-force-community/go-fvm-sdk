@@ -16,7 +16,7 @@ package sys
 //export resolve_address
 func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32
 
-// / Looks up the "predictable" address of the target actor.
+// / Looks up the "delegated" (f4) address of the target actor (if any).
 // /
 // / # Arguments
 // /
@@ -26,7 +26,7 @@ func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32
 // / # Returns
 // /
 // / The length of the address written to the output buffer, or 0 if the target actor has no
-// / predictable address.
+// / delegated (f4) address.
 // /
 // / # Errors
 // /
@@ -34,11 +34,11 @@ func actorResolveAddress(ret uintptr, addr_off uintptr, addr_len uint32) uint32
 // / |---------------------|------------------------------------------------------------------|
 // / | [`NotFound`]        | if the target actor does not exist                               |
 // / | [`BufferTooSmall`]  | if the output buffer isn't large enough to fit the address       |
-// / | [`IllegalArgument`] | if the output buffer isn't valid, in memory, etc.
+// / | [`IllegalArgument`] | if the output buffer isn't valid, in memory, etc.                |
 //
 //go:wasm-module actor
-//export lookup_address
-func actorLookupAddress(ret uintptr, actor_id uint64, addr_buf_off uintptr, addr_buf_len uint32) uint32
+//export lookup_delegated_address
+func actorLookupDelegatedAddress(ret uintptr, actor_id uint64, addr_buf_off uintptr, addr_buf_len uint32) uint32
 
 // Gets the CodeCID of an actor by address.
 // /
@@ -60,8 +60,8 @@ func actorGetActorCodeCid(ret uintptr, actor_id uint64, obuf_off uintptr, obuf_l
 // internal errors.
 //
 //go:wasm-module actor
-//export resolve_builtin_actor_type
-func actorResolveBuiltinActorType(ret uintptr, cid_off uintptr) uint32
+//export get_builtin_actor_type
+func actorGetBuiltinActorType(ret uintptr, cid_off uintptr) uint32
 
 // Returns the CodeCID for the given built-in actor type. Aborts with exit
 // code IllegalArgument if the supplied type is invalid. Returns the

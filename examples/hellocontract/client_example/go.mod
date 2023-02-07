@@ -10,7 +10,7 @@ replace (
 require (
 	github.com/filecoin-project/go-address v1.0.0
 	github.com/filecoin-project/specs-actors/v8 v8.0.1
-	github.com/filecoin-project/venus v1.8.1
+	github.com/filecoin-project/venus v1.9.0
 	hellocontract v0.0.0-00010101000000-000000000000
 )
 
@@ -65,7 +65,7 @@ require (
 	github.com/ipfs/go-ipld-legacy v0.1.1 // indirect
 	github.com/ipfs/go-log v1.0.5 // indirect
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
-	github.com/ipfs/go-merkledag v0.8.0 // indirect
+	github.com/ipfs/go-merkledag v0.8.1 // indirect
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/ipfs/go-verifcid v0.0.1 // indirect
 	github.com/ipld/go-car v0.4.0 // indirect

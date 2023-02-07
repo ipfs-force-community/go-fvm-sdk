@@ -20,12 +20,12 @@ func IsAccountAddress(ctx context.Context, addr address.Address) bool {
 		return false
 	}
 
-	actorTytp, err := ResolveBuiltinActorType(ctx, *codeCid)
+	actorType, err := GetBuiltinActorType(ctx, codeCid)
 	if err != nil {
 		return false
 	}
 
-	return actorTytp == types.Account
+	return actorType == types.Account
 }
 
 // ResolveOrInitAddress get actor id from address, if not found create one
@@ -69,3 +69,46 @@ func SameAddress(ctx context.Context, addrA, addrB address.Address) bool {
 	}
 	return idA == idB
 }
+
+/*
+// LookupAddress get address of the actor, including f1/f3/f4
+func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
+	actorAddr, err := address.NewIDAddress(uint64(actorID))
+	if err != nil {
+		return address.Undef, err
+	}
+
+	codeCid, err := GetActorCodeCid(ctx, actorAddr)
+	if err != nil {
+		return address.Undef, err
+	}
+
+	actorType, err := GetBuiltinActorType(ctx, codeCid)
+	if err != nil {
+		return address.Undef, err
+	}
+
+	if actorType == types.Account {
+		receipt, err := Send(ctx, actorAddr, 2, nil, big.Zero())
+		if err != nil {
+			return address.Undef, err
+		}
+
+		if receipt.ExitCode.IsSuccess() {
+			return address.Undef, fmt.Errorf("expect success send result but got %d", receipt.ExitCode)
+		}
+
+		addr := &address.Undef
+		err = addr.UnmarshalCBOR(bytes.NewReader(receipt.ReturnData))
+		if err != nil {
+			return address.Undef, err
+		}
+		return *addr, nil
+	}
+	if actorType == types.PlaceHolder || actorType == types.EthAccount {
+		return LookupDelegatedAddress(ctx, actorID)
+	}
+	return address.Undef, fmt.Errorf("unsupport account code %d", actorType)
+}
+
+*/

@@ -5,7 +5,7 @@ go 1.18
 replace (
 	erc20 => ./
 	github.com/davecgh/go-spew => github.com/ipfs-force-community/go-spew v1.1.2-0.20220524052205-0034150c051a
-	github.com/filecoin-project/go-address => github.com/ipfs-force-community/go-address v0.0.7-0.20220524010936-42617a156be1
+	github.com/filecoin-project/go-address => github.com/ipfs-force-community/go-address v0.0.7-0.20230207015848-7a27d889c267
 	github.com/ipfs-force-community/go-fvm-sdk => ../..
 	github.com/ipfs/go-block-format => github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c
 	//remove anything about reflect

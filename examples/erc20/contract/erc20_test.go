@@ -1,8 +1,6 @@
 package contract
 
 import (
-	"bytes"
-	"encoding/hex"
 	"testing"
 
 	"github.com/filecoin-project/go-state-types/builtin"
@@ -19,16 +17,6 @@ import (
 )
 
 func TestErc20TokenGetter(t *testing.T) {
-	r := &ConstructorReq{
-		Name:        "Venus",
-		Symbol:      "V",
-		Decimals:    6,
-		TotalSupply: abi.NewTokenAmount(99999999999999),
-	}
-	buf := bytes.NewBufferString("")
-	r.MarshalCBOR(buf)
-	println(hex.EncodeToString(buf.Bytes()))
-
 	simulator, ctx := simulated.CreateEmptySimulator()
 	addr, err := simulated.NewF1Address()
 	assert.NoError(t, err)

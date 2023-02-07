@@ -16,7 +16,6 @@ func Abort(ctx context.Context, code ferrors.ExitCode, msg string) {
 		Exit(ctx, ferrors.USR_ASSERTION_FAILED, nil, msg)
 	}
 	Exit(ctx, code, nil, msg)
-
 }
 
 // Exit abort contract with data and exit message

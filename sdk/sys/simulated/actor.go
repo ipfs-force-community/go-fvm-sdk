@@ -19,7 +19,7 @@ func (fvmSimulator *FvmSimulator) SetActor(actorID abi.ActorID, addr address.Add
 	fvmSimulator.addressMap[addr] = actorID
 }
 
-func (fvmSimulator *FvmSimulator) LookupAddress(actorID abi.ActorID) (address.Address, error) {
+func (fvmSimulator *FvmSimulator) LookupDelegatedAddress(actorID abi.ActorID) (address.Address, error) {
 	fvmSimulator.actorLk.Lock()
 	defer fvmSimulator.actorLk.Unlock()
 	for k, v := range fvmSimulator.addressMap {
@@ -58,12 +58,12 @@ func (fvmSimulator *FvmSimulator) CreateActor(actorID abi.ActorID, codeCid cid.C
 	return nil
 }
 
-func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address) (*cid.Cid, error) {
+func (fvmSimulator *FvmSimulator) GetActorCodeCid(addr address.Address) (cid.Cid, error) {
 	acstat, err := fvmSimulator.getActorWithAddress(addr)
 	if err != nil {
-		return nil, err
+		return cid.Undef, err
 	}
-	return &acstat.Code, nil
+	return acstat.Code, nil
 }
 
 func (fvmSimulator *FvmSimulator) BalanceOf(actorID abi.ActorID) (*abi.TokenAmount, error) {

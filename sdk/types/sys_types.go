@@ -7,12 +7,18 @@ import (
 )
 
 const (
-	BLAKE2B256 uint64 = 0xb220
-	BLAKE2BLEN uint32 = 32
+	/// DagCBOR should be used for all IPLD-CBOR data where CIDs need to be traversable.
+	DAGCBOR uint64 = 0x71
+	CBOR    uint64 = 0x51
+	IPLDRAW uint64 = 0x55
 )
 
-type BlockID = uint32
 type Codec = uint64
+
+// NoDataBlockID specify noblock in params and return
+const NoDataBlockID uint32 = 0
+
+type BlockID = uint32
 
 func ValidateConsensusFaultType(c runtime.ConsensusFaultType) bool {
 	return 0 <= c && c <= 3
@@ -35,8 +41,10 @@ type ResolveAddress struct {
 }
 
 type SendResult struct {
-	ExitCode ferrors.ExitCode
-	ReturnID BlockID
+	ExitCode    ferrors.ExitCode
+	ReturnID    BlockID
+	ReturnCodec uint64
+	ReturnSize  uint32
 }
 
 type VerifyConsensusFault struct {

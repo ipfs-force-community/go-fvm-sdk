@@ -13,7 +13,7 @@ func actorResolveAddress(ret uintptr, addrOff uintptr, addrLen uint32) uint32 {
 func actorGetActorCodeCid(ret uintptr, actorID uint64, oBufOff uintptr, oBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorResolveBuiltinActorType(ret uintptr, cidOff uintptr) uint32 {
+func actorGetBuiltinActorType(ret uintptr, cidOff uintptr) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 func actorGetCodeCidForType(ret uintptr, typ int32, oBufOff uintptr, oBufLen uint32) uint32 {
@@ -112,7 +112,7 @@ func selfCurrentBalance(ret uintptr) uint32 {
 func selfDestruct(addrOff uintptr, addrLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
-func actorLookupAddress(ret uintptr, actorID uint64, addrBufOff uintptr, addrBufLen uint32) uint32 {
+func actorLookupDelegatedAddress(ret uintptr, actorID uint64, addrBufOff uintptr, addrBufLen uint32) uint32 {
 	panic("ignore this error, just implement nonfvm for ide working")
 }
 

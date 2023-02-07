@@ -19,18 +19,18 @@ func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, err
 }
 
 // GetActorCodeCid look up the code ID at an actor address. Returns `None` if the actor cannot be found.
-func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
+func GetActorCodeCid(ctx context.Context, addr address.Address) (cid.Cid, error) {
 	return sys.GetActorCodeCid(ctx, addr)
 }
 
-// LookupAddress look up the address at an actor  ID. Returns `None` if the actor cannot be found.
-func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
-	return sys.LookupAddress(ctx, actorID)
+// LookupDelegatedAddress look up the address at an actor  ID. Returns `None` if the actor cannot be found.
+func LookupDelegatedAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
+	return sys.LookupDelegatedAddress(ctx, actorID)
 }
 
-// NextctorAddress generates a new actor address for an actor deployed
+// NextActorAddress generates a new actor address for an actor deployed
 // by the calling actor.
-func NextctorAddress(ctx context.Context) (address.Address, error) {
+func NextActorAddress(ctx context.Context) (address.Address, error) {
 	return sys.NextActorAddress(ctx)
 }
 
@@ -41,10 +41,10 @@ func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid, addr
 	return sys.CreateActor(ctx, actorID, codeCid, addr)
 }
 
-// ResolveBuiltinActorType determines whether the supplied CodeCID belongs to a built-in actor type,
+// GetBuiltinActorType determines whether the supplied CodeCID belongs to a built-in actor type,
 // and to which.
-func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
-	return sys.ResolveBuiltinActorType(ctx, codeCid)
+func GetBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
+	return sys.GetBuiltinActorType(ctx, codeCid)
 }
 
 // GetCodeCidForType Returns the CodeCID for a built-in actor type. Aborts with IllegalArgument

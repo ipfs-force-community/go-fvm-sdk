@@ -21,7 +21,7 @@ func Log(ctx context.Context, msg string) error {
 	panic(ErrorEnvValid)
 }
 
-func StoreArtifact(ctx context.Context, name string, data string) error {
+func StoreArtifact(ctx context.Context, name string, data []byte) error {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.StoreArtifact(name, data)
 	}

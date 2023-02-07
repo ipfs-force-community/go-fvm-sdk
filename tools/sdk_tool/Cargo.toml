@@ -33,9 +33,9 @@ frc42_hasher = "1.2.0"
 blake2b_simd = "1.0.0"
 
 actors-v10 = { package = "fil_builtin_actors_bundle", git = "https://github.com/filecoin-project/builtin-actors", branch = "next", features = ["m2-native"] }
-fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm",rev="fa791e9726443c526800f0e90334137bdd80edcf",  features = ["m2-native"]}
-fvm_shared = {  git = "https://github.com/ipfs-force-community/ref-fvm",rev="fa791e9726443c526800f0e90334137bdd80edcf"}
-fvm_ipld_blockstore = { git = "https://github.com/ipfs-force-community/ref-fvm",rev="fa791e9726443c526800f0e90334137bdd80edcf" }
-fvm_ipld_encoding = { git = "https://github.com/ipfs-force-community/ref-fvm",rev="fa791e9726443c526800f0e90334137bdd80edcf"}
-fvm_integration_tests = { git = "https://github.com/ipfs-force-community/ref-fvm", rev="fa791e9726443c526800f0e90334137bdd80edcf",  features = ["m2-native"]}
+fvm = {  git = "https://github.com/ipfs-force-community/ref-fvm",rev="b796ca62cc5ed314392789badbdb4062d095823d",  features = ["m2-native"]}
+fvm_shared = {  git = "https://github.com/ipfs-force-community/ref-fvm",rev="b796ca62cc5ed314392789badbdb4062d095823d"}
+fvm_ipld_blockstore = { git = "https://github.com/ipfs-force-community/ref-fvm",rev="b796ca62cc5ed314392789badbdb4062d095823d" }
+fvm_ipld_encoding = { git = "https://github.com/ipfs-force-community/ref-fvm",rev="b796ca62cc5ed314392789badbdb4062d095823d"}
+fvm_integration_tests = { git = "https://github.com/ipfs-force-community/ref-fvm", rev="b796ca62cc5ed314392789badbdb4062d095823d",  features = ["m2-native"]}
 

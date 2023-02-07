@@ -30,11 +30,11 @@ func ResolveAddress(_ context.Context, addr address.Address) (abi.ActorID, error
 	return result, nil
 }
 
-func LookupAddress(_ context.Context, actorID abi.ActorID) (address.Address, error) {
+func LookupDelegatedAddress(_ context.Context, actorID abi.ActorID) (address.Address, error) {
 	buf := make([]byte, types.MaxActorAddrLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
 	var addrLen uint32
-	code := actorLookupAddress(uintptr(unsafe.Pointer(&addrLen)), uint64(actorID), bufPtr, bufLen)
+	code := actorLookupDelegatedAddress(uintptr(unsafe.Pointer(&addrLen)), uint64(actorID), bufPtr, bufLen)
 	if code != 0 {
 		return address.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected address resolution failure: ")
 	}
@@ -46,32 +46,32 @@ func LookupAddress(_ context.Context, actorID abi.ActorID) (address.Address, err
 	return addr, err
 }
 
-func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
+func GetActorCodeCid(ctx context.Context, addr address.Address) (cid.Cid, error) {
 	actorID, err := ResolveAddress(ctx, addr)
 	if err != nil {
-		return nil, err
+		return cid.Undef, err
 	}
-	buf := make([]byte, types.MaxActorAddrLen)
+	buf := make([]byte, types.MaxCidLen)
 	bufPtr, bufLen := GetSlicePointerAndLen(buf)
-	var cidLen int32
 
+	var cidLen int32
 	code := actorGetActorCodeCid(uintptr(unsafe.Pointer(&cidLen)), uint64(actorID), bufPtr, bufLen)
 	if code != 0 {
-		return nil, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected code cid resolution failure: ")
+		return cid.Undef, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "unexpected code cid resolution failure: ")
 	}
 
 	_, result, err := cid.CidFromBytes(buf)
 	if err != nil {
-		return nil, err
+		return cid.Undef, err
 	}
-	return &result, nil
+	return result, nil
 
 }
 
-func ResolveBuiltinActorType(_ context.Context, codeCid cid.Cid) (types.ActorType, error) {
+func GetBuiltinActorType(_ context.Context, codeCid cid.Cid) (types.ActorType, error) {
 	addrBufPtr, _ := GetSlicePointerAndLen(codeCid.Bytes())
 	var result types.ActorType
-	code := actorResolveBuiltinActorType(uintptr(unsafe.Pointer(&result)), addrBufPtr)
+	code := actorGetBuiltinActorType(uintptr(unsafe.Pointer(&result)), addrBufPtr)
 	if code != 0 {
 		return 0, ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to determine if CID belongs to builtin actor:")
 	}

@@ -30,9 +30,9 @@ func Log(_ context.Context, msg string) error {
 	return nil
 }
 
-func StoreArtifact(_ context.Context, name string, data string) error {
+func StoreArtifact(_ context.Context, name string, data []byte) error {
 	nameBufPtr, nameBufLen := GetStringPointerAndLen(name)
-	dataBufPtr, dataBufLen := GetStringPointerAndLen(data)
+	dataBufPtr, dataBufLen := GetSlicePointerAndLen(data)
 	code := debugStoreArtifact(nameBufPtr, nameBufLen, dataBufPtr, dataBufLen)
 	if code != 0 {
 		return ferrors.NewSysCallError(ferrors.ErrorNumber(code), "failed to record debug log")

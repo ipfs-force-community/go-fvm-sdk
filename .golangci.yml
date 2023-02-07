@@ -9,9 +9,6 @@ linters:
     - errcheck
     - unconvert
     - staticcheck
-    - varcheck
-    - structcheck
-    - deadcode
     - unused
     - stylecheck
     - gosimple

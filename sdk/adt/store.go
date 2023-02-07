@@ -67,5 +67,5 @@ func (r fvmStore) Put(ctx context.Context, in interface{}) (cid.Cid, error) {
 	if err != nil {
 		return cid.Undef, fmt.Errorf("marshal object fail")
 	}
-	return sdk.Put(ctx, types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCbor, buf.Bytes())
+	return sdk.Put(ctx, types.BLAKE2B256, types.BLAKE2BLEN, types.DAGCBOR, buf.Bytes())
 }
