@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"unsafe"
 
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/internal"
+
 	"github.com/ipfs/go-cid"
 
 	"github.com/filecoin-project/go-state-types/cbor"
@@ -21,7 +23,7 @@ func SaveState(ctx context.Context, state cbor.Marshaler) cid.Cid {
 		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
 	stBytes := buf.Bytes()
-	stCid, err := Put(ctx, 0xb220, 32, types.DAGCbor, stBytes)
+	stCid, err := Put(ctx, 0xb220, 32, types.DAGCBOR, stBytes)
 	if err != nil {
 		Abort(ctx, ferrors.USR_ILLEGAL_STATE, fmt.Sprintf("failed to get root: %v", err))
 	}
@@ -104,3 +106,6 @@ type MethodInfo struct {
 	// indicate whether this method is a readonly function,  not need to send message when invoke this query state
 	Readonly bool
 }
+
+// WriteCborArray marshal cbor array to bytes
+var WriteCborArray = internal.WriteCborArray[cbor.Marshaler]

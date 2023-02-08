@@ -43,12 +43,11 @@ func (t *TestingT) Info(args ...interface{}) {
 
 func (t *TestingT) FailNow() {
 	t.failed = true
-	sdk.Abort(context.Background(), ferrors.SYS_ASSERTION_FAILED, t.errBuf.String())
+	sdk.Abort(context.Background(), ferrors.USR_ASSERTION_FAILED, t.errBuf.String())
 }
 
 func (t *TestingT) CheckResult() {
-
 	if t.failed {
-		sdk.Abort(context.Background(), ferrors.SYS_ASSERTION_FAILED, fmt.Sprintf("assert fail:\n"+t.errBuf.String()))
+		sdk.Abort(context.Background(), ferrors.USR_ASSERTION_FAILED, fmt.Sprintf("assert fail:\n"+t.errBuf.String()))
 	}
 }

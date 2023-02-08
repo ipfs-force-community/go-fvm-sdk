@@ -15,6 +15,11 @@ const (
 	Multisig         ActorType = 9
 	Reward           ActorType = 10
 	VerifiedRegistry ActorType = 11
+
+	PlaceHolder ActorType = 12
+	Evm         ActorType = 13
+	Eam         ActorType = 14
+	EthAccount  ActorType = 15
 )
 
 func (t ActorType) IsSingletonActor() bool {
@@ -30,6 +35,8 @@ func (t ActorType) IsSingletonActor() bool {
 	case Market:
 		fallthrough
 	case VerifiedRegistry:
+		return true
+	case Eam:
 		return true
 	default:
 		return false

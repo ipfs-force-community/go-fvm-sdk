@@ -13,7 +13,7 @@ func TestSetSend(t *testing.T) {
 	sendmockcase := make([]SendMock, 0)
 	sendmockcase = append(sendmockcase, SendMock{address.Undef, 1, data, big.NewInt(1), types.SendResult{}})
 	defaultfsm := FvmSimulator{}
-	blkId := defaultfsm.blockCreate(types.DAGCbor, data)
+	blkId := defaultfsm.blockCreate(types.DAGCBOR, data)
 	defaultfsm.ExpectSend(sendmockcase...)
 	_, err := defaultfsm.sendMatch(address.Undef, 1, blkId, big.NewInt(1))
 	if err != nil {

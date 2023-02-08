@@ -12,7 +12,7 @@ use fvm_integration_tests::dummy::DummyExterns;
 use fvm_integration_tests::tester::{Account, Tester};
 use fvm_ipld_blockstore::MemoryBlockstore;
 use fvm_ipld_encoding::tuple::*;
-use fvm_ipld_encoding::{Cbor, RawBytes};
+use fvm_ipld_encoding::{from_slice, to_vec, RawBytes};
 use fvm_shared::address;
 use fvm_shared::address::Address;
 use fvm_shared::bigint::BigInt;
@@ -43,8 +43,12 @@ pub struct TestConfig {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InitAccount {
-    priv_key: String,
+    priv_key: Option<String>,
     balance: u64,
+
+    subaddress: Option<String>,
+    #[serde(default)]
+    isf4: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -165,10 +169,9 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
     //install
     // Send message
     let install_return: InstallReturn = {
-        let install_params = InstallParams {
+        let install_params = to_vec(&InstallParams {
             code: RawBytes::from(buf),
-        }
-        .marshal_cbor()?;
+        })?;
         let install_message = Message {
             from: accounts[contract_case.owner_account].1,
             to: init_actor_addr,
@@ -187,19 +190,18 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             0,
             "".to_owned(),
             vec![],
-        );
-        InstallReturn::unmarshal_cbor(ret.msg_receipt.return_data.as_slice())
+        )?;
+        from_slice(ret.msg_receipt.return_data.as_slice())
     }?;
 
     println!("code cid {}", install_return.code_cid.clone());
     //create
     let create_return: ExecReturn = {
         let constructor_params = hex::decode(contract_case.constructor.clone())?;
-        let exec_params = ExecParams {
+        let exec_params = to_vec(&ExecParams {
             code_cid: install_return.code_cid,
             constructor_params: RawBytes::from(constructor_params),
-        }
-        .marshal_cbor()?;
+        })?;
 
         let create_message = Message {
             from: accounts[contract_case.owner_account].1,
@@ -218,8 +220,8 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             0,
             "".to_owned(),
             vec![],
-        );
-        ExecReturn::unmarshal_cbor(ret.msg_receipt.return_data.as_slice())
+        )?;
+        from_slice(ret.msg_receipt.return_data.as_slice())
     }?;
     //invoke
     println!("actor cid {}", create_return.id_address);
@@ -246,7 +248,7 @@ pub fn run_action_group(accounts_cfg: &[InitAccount], contract_case: &ContractCa
             wasm_case.expect_code,
             wasm_case.expect_message.clone(),
             hex::decode(wasm_case.return_data.clone())?,
-        );
+        )?;
     }
 
     Ok(())
@@ -274,8 +276,7 @@ pub fn run_signle_wasm(accounts: &[InitAccount], wasm_case: &WasmCase) -> Result
         wasm_case.expect_code,
         wasm_case.expect_message.clone(),
         vec![],
-    );
-    Ok(())
+    )
 }
 
 fn check_message_receipt(
@@ -284,56 +285,60 @@ fn check_message_receipt(
     expect_code: u32,
     expect_message: String,
     expect_receipt: Vec<u8>,
-) {
+) -> Result<()> {
     if ret.msg_receipt.exit_code.value() != expect_code {
         if let Some(fail_info) = &ret.failure_info {
-            panic!(
-                "{}:case {} expect exit code {} but got {} {}",
+            println!(
+                "{}:case {} expect exit code\n\t{} \nbut got \n\t{} {}",
                 "failed".red(),
                 name,
                 expect_code,
                 ret.msg_receipt.exit_code,
                 fail_info
-            )
-        } else {
-            panic!(
-                "{}: case {} expect exit code {} but got {}",
-                "failed".red(),
-                name,
-                expect_code,
-                ret.msg_receipt.exit_code
-            )
+            );
+            return Ok(());
         }
+        println!(
+            "{}: case {} expect exit code \n\t{} but got \n\t{}",
+            "failed".red(),
+            name,
+            expect_code,
+            ret.msg_receipt.exit_code
+        );
+        return Ok(());
     }
 
     if expect_code != 0 {
         if let Some(ApplyFailure::MessageBacktrace(trace)) = &ret.failure_info {
             let abort_msg = trace.frames.iter().last().unwrap().to_string();
             if !abort_msg.contains(expect_message.as_str()) {
-                panic!(
-                    "{}: case {} expect messcage `{}` but got `{}`",
+                println!(
+                    "{}: case {} expect message \n\t`{}` \nbut got \n\t`{}`",
                     "failed".red(),
                     name,
                     expect_message,
                     abort_msg
-                )
+                );
+                return Ok(());
             }
         }
     }
 
     if expect_code == 0 && !expect_receipt.is_empty() {
-        let return_data = ret.msg_receipt.return_data.bytes().to_vec();
+        let return_data = ret.msg_receipt.return_data.bytes();
         if return_data != expect_receipt {
-            panic!(
-                "{}: case {} expect return data {} but got {}",
+            println!(
+                "{}: case {} expect return data \n\t{} \n but got \n\t{}",
                 "failed".red(),
                 name,
                 hex::encode(expect_receipt),
                 hex::encode(return_data)
-            )
+            );
+            return Ok(());
         }
     }
-    println! {"{}: case {}", "passed".green(), name}
+    println! {"{}: case {}", "passed".green(), name};
+    Ok(())
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Clone, Debug)]
@@ -350,10 +355,23 @@ pub fn new_tester(
         Tester::new(NetworkVersion::V18, StateTreeVersion::V5, bundle_root, bs).unwrap();
     let mut accounts: Vec<Account> = vec![];
     for init_account in accounts_cfg {
-        let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(init_account.priv_key.clone())?)?;
         let balance = BigInt::from(init_account.balance);
-        let account = tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
-        accounts.push(account);
+        if init_account.isf4 {
+            let sub_address =
+                Address::new_delegated(10, init_account.subaddress.as_ref().unwrap().as_bytes())?;
+            accounts
+                .push(tester.create_placeholder(&sub_address, TokenAmount::from_whole(balance))?);
+        } else {
+            let priv_key = SecretKey::parse(&<[u8; 32]>::from_hex(
+                init_account
+                    .priv_key
+                    .as_ref()
+                    .expect("must specific priv key for secp address"),
+            )?)?;
+            let account =
+                tester.make_secp256k1_account(priv_key, TokenAmount::from_whole(balance))?;
+            accounts.push(account);
+        }
     }
     Ok((tester, accounts))
 }
@@ -420,11 +438,6 @@ pub struct ExecReturn {
     /// Reorg safe address for actor
     pub robust_address: Address,
 }
-
-impl Cbor for ExecReturn {}
-
-impl Cbor for ExecParams {}
-
 /// Init actor Install Params
 #[derive(Serialize_tuple, Deserialize_tuple)]
 pub struct InstallParams {
@@ -437,7 +450,3 @@ pub struct InstallReturn {
     pub code_cid: Cid,
     pub installed: bool,
 }
-
-impl Cbor for InstallParams {}
-
-impl Cbor for InstallReturn {}

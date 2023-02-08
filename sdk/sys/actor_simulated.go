@@ -24,16 +24,16 @@ func ResolveAddress(ctx context.Context, addr address.Address) (abi.ActorID, err
 	panic(ErrorEnvValid)
 }
 
-func GetActorCodeCid(ctx context.Context, addr address.Address) (*cid.Cid, error) {
+func GetActorCodeCid(ctx context.Context, addr address.Address) (cid.Cid, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
 		return env.GetActorCodeCid(addr)
 	}
 	panic(ErrorEnvValid)
 }
 
-func ResolveBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
+func GetBuiltinActorType(ctx context.Context, codeCid cid.Cid) (types.ActorType, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.ResolveBuiltinActorType(codeCid)
+		return env.GetBuiltinActorType(codeCid)
 	}
 	panic(ErrorEnvValid)
 }
@@ -59,9 +59,9 @@ func CreateActor(ctx context.Context, actorID abi.ActorID, codeCid cid.Cid, addr
 	panic(ErrorEnvValid)
 }
 
-func LookupAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
+func LookupDelegatedAddress(ctx context.Context, actorID abi.ActorID) (address.Address, error) {
 	if env, ok := tryGetSimulator(ctx); ok {
-		return env.LookupAddress(actorID)
+		return env.LookupDelegatedAddress(actorID)
 	}
 	panic(ErrorEnvValid)
 }

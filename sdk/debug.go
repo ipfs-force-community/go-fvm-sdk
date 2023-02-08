@@ -12,6 +12,7 @@ type Logger interface {
 	Enabled(ctx context.Context) bool
 	Log(ctx context.Context, args ...interface{})
 	Logf(ctx context.Context, format string, a ...interface{})
+	StoreArtifact(ctx context.Context, name string, data []byte)
 }
 
 var _ Logger = (*logger)(nil)
@@ -47,7 +48,7 @@ func (l *logger) Logf(ctx context.Context, format string, a ...interface{}) {
 	}
 }
 
-func (l *logger) StoreArtifact(ctx context.Context, name string, data string) {
+func (l *logger) StoreArtifact(ctx context.Context, name string, data []byte) {
 	if l.Enabled(ctx) {
 		_ = sys.StoreArtifact(ctx, name, data) //todo check error and abort?
 	}

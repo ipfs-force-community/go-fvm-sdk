@@ -1,4 +1,3 @@
-//nolint:param
 package main
 
 import (
@@ -18,18 +17,18 @@ func Invoke(_ uint32) uint32 { //nolint
 	ctx := context.Background()
 	epoch, err := sdk.CurrEpoch(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 0, int(epoch))
+	assert.Equal(t, 0, int(epoch), "epoch not match")
 
 	ver, err := sdk.Version(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 18, int(ver))
+	assert.Equal(t, 18, int(ver), "version not match")
 
 	fee, err := sdk.BaseFee(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "100", fee.String())
+	assert.Equal(t, "100", fee.String(), "base fee not match")
 
 	value, err := sdk.TotalFilCircSupply(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "2000000000000000000000000000", value.String())
+	assert.Equal(t, "2000000000000000000000000000", value.String(), "ful circsupply not match")
 	return 0
 }

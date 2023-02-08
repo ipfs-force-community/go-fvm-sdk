@@ -28,7 +28,7 @@ func (fvmSimulator *FvmSimulator) GetActor(addr address.Address) (builtin.Actor,
 	return actor, nil
 }
 
-func (fvmSimulator *FvmSimulator) ResolveBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
+func (fvmSimulator *FvmSimulator) GetBuiltinActorType(codeCid cid.Cid) (types.ActorType, error) {
 	for k, v := range EmbeddedBuiltinActors {
 		if v == codeCid {
 			av, err := stringToactorType(k)
@@ -63,8 +63,8 @@ func (fvmSimulator *FvmSimulator) Log(msg string) error {
 	fmt.Println(msg)
 	return nil
 }
-func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data string) error {
-	fmt.Printf("%s %s\n", name, data)
+func (fvmSimulator *FvmSimulator) StoreArtifact(name string, data []byte) error {
+	fmt.Printf("%s %v\n", name, data)
 	return nil
 }
 

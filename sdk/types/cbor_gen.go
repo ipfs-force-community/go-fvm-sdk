@@ -639,92 +639,7 @@ func (t *InstallParams) UnmarshalCBOR(r io.Reader) (err error) {
 	return nil
 }
 
-var lengthBufActorEvent = []byte{129}
-
-func (t *ActorEvent) MarshalCBOR(w io.Writer) error {
-	if t == nil {
-		_, err := w.Write(cbg.CborNull)
-		return err
-	}
-
-	cw := cbg.NewCborWriter(w)
-
-	if _, err := cw.Write(lengthBufActorEvent); err != nil {
-		return err
-	}
-
-	// t.Entries ([]types.Entry) (slice)
-	if len(t.Entries) > cbg.MaxLength {
-		return xerrors.Errorf("Slice value in field t.Entries was too long")
-	}
-
-	if err := cw.WriteMajorTypeHeader(cbg.MajArray, uint64(len(t.Entries))); err != nil {
-		return err
-	}
-	for _, v := range t.Entries {
-		if err := v.MarshalCBOR(cw); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (t *ActorEvent) UnmarshalCBOR(r io.Reader) (err error) {
-	*t = ActorEvent{}
-
-	cr := cbg.NewCborReader(r)
-
-	maj, extra, err := cr.ReadHeader()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err == io.EOF {
-			err = io.ErrUnexpectedEOF
-		}
-	}()
-
-	if maj != cbg.MajArray {
-		return fmt.Errorf("cbor input should be of type array")
-	}
-
-	if extra != 1 {
-		return fmt.Errorf("cbor input had wrong number of fields")
-	}
-
-	// t.Entries ([]types.Entry) (slice)
-
-	maj, extra, err = cr.ReadHeader()
-	if err != nil {
-		return err
-	}
-
-	if extra > cbg.MaxLength {
-		return fmt.Errorf("t.Entries: array too large (%d)", extra)
-	}
-
-	if maj != cbg.MajArray {
-		return fmt.Errorf("expected cbor array")
-	}
-
-	if extra > 0 {
-		t.Entries = make([]Entry, extra)
-	}
-
-	for i := 0; i < int(extra); i++ {
-
-		var v Entry
-		if err := v.UnmarshalCBOR(cr); err != nil {
-			return err
-		}
-
-		t.Entries[i] = v
-	}
-
-	return nil
-}
-
-var lengthBufEntry = []byte{131}
+var lengthBufEntry = []byte{132}
 
 func (t *Entry) MarshalCBOR(w io.Writer) error {
 	if t == nil {
@@ -738,7 +653,8 @@ func (t *Entry) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 
-	// t.Flags (types.Flags) (uint8)
+	// t.Flags (types.Flags) (uint64)
+
 	if err := cw.WriteMajorTypeHeader(cbg.MajUnsignedInt, uint64(t.Flags)); err != nil {
 		return err
 	}
@@ -752,6 +668,12 @@ func (t *Entry) MarshalCBOR(w io.Writer) error {
 		return err
 	}
 	if _, err := io.WriteString(w, string(t.Key)); err != nil {
+		return err
+	}
+
+	// t.Codec (uint64) (uint64)
+
+	if err := cw.WriteMajorTypeHeader(cbg.MajUnsignedInt, uint64(t.Codec)); err != nil {
 		return err
 	}
 
@@ -789,23 +711,24 @@ func (t *Entry) UnmarshalCBOR(r io.Reader) (err error) {
 		return fmt.Errorf("cbor input should be of type array")
 	}
 
-	if extra != 3 {
+	if extra != 4 {
 		return fmt.Errorf("cbor input had wrong number of fields")
 	}
 
-	// t.Flags (types.Flags) (uint8)
+	// t.Flags (types.Flags) (uint64)
 
-	maj, extra, err = cr.ReadHeader()
-	if err != nil {
-		return err
+	{
+
+		maj, extra, err = cr.ReadHeader()
+		if err != nil {
+			return err
+		}
+		if maj != cbg.MajUnsignedInt {
+			return fmt.Errorf("wrong type for uint64 field")
+		}
+		t.Flags = Flags(extra)
+
 	}
-	if maj != cbg.MajUnsignedInt {
-		return fmt.Errorf("wrong type for uint8 field")
-	}
-	if extra > math.MaxUint8 {
-		return fmt.Errorf("integer in input was too large for uint8 field")
-	}
-	t.Flags = Flags(extra)
 	// t.Key (string) (string)
 
 	{
@@ -815,6 +738,20 @@ func (t *Entry) UnmarshalCBOR(r io.Reader) (err error) {
 		}
 
 		t.Key = string(sval)
+	}
+	// t.Codec (uint64) (uint64)
+
+	{
+
+		maj, extra, err = cr.ReadHeader()
+		if err != nil {
+			return err
+		}
+		if maj != cbg.MajUnsignedInt {
+			return fmt.Errorf("wrong type for uint64 field")
+		}
+		t.Codec = uint64(extra)
+
 	}
 	// t.Value (types.RawBytes) (slice)
 

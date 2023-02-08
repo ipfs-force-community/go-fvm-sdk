@@ -17,18 +17,18 @@ func Invoke(_ uint32) uint32 { //nolint
 	ctx := context.Background()
 	_, err := sdk.Caller(ctx)
 	assert.Nil(t, err)
-	//	assert.Equal(t, caller, 1) todo unable to verify caller, its random value in tester
+	//assert.Equal(t, caller, 1) todo unable to verify caller, its random value in tester
 
 	receiver, err := sdk.Receiver(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 10000, int(receiver))
+	assert.Equal(t, 10000, int(receiver), "receive not match")
 
 	methodNum, err := sdk.MethodNumber(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, int(methodNum))
+	assert.Equal(t, 1, int(methodNum), "method number not match")
 
 	valueRecieved, err := sdk.ValueReceived(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, "10000000000000000000", valueRecieved.String())
+	assert.Equal(t, "10000000000000000000", valueRecieved.String(), "received value not match")
 	return 0
 }

@@ -3,7 +3,7 @@ ifeq (,$(wildcard ${current_dir}/bin/fvm_go_sdk))
 	BUILD_FIL_NETWORK=devnet-wasm cargo build -p fvm_go_sdk --release
 endif
 
-build-example:
+build-client-example:
 	cd examples/erc20/client_example && go build
 	cd examples/frc46token/client_example && go build
 	cd examples/hellocontract/client_example && go build
@@ -36,3 +36,6 @@ test: build code-gen
 	cd ./examples/frc46token && fvm_go_sdk test
 	cd ./examples/frc46token/contract && go test --tags simulate
 	cd ./examples/hellocontract/contract && go test --tags simulate
+
+
+check: code-gen lint build-client-example test

@@ -215,8 +215,8 @@ github.com/ipfs-force-community/cpuid/v2 v2.0.13-0.20220523085810-ac111993ce74 h
 github.com/ipfs-force-community/cpuid/v2 v2.0.13-0.20220523085810-ac111993ce74/go.mod h1:g2LTdtYhdyuGPqyWyv7qRAmj1WBqxuObKfj5c0PQa7c=
 github.com/ipfs-force-community/crypto v0.0.0-20220523090957-2aff239c26f7 h1:0dvyOdUuEh7VD07qubMUpAdKaWhi9rU44Ha7Gg75ZvI=
 github.com/ipfs-force-community/crypto v0.0.0-20220523090957-2aff239c26f7/go.mod h1:D0lmvLOXz6w7ZmLDGlhu8dLXYwW9Gt8YUXHznWhubM0=
-github.com/ipfs-force-community/go-address v0.0.7-0.20220524010936-42617a156be1 h1:fEAzzlaU82MS77+zhKnzba/z9O7DWiverNy4N3UlrAE=
-github.com/ipfs-force-community/go-address v0.0.7-0.20220524010936-42617a156be1/go.mod h1:c47hhdDrJsORr2oVJ/jbiR7DWV6+126WK/K6cknbflk=
+github.com/ipfs-force-community/go-address v0.0.7-0.20230207015848-7a27d889c267 h1:TojcwhADSEfZ9CvJt4tJS6Ve8mMtxlwZYw3og3BGqjI=
+github.com/ipfs-force-community/go-address v0.0.7-0.20230207015848-7a27d889c267/go.mod h1:NukqHCHdhddKAky8A0XhTCrY8/roFAbx2Dg1x0pNsUM=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c h1:Rn7a/fjlGT2oGgEgOKY3ygqm7PHUL2O1cOZScBsx3zU=
 github.com/ipfs-force-community/go-block-format v0.0.4-0.20220425095807-073e9266335c/go.mod h1:kyQTKTiWOkwcA5wwN5pNCD2ga2IWchuWogcv2H/l884=
 github.com/ipfs-force-community/go-ipld-cbor v0.0.7-0.20220713070731-f5190aacb1a4 h1:4Vp5Zy/K4arsqD/+/54LENl+pq41apzq+dDRD5M+8Zs=

@@ -20,6 +20,7 @@ func VMMessageContext(_ context.Context) (*types.MessageContext, error) {
 	}
 	return &types.MessageContext{
 		Origin:        result.Origin,
+		Nonce:         result.Nonce,
 		Caller:        result.Caller,
 		Receiver:      result.Receiver,
 		MethodNumber:  result.MethodNumber,
@@ -34,7 +35,7 @@ func Exit(ctx context.Context, code ferrors.ExitCode, data []byte, msg string) {
 	blkId := types.NoDataBlockID
 	if len(data) == 0 {
 		var err error
-		blkId, err = Create(ctx, types.DAGCbor, data)
+		blkId, err = Create(ctx, types.DAGCBOR, data)
 		if err != nil {
 			panic("failed create block when exit " + err.Error())
 		}

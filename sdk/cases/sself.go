@@ -22,7 +22,7 @@ func Invoke(_ uint32) uint32 { //nolint
 	originData := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 
 	//set data
-	stCid, err := sdk.Put(ctx, 0xb220, 32, types.DAGCbor, originData)
+	stCid, err := sdk.Put(ctx, 0xb220, 32, types.DAGCBOR, originData)
 	assert.Nil(t, err)
 
 	//set root
