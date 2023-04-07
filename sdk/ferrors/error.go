@@ -6,7 +6,7 @@ import (
 )
 
 // ExitCode define error in fvm and custom actor
-type ExitCode uint32
+type ExitCode uint64
 
 // Error return error message of exitcode
 func (e ExitCode) Error() string {

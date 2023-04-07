@@ -1,9 +1,8 @@
-module hellocontract
+module queuecall
 
 go 1.18
 
 replace (
-	hellocontract => ./
 	github.com/davecgh/go-spew => github.com/ipfs-force-community/go-spew v1.1.2-0.20220524052205-0034150c051a
 	github.com/filecoin-project/go-address => github.com/ipfs-force-community/go-address v0.0.7-0.20230207015848-7a27d889c267
 	github.com/ipfs-force-community/go-fvm-sdk => ../..
@@ -17,6 +16,7 @@ replace (
 	github.com/whyrusleeping/cbor-gen => github.com/ipfs-force-community/cbor-gen v0.0.0-20220421100448-dc345220256c
 	golang.org/x/crypto => github.com/ipfs-force-community/crypto v0.0.0-20220523090957-2aff239c26f7
 	lukechampine.com/blake3 => github.com/ipfs-force-community/blake3 v1.1.8-0.20220609024944-51450f2b2fc0
+	queuecall => ./
 )
 
 require (

@@ -268,8 +268,8 @@ pub fn run_signle_wasm(accounts: &[InitAccount], wasm_case: &WasmCase) -> Result
             e
         )
     })?;
-    let ret = exec(&buf, accounts, wasm_case)?;
 
+    let ret = exec(&buf, accounts, wasm_case)?;
     check_message_receipt(
         wasm_case.name.clone(),
         &ret,
@@ -383,9 +383,6 @@ pub fn exec(
 ) -> Result<ApplyRet> {
     // Instantiate tester
     let (mut tester, accounts) = new_tester(init_accounts)?;
-    // Get wasm bin
-    //  let wasm_bin = wat2wasm(wat).unwrap();
-
     // Set actor state
     let actor_state = State { empty: true };
     let state_cid = tester.set_state(&actor_state)?;

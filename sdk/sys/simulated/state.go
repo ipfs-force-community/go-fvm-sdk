@@ -38,7 +38,7 @@ func (s *block) stat() BlockStat {
 	return BlockStat{codec: s.codec, size: uint32(len(s.data))}
 }
 
-type blocks []block
+type blocks []*block
 
 // CreateEmptySimulator new context of simulated
 func CreateEmptySimulator() (*FvmSimulator, context.Context) {
@@ -103,7 +103,13 @@ func (fvmSimulator *FvmSimulator) sendMatch(to address.Address, method abi.Metho
 	if method != send.Method {
 		return nil, fmt.Errorf("send method not match expect: %d actual %d", send.Method, method)
 	}
-	if !bytes.Equal(rawParams.data, send.Params) {
+
+	var data []byte
+	if rawParams != nil {
+		data = rawParams.data
+	}
+
+	if !bytes.Equal(data, send.Params) {
 		return nil, fmt.Errorf("send to not match expect: %v actual %v", send.Params, rawParams.data)
 	}
 
@@ -129,8 +135,8 @@ func (fvmSimulator *FvmSimulator) blockLink(blockid uint32, hashfun uint64, hash
 }
 
 func (fvmSimulator *FvmSimulator) blockCreate(codec uint64, data []byte) uint32 {
-	fvmSimulator.putBlock(block{codec: codec, data: data})
-	return uint32(len(fvmSimulator.blocks) - 1)
+	fvmSimulator.putBlock(&block{codec: codec, data: data})
+	return uint32(len(fvmSimulator.blocks))
 }
 
 func (fvmSimulator *FvmSimulator) blockOpen(id cid.Cid) (blockID uint32, blockStat BlockStat) {
@@ -138,7 +144,7 @@ func (fvmSimulator *FvmSimulator) blockOpen(id cid.Cid) (blockID uint32, blockSt
 	block := block{data: data, codec: id.Prefix().GetCodec()}
 
 	stat := block.stat()
-	bid := fvmSimulator.putBlock(block)
+	bid := fvmSimulator.putBlock(&block)
 	return bid, stat
 
 }
@@ -176,23 +182,27 @@ func (fvmSimulator *FvmSimulator) getData(key cid.Cid) ([]byte, error) {
 	return nil, ErrorNotFound
 }
 
-func (fvmSimulator *FvmSimulator) putBlock(block block) uint32 {
+func (fvmSimulator *FvmSimulator) putBlock(block *block) uint32 {
 	fvmSimulator.blocksMutex.Lock()
 	defer fvmSimulator.blocksMutex.Unlock()
 
 	fvmSimulator.blocks = append(fvmSimulator.blocks, block)
 
-	return uint32(len(fvmSimulator.blocks) - 1)
+	return uint32(len(fvmSimulator.blocks))
 }
 
-func (fvmSimulator *FvmSimulator) getBlock(blockID uint32) (block, error) {
+func (fvmSimulator *FvmSimulator) getBlock(blockID uint32) (*block, error) {
 	fvmSimulator.blocksMutex.Lock()
 	defer fvmSimulator.blocksMutex.Unlock()
 
-	if blockID >= uint32(len(fvmSimulator.blocks)) {
-		return block{}, ErrorNotFound
+	if blockID == 0 {
+		return nil, nil
 	}
-	return fvmSimulator.blocks[blockID], nil
+
+	if blockID > uint32(len(fvmSimulator.blocks)) {
+		return nil, ErrorNotFound
+	}
+	return fvmSimulator.blocks[blockID-1], nil
 }
 
 // nolint
