@@ -1,6 +1,6 @@
 module gen
 
-go 1.18
+go 1.20
 
 require (
 	frc46token v0.0.0-00010101000000-000000000000

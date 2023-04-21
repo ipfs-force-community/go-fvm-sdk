@@ -1,6 +1,6 @@
 module wallet
 
-go 1.18
+go 1.20
 
 replace (
 	github.com/davecgh/go-spew => github.com/ipfs-force-community/go-spew v1.1.2-0.20220524052205-0034150c051a

@@ -1,16 +1,16 @@
 module gen
 
-go 1.18
+go 1.20
 
 require (
-	queuecall v0.0.0-00010101000000-000000000000
 	github.com/ipfs-force-community/go-fvm-sdk/gen v0.0.0-00010101000000-000000000000
+	queuecall v0.0.0-00010101000000-000000000000
 )
 
 replace (
-	queuecall => ../
 	github.com/ipfs-force-community/go-fvm-sdk => ../../..
 	github.com/ipfs-force-community/go-fvm-sdk/gen => ../../../gen
+	queuecall => ../
 )
 
 require (

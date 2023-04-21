@@ -5,8 +5,10 @@ import (
 	"bytes"
 	context "context"
 	"fmt"
+	contract "queuecall/contract"
 
 	address "github.com/filecoin-project/go-address"
+	abi "github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	builtin "github.com/filecoin-project/go-state-types/builtin"
 	init_ "github.com/filecoin-project/go-state-types/builtin/v9/init"
@@ -34,6 +36,10 @@ type IStateClient interface {
 	Install(context.Context, []byte, ...SendOption) (*sdkTypes.InstallReturn, error)
 
 	CreateActor(context.Context, cid.Cid, ...SendOption) (*init_.ExecReturn, error)
+
+	Queue(context.Context, *contract.Call, ...SendOption) (sdkTypes.CborString, error)
+
+	Execute(context.Context, *sdkTypes.CborString, ...SendOption) (*sdkTypes.Receipt, error)
 }
 
 var _ IStateClient = (*StateClient)(nil)
@@ -188,4 +194,98 @@ func (c *StateClient) CreateActor(ctx context.Context, codeCid cid.Cid, opts ...
 	}
 	c.cfg.actor = result.IDAddress
 	return &result, nil
+}
+
+func (c *StateClient) Queue(ctx context.Context, p0 *contract.Call, opts ...SendOption) (sdkTypes.CborString, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
+		return "", fmt.Errorf("need config actor address for call")
+	}
+
+	buf := bytes.NewBufferString("")
+	if err := p0.MarshalCBOR(buf); err != nil {
+		return "", err
+	}
+	msg := &types.Message{
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
+		Value:  big.Zero(),
+		Method: abi.MethodNum(0x2774a91d),
+		Params: buf.Bytes(),
+	}
+
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return "", fmt.Errorf("actor execution failed")
+	}
+	if len(wait.Receipt.Return) == 0 {
+		return "", fmt.Errorf("expect get result for call")
+	}
+
+	result := new(sdkTypes.CborString)
+	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
+
+	return *result, nil
+
+}
+
+func (c *StateClient) Execute(ctx context.Context, p0 *sdkTypes.CborString, opts ...SendOption) (*sdkTypes.Receipt, error) {
+	cfg_copy := c.cfg
+	for _, opt := range opts {
+		opt(&cfg_copy)
+	}
+
+	if c.cfg.actor == address.Undef {
+		return nil, fmt.Errorf("need config actor address for call")
+	}
+
+	buf := bytes.NewBufferString("")
+	if err := p0.MarshalCBOR(buf); err != nil {
+		return nil, err
+	}
+	msg := &types.Message{
+		To:     cfg_copy.actor,
+		From:   cfg_copy.fromAddress,
+		Value:  big.Zero(),
+		Method: abi.MethodNum(0x422917dc),
+		Params: buf.Bytes(),
+	}
+
+	smsg, err := c.node.MpoolPushMessage(ctx, msg, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to push message: %w", err)
+	}
+
+	wait, err := c.node.StateWaitMsg(ctx, smsg.Cid(), 0)
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for message: %w", err)
+	}
+
+	// check it executed successfully
+	if wait.Receipt.ExitCode != 0 {
+		return nil, fmt.Errorf("actor execution failed")
+	}
+	if len(wait.Receipt.Return) == 0 {
+		return nil, fmt.Errorf("expect get result for call")
+	}
+
+	result := new(sdkTypes.Receipt)
+	result.UnmarshalCBOR(bytes.NewReader(wait.Receipt.Return))
+
+	return result, nil
+
 }

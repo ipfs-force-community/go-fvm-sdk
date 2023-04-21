@@ -160,7 +160,7 @@ func (e *State) Execute(ctx context.Context, id *types.CborString) (*types.Recei
 		return nil, err
 	}
 	if !found {
-		return nil, fmt.Errorf("call %s not found", id)
+		return nil, fmt.Errorf("call %v not found", id)
 	}
 
 	timestamp, err := sdk.TipsetTimestamp(ctx)

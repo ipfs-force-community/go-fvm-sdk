@@ -1,6 +1,6 @@
 module frc46token
 
-go 1.18
+go 1.20
 
 replace (
 	erc20 => ./

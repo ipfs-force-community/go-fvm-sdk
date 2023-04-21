@@ -1,6 +1,6 @@
 module queuecall
 
-go 1.18
+go 1.20
 
 replace (
 	github.com/davecgh/go-spew => github.com/ipfs-force-community/go-spew v1.1.2-0.20220524052205-0034150c051a
@@ -32,6 +32,7 @@ require (
 	github.com/ipfs-force-community/go-fvm-sdk v0.0.0-00010101000000-000000000000
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-ipld-cbor v0.0.6
+	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/stretchr/testify v1.8.0
 )
 
@@ -99,7 +100,6 @@ require (
 	github.com/libp2p/go-openssl v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
-	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/multiformats/go-base32 v0.0.4 // indirect

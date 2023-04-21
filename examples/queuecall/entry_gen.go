@@ -41,12 +41,46 @@ func Invoke(blockId uint32) uint32 {
 	}
 
 	var callResult cbor.Marshaler
-
+	var raw *sdkTypes.ParamsRaw
 	switch method {
 	case 0x1: //1  function name:Constructor  alias name:
 		// Constuctor
 		err = contract.Constructor(ctx)
 		callResult = typegen.CborBool(true)
+
+	case 0x2774a91d: //661956893  function name:Queue  alias name:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req contract.Call
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
+		}
+
+		// have params/return/error
+		state := new(contract.State)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Queue(ctx, &req)
+
+	case 0x422917dc: //1109989340  function name:Execute  alias name:
+
+		raw, err = sdk.ParamsRaw(ctx, blockId)
+		if err != nil {
+			sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unable to read params raw")
+		}
+		var req sdkTypes.CborString
+		err = req.UnmarshalCBOR(bytes.NewReader(raw.Raw))
+		if err != nil {
+			sdk.ExitWithBlkId(ctx, ferrors.USR_ILLEGAL_STATE, blockId, fmt.Sprintf("unable to unmarshal params raw err %v", err))
+		}
+
+		// have params/return/error
+		state := new(contract.State)
+		sdk.LoadState(ctx, state)
+		callResult, err = state.Execute(ctx, &req)
 
 	default:
 		sdk.Abort(ctx, ferrors.USR_ILLEGAL_STATE, "unsupport method")

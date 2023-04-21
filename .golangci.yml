@@ -30,6 +30,7 @@ issues:
   exclude-use-default: false
   exclude:
     - "\\w+Id should be \\w+ID"
+    - "main redeclared in this block"
 
 linters-settings:
   goconst:

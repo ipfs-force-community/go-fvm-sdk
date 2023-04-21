@@ -16,7 +16,7 @@ Key features of `go-fvm-sdk` are...
 
 ## Install
 
-Install [Go](https://go.dev/doc/install)v1.17 or above and [TinyGo](https://tinygo.org/getting-started/install/)v0.25 or above.
+Install [Go](https://go.dev/doc/install)v1.20.x or above and [TinyGo](https://tinygo.org/getting-started/install/)v0.27 or above.
 
 *Note: latest Go or TinyGo versions may not be tested.*
 

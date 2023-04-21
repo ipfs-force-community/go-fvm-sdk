@@ -17,9 +17,9 @@ jobs:
         run: sudo apt-get -o Acquire::Retries=3 update && sudo apt-get -o Acquire::Retries=3 install make git mesa-opencl-icd ocl-icd-opencl-dev wget -y && sudo apt upgrade -y
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.20.3
 
       - name: setup rust
         uses: actions-rs/toolchain@v1
@@ -42,9 +42,9 @@ jobs:
 
       - name: install tinygo
         run: |
-          wget https://github.com/tinygo-org/tinygo/releases/download/v0.25.0/tinygo_0.25.0_amd64.deb
-          sudo dpkg -i tinygo_0.25.0_amd64.deb
-          rm tinygo_0.25.0_amd64.deb
+          wget https://github.com/tinygo-org/tinygo/releases/download/v0.27.0/tinygo_0.27.0_amd64.deb
+          sudo dpkg -i tinygo_0.27.0_amd64.deb
+          rm tinygo_0.27.0_amd64.deb
 
       - name: Build
         run: |

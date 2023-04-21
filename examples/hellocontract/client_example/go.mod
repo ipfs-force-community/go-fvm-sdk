@@ -1,6 +1,6 @@
 module client_example
 
-go 1.18
+go 1.20
 
 replace (
 	github.com/ipfs-force-community/go-fvm-sdk => ../../../
