@@ -19,14 +19,10 @@ pub fn apply_patch(_: &PatchConfig) -> Result<()> {
     println!("{envs:?}");
 
     let mut go_patch_map: HashMap<String, String> = HashMap::new();
-    go_patch_map.insert("1.16.x".to_string(), "go_v1.16.x.patch".to_string());
-    go_patch_map.insert("1.17.x".to_string(), "go_v1.17.x.patch".to_string());
-    go_patch_map.insert("1.18.x".to_string(), "go_v1.18.x.patch".to_string());
-    go_patch_map.insert("1.19".to_string(), "go_v1.19.patch".to_string());
+    go_patch_map.insert("1.20.x".to_string(), "go_v1.20.x.patch".to_string());
 
     let mut tinygo_patch_map: HashMap<String, String> = HashMap::new();
-    tinygo_patch_map.insert("0.24.x".to_string(), "tinygo_v0.24.x.patch".to_string());
-    tinygo_patch_map.insert("0.25.x".to_string(), "tinygo_v0.25.x.patch".to_string());
+    tinygo_patch_map.insert("0.27.x".to_string(), "tinygo_v0.25.x.patch".to_string());
 
     let version_str = utils::get_tinygo_version()?;
     let re = Regex::new(r"\d+\.\d+(\.\d+)?").unwrap();

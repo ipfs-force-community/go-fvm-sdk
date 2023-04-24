@@ -20,6 +20,7 @@ func main() {
 		types.ReplicaUpdateInfo{},
 		types.InstallParams{},
 		types.Entry{},
+		types.Receipt{},
 		types.InstallReturn{}); err != nil {
 		log.Fatalf("gen for ../types: %s", err)
 	}

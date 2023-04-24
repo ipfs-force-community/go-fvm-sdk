@@ -1,0 +1,28 @@
+{
+  "accounts": [
+    {
+      "priv_key": "6c3b9aa767f785b537c0d8ba5fa54677e6a6e281320dfbb27c889b8fa460670f",
+      "address": "f1m674sjwmga36qi3wkowt3wozwpahrkdlvd4tpci",
+      "balance": 10000
+    },
+    {
+      "priv_key": "b10da48cea4c09676b8e0efcd806941465060736032bb898420d0863dca72538",
+      "address": "f1dwyrbh74hr5nwqv2gjedjyvgphxxkffxug4rkkq",
+      "balance": 10000
+    },
+    {
+      "priv_key": "c51b8a31c98b9fe13065b485c9f8658c194c430843570ccac2720a3b30b47adb",
+      "address": "f15o3zaqettjmmarblwzjr66lwddsi6rbtxjwzngq",
+      "balance": 10000
+    }
+  ],
+  "contracts":[
+    {
+      "name": "wallet",
+      "binary": "wallet.wasm",
+      "owner_account": 0,
+      "constructor": "",
+      "cases": []
+    }
+  ]
+}

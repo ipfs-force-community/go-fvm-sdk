@@ -1,6 +1,6 @@
 module github.com/ipfs-force-community/go-fvm-sdk
 
-go 1.18
+go 1.20
 
 require (
 	github.com/filecoin-project/go-address v0.0.6

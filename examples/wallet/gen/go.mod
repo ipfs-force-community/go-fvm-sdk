@@ -3,14 +3,14 @@ module gen
 go 1.20
 
 require (
-	frc46token v0.0.0-00010101000000-000000000000
 	github.com/ipfs-force-community/go-fvm-sdk/gen v0.0.0-00010101000000-000000000000
+	wallet v0.0.0-00010101000000-000000000000
 )
 
 replace (
-	frc46token => ../
 	github.com/ipfs-force-community/go-fvm-sdk => ../../..
 	github.com/ipfs-force-community/go-fvm-sdk/gen => ../../../gen
+	wallet => ../
 )
 
 require (

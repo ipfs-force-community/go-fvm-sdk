@@ -1,6 +1,6 @@
 module github.com/ipfs-force-community/go-fvm-sdk/gen
 
-go 1.18
+go 1.20
 
 require (
 	github.com/filecoin-project/go-state-types v0.9.9

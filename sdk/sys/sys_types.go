@@ -6,12 +6,21 @@ import (
 	"fmt"
 	"math/bits"
 
+	"github.com/ipfs-force-community/go-fvm-sdk/sdk/types"
+
 	"github.com/filecoin-project/go-state-types/abi"
 
 	stdBig "math/big"
 
 	"github.com/filecoin-project/go-state-types/big"
 )
+
+type sendResult struct {
+	ExitCode    uint32
+	ReturnID    types.BlockID
+	ReturnCodec uint64
+	ReturnSize  uint32
+}
 
 type networkContext_ struct {
 	// The current epoch.

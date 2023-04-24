@@ -20,6 +20,10 @@ code-gen:
 	cd ./examples/erc20 && fvm_go_sdk build
 	cd ./examples/frc46token/gen && go run main.go
 	cd ./examples/frc46token && fvm_go_sdk build
+	cd ./examples/wallet/gen && go run main.go
+	cd ./examples/wallet && fvm_go_sdk build
+	cd ./examples/queuecall/gen && go run main.go
+	cd ./examples/queuecall && fvm_go_sdk build
 
 clean:
 	rm -rf ./bin/*
@@ -36,6 +40,7 @@ test: build code-gen
 	cd ./examples/frc46token && fvm_go_sdk test
 	cd ./examples/frc46token/contract && go test --tags simulate
 	cd ./examples/hellocontract/contract && go test --tags simulate
-
+	cd ./examples/queuecall/contract && go test --tags simulate
+	cd ./examples/wallet/contract && go test --tags simulate
 
 check: code-gen lint build-client-example test
